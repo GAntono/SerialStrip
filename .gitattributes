@@ -4,7 +4,7 @@
 *.pex binary
 
 # Custom for Visual Studio
-*.psx     diff=papyrus
+*.psc     diff=papyrus
 
 # Standard to msysgit
 *.doc	 diff=astextplain
