@@ -157,7 +157,6 @@ running 2 loops if not needed. Is this correct or should I check with an OR clau
 EndFunction
 
 	
-	
 	;/do a loop into a loop. first loop run through all the slots, second loop through the keywords to check.
 	remove items with the keywords we want, then re-check which slots have been left and if they are one of the 4 slots we want, unequip/;
 
@@ -244,32 +243,3 @@ Event UnDressKey()
 ;and on StageEnd remove the clothing part
 EndEvent
 ;/
-
-0. SexLab.Strip.Undress.WeaponsAndShields[]
-1. SexLab.Strip.UndressList.Gloves[]
-2. SexLab.Strip.UndressList.Helmet[]
-3. SexLab.Strip.UndressList.Boots[]
-4. SexLab.Strip.UndressList.Armor[]
-5. SexLab.Strip.UndressList.Pants[]
-
-Summary:    First build a complete new array of slots which can be undressed
-        Second loop through 
-
-A. if weapon drawn, holster
-B. unequip shields and weapons
-C. Clear all SexLab.Strip arrays
-
-Function SlotsToStrip(Actor ActorRef, Form[] ExclusionArray)
-
-0. int i = 1
-1. Loop through all possible slots (int AmountOfSlots = 31)
-2. Check for NoStrip (inStr)
-2.1 if NoStrip = true goto 1
-2.2 Check for optional array if it should be unstripped or not
-2.2.1 if no modder selection → Check MCM User Configuration
-3. i + until i = AmountOfSlots ;we know which slot we’re at
-3.1 Check if directly supported Slot (hardcoded if)
-3.1.1 if known slot → save in appropriate array (armor to StorageUtil.Strip.Armor)
-3.1.2 if not known slot → check for supported Keywords (array with KeyW f.e., hardcoded)
-3.1.3 if Keyword known (armor f.e.) → save in appropriate array (armor to StorageUtil.Strip.Armor)
-4. call strip function
