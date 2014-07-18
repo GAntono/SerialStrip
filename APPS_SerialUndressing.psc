@@ -1,47 +1,30 @@
 ScriptName APPS_SerialUndressing Extends ReferenceAlias
 {serial undressing: press a button once to remove one garment, keep it depressed to remove all}
 
-String[] Property APPS_DefaultKeywordsToCheck Auto
-;Array holding the default keywords to check for stripping
-Bool[] Property APPS_DefaultSlotsToCheck Auto
-;Array holding the default slots to check for stripping
-String[] Property APPS_NoStripKeywords Auto
-;Array holding the default keywords for stripping exception
-
-Form[] Function SlotsToStrip(Actor ActorRef, String[] KeywordsToCheck, Bool[] SlotsToCheck = None, String[] NoStripKeywords = None, Form[] ExceptionArray)
-;/analyses given SlotsToCheck array to decide which slots are allowed to be stripped for ActorRef, returns allowed slots as Form array
-ActorRef: actor to check for stripping
-KeywordsToCheck: an array of keywords to check for. If the item has them, remove them.
-SlotsToCheck: an array of slots to look at. If an item is in these slots, remove them.
-NoStripKeywords: if an item has one of these keywords, make an exception and don't strip.
+Function PrepareForStripping(Actor ActorRef, Form[] ExceptionArray)
+;/analyses items worn by ActorRef and puts them in 6 arrays for the actual
+stripping function to use.
+ActorRef: actor to prepare
+ExceptionArray: forms passed within this array will NOT be stripped
 /;
 
 	If (ActorRef == none)
 	;validation
 		return none
-	ElseIf (SlotsToCheck != none && SlotsToCheck.Length !=33)
-		return none
 	EndIf
 	
-	If (KeywordsToCheck == None)
-	;if the function is not told what keywords to check for	
-		KeywordsToCheck = APPS_DefaultKeywordsToCheck
-		;just proceed to check for the default keywords for APPS		
-	EndIf
+	;CREATING A LOOP
+	Int i = 31
+	;sets i for 31 (the total number of slots)
+	
+	While i >= 1
+	;run this loop up to and including the first slot
+	
+		Form ItemRef = ActorRef.GetWornForm(Armor.GetMaskForSlot(i + 30)
+		;fetch the item worn in this slot and load it in the ItemRef variable
 	
 	
-	If (SlotsToCheck == None)
-	;if the function is not told what slots to check		
-		SlotsToCheck = APPS_DefaultSlotsToCheck
-		;just proceed to check the default slots for APPS		
-	EndIf
-	
-	If (NoStripKeywords == None)
-	;if the function is not given exception keywords	
-		NoStripKeywords = APPS_NoStripKeywords
-		;just proceed with the default exception keywords for APPS		
-	EndIf
-	
+	;/
 	Form[] ToStrip = new Form[34]
 	;declares a 34 item long array to hold the items to be stripped
 	
@@ -106,7 +89,7 @@ NoStripKeywords: if an item has one of these keywords, make an exception and don
 	
 	return ToStrip
 EndFunction
-			
+/;
 	
 Bool Function bItemHasKeyword(Form ItemRef, String[] Keywords)
 ;checks whether ItemRef has any of the keywords stored in the Keywords array
@@ -259,7 +242,7 @@ A. if weapon drawn, holster
 B. unequip shields and weapons
 C. Clear all SexLab.Strip arrays
 
-Function SlotsToStrip(Actor ActorRef, Form[] ExclusionArray)
+Function SlotsToStrip(Actor ActorRef, Form[] ExceptionArray)
 
 0. int i = 1
 1. Loop through all possible slots (int AmountOfSlots = 31)
