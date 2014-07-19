@@ -1,6 +1,9 @@
 ScriptName APPS_SerialUndressing Extends ReferenceAlias
 {serial undressing: press a button once to remove one garment, keep it depressed to remove all}
 
+SexLabFramework Property SexLab Auto
+;points to the SexLab Framework script so we can use its functions
+
 Function PrepareForStripping(Actor ActorRef, Form[] ExceptionArray)
 ;/analyses items worn by ActorRef and puts them in 6 arrays for the actual
 stripping function to use.
@@ -13,9 +16,11 @@ ExceptionArray: forms passed within this array will NOT be stripped
 		return none
 	EndIf
 	
-	;CREATING A LOOP
-	Int i = 31
-	;sets i for 31 (the total number of slots)
+	;ARMOR
+	
+	;CREATING A LOOP to check all the item slots (backwards)
+	Int i = 32
+	;sets i for 32 (the total number of slots)
 	
 	While i >= 1
 	;run this loop up to and including the first slot
@@ -23,6 +28,148 @@ ExceptionArray: forms passed within this array will NOT be stripped
 		Form ItemRef = ActorRef.GetWornForm(Armor.GetMaskForSlot(i + 30)
 		;fetch the item worn in this slot and load it in the ItemRef variable
 	
+		If (SexLab.IsStrippable(ItemRef) == true)
+		;if this item is strippable according to SexLab
+		
+			If (ExceptionArray.Find(ItemRef) == -1)
+			;if this item is not found in the exception array
+				
+				If (i + 30 == 31)
+				;if this is the hair slot (checking for helmets)
+				
+					StorageUtil.FormListAdd(ActorRef, "APPS.SerialUndressList.Helmet", ItemRef, allowDuplicate = false)
+					;adds this item to the helmet undress list
+					
+				ElseIf (i + 30 == 32)
+				;if this is the body slot
+				
+					StorageUtil.FormListAdd(ActorRef, "APPS.SerialUndressList.Body", ItemRef, allowDuplicate = false)
+					;adds this item to the body undress list
+				
+				ElseIf (i + 30 == 33)
+				;if this is the hands slot
+				
+					StorageUtil.FormListAdd(ActorRef, "APPS.SerialUndressList.Hands", ItemRef, allowDuplicate = false)
+					;adds this item to the hands undress list
+				
+				ElseIf (i + 30 == 37)
+				;if this is the feet slot
+					
+					StorageUtil.FormListAdd(ActorRef, "APPS.SerialUndressList.Feet", ItemRef, allowDuplicate = false)
+					;adds this item to the feet undress list
+					
+				ElseIf (i + 30 == 52)
+				;if this is the underwear slot
+				
+					StorageUtil.FormListAdd(ActorRef, "APPS.SerialUndressList.Underwear", ItemRef, allowDuplicate = false)
+					;adds this item to the underwear undress list
+					
+				Else
+				
+					If (bItemHasKeyword(ItemRef, HelmetKeywords))
+					;if this item has any of the helmet keywords
+					
+						StorageUtil.FormListAdd(ActorRef, "APPS.SerialUndressList.Helmet", ItemRef, allowDuplicate = false)
+						;adds this item to the helmet undress list
+					
+					ElseIf (bItemHasKeyword(ItemRef, BodyKeywords))
+					;if this item has any of the body keywords
+					
+						StorageUtil.FormListAdd(ActorRef, "APPS.SerialUndressList.Body", ItemRef, allowDuplicate = false)
+						;adds this item to the body undress list
+					
+					ElseIf (bItemHasKeyword(ItemRef, HandsKeywords))
+					;if this item has any of the hands keywords
+					
+						StorageUtil.FormListAdd(ActorRef, "APPS.SerialUndressList.Hands", ItemRef, allowDuplicate = false)
+						;adds this item to the hands undress list
+					
+					ElseIf (bItemHasKeyword(ItemRef, FeetKeywords))
+					;if this item has any of the feet keywords
+					
+						StorageUtil.FormListAdd(ActorRef, "APPS.SerialUndressList.Feet", ItemRef, allowDuplicate = false)
+						;adds this item to the feet undress list
+					
+					ElseIf (bItemHasKeyword(ItemRef, UnderwearKeywords))
+					;if this item has any of the underwear keywords
+					
+						StorageUtil.FormListAdd(ActorRef, "APPS.SerialUndressList.Underwear", ItemRef, allowDuplicate = false)
+						;adds this item to the underwear undress list
+						
+					EndIf
+				EndIf
+			EndIf
+		EndIf
+		i -= 1
+		;moves the loop to check the next slot (backwards)
+	EndWhile
+	
+	;WEAPONS AND SHIELDS
+	
+	Form ItemRef = ActorRef.GetEquippedWeapon(false)
+	;fetches right-hand weapon and puts it in ItemRef
+	
+		If (SexLab.IsStrippable(ItemRef) == true && ExceptionArray.Find(ItemRef) == -1)
+		;if this item is strippable according to SexLab and is not found in the exception array
+		
+			StorageUtil.FormListAdd(ActorRef, "APPS.SerialUndressList.WeaponsAndShields", ItemRef, allowDuplicate = false)
+			;adds this item to the WeaponsAndShields undress list
+			
+		EndIf
+		
+	Form ItemRef = ActorRef.GetEquippedWeapon(true)
+	;fetches left-hand weapon and puts it in ItemRef
+	
+		If (SexLab.IsStrippable(ItemRef) == true && ExceptionArray.Find(ItemRef) == -1)
+		;if this item is strippable according to SexLab and is not found in the exception array
+		
+			StorageUtil.FormListAdd(ActorRef, "APPS.SerialUndressList.WeaponsAndShields", ItemRef, allowDuplicate = false)
+			;adds this item to the WeaponsAndShields undress list
+			
+		EndIf
+		
+	Form ItemRef = ActorRef.GetEquippedShield()
+	;fetches shield and puts it in ItemRef
+	
+		If (SexLab.IsStrippable(ItemRef) == true && ExceptionArray.Find(ItemRef) == -1)
+		;if this item is strippable according to SexLab and is not found in the exception array
+		
+			StorageUtil.FormListAdd(ActorRef, "APPS.SerialUndressList.WeaponsAndShields", ItemRef, allowDuplicate = false)
+			;adds this item to the WeaponsAndShields undress list
+			
+		EndIf
+EndFunction
+
+Bool Function bItemHasKeyword(Form ItemRef, String[] Keywords)
+;checks whether ItemRef has any of the keywords stored in the Keywords array
+
+	If (ItemRef == none || Keywords == none)
+	;validation
+		return false
+	EndIf
+
+	;CREATING A LOOP to run through all of the item's keywords (backwards)
+	Int i = ItemRef.GetNumKeywords()
+	;fetches the number of keywords this item has and stores it in i				
+	
+	While (i > 0)
+	;run this loop up to and including first keyword				
+		Keyword KeywordRef = ItemRef.GetNthKeyword(i)
+		;the actual keyword this loop is looking at with each pass
+		If (Keywords.Find(KeywordRef.GetString()) >= 0)
+		;if this actual keyword exists in the Keywords array
+			Return True		
+		EndIf
+		
+		i -= 1		
+		;go to the next item in the loop (backwards)
+		
+	EndWhile
+	
+	Return False
+EndFunction
+			
+				
 	
 	;/
 	Form[] ToStrip = new Form[34]
@@ -91,34 +238,7 @@ ExceptionArray: forms passed within this array will NOT be stripped
 EndFunction
 /;
 	
-Bool Function bItemHasKeyword(Form ItemRef, String[] Keywords)
-;checks whether ItemRef has any of the keywords stored in the Keywords array
 
-	If (ItemRef == none || Keywords == none)
-	;validation
-		return false
-	EndIf
-
-	;CREATING A LOOP to run through all of the item's keywords (backwards)
-	Int i = ItemRef.GetNumKeywords()
-	;fetches the number of keywords this item has and stores it in i				
-	
-	While (i > 0)
-	;run this loop up to and including first keyword				
-		Keyword KeywordRef = ItemRef.GetNthKeyword(i)
-		;the actual keyword this loop is looking at with each pass
-		If (Keywords.Find(KeywordRef.GetString()) >= 0)
-		;if this actual keyword exists in the Keywords array
-			Return True		
-		EndIf
-		
-		i -= 1		
-		;go to the next item in the loop (backwards)
-		
-	EndWhile
-	
-	Return False
-EndFunction
 
 Bool Function IsStrippableEnhanced(Form ItemRef, String[] NoStripKeywords)
 ;checks the item with SexLab's IsStrippable(), then checks again for NoStripKeywords
