@@ -7,13 +7,14 @@ SexLabFramework Property SexLab Auto
 sslSystemConfig Property SexLabSystemConfig Auto
 ;points to the SexLab's sslSystemConfig.psc script so we can use its functions
 
-Function PrepareForStripping(Actor akActorRef, String asExceptionListKey, Form[] afExceptionList, Bool[] abSlotOverrideList = True)
-;/analyses items worn by ActorRef and puts them in 6 arrays for the actual
-stripping function to use.
+Bool[] Function PrepareForStripping(Actor akActorRef, String asExceptionListKey, Form[] afExceptionList, Bool[] abSlotOverrideList = True)
+;/analyses items worn by ActorRef and puts them into 7 arrays for the actual
+	stripping function to use.
 ActorRef: actor to prepare
 afExceptionList: forms passed within this array will NOT be stripped
 abSlotOverrideList: a 33-item-long array which defaults to false. Set any item [i] to true to override the user configuration
 	for slot i+30 and force-strip it.
+Returns a bool array whose 7 items indicate whether to strip from the 7 arrays or not
 /;
 
 	If (akActorRef == none)
@@ -21,10 +22,23 @@ abSlotOverrideList: a 33-item-long array which defaults to false. Set any item [
 		return none
 	EndIf
 	
+	Bool[] IsActiveStripArray = new Bool[7]
+	;/Informs the stripping function on whether to strip a group of items or not.
+	This is the result of the function.
+	IsActiveStripArray[0] WeaponsAndShields
+	IsActiveStripArray[1] Hands
+	IsActiveStripArray[2] Helmet
+	IsActiveStripArray[3] Feet
+	IsActiveStripArray[4] Body
+	IsActiveStripArray[5] Underwear
+	IsActiveStripArray[6] Other
+	/;
+	
 	Int Gender = SexLab.GetGender(akActorRef)
 	;fetches the gender of the actor
 	
 	Bool[] UserConfigSlots = new Bool[33]
+	;declares an array to hold the user's configuration
 	
 	If Gender = 0
 	;if the actor is male
@@ -42,7 +56,7 @@ abSlotOverrideList: a 33-item-long array which defaults to false. Set any item [
 	
 	;ARMOR
 	
-	;CREATING A LOOP to check all the item slots (backwards)
+	;CREATING A LOOP to check all the item slots (forwards)
 	Int i
 	;sets i to zero
 	
@@ -51,133 +65,151 @@ abSlotOverrideList: a 33-item-long array which defaults to false. Set any item [
 	
 		Form ItemRef = akActorRef.GetWornForm(Armor.GetMaskForSlot(i + 30))
 		;fetch the item worn in this slot and load it in the ItemRef variable
+		
+		If ((StorageUtil.FormListFind(None, asExceptionListKey, ItemRef) As Form) == -1)
+		;if the item is not found in the exception array
+		
+			If (i + 30 == 31) || (ItemHasKeyword(ItemRef, HelmetKeywords)
+			;if this item is in the hair slot OR has any of the helmet keywords
+			
+				StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Helmet", ItemRef, allowDuplicate = false)
+				;adds this item to the helmet undress list
+				
+			ElseIf (i + 30 == 32) || (ItemHasKeyword(ItemRef, BodyKeywords)
+			;if this item is in the body slot OR has any of the body keywords
+			
+				StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Body", ItemRef, allowDuplicate = false)
+				;adds this item to the body undress list
+				
+			ElseIf (i + 30 == 33) || (ItemHasKeyword(ItemRef, HandsKeywords)
+			;if this item is in the hands slot OR has any of the hands keywords
+			
+				StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Hands", ItemRef, allowDuplicate = false)
+				;adds this item to the hands undress list
+			
+			ElseIf (i + 30 == 37) || (ItemHasKeyword(ItemRef, FeetKeywords)
+			;if this item is in the feet slot OR has any of the feet keywords
+			
+				StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Feet", ItemRef, allowDuplicate = false)
+				;adds this item to the feet undress list
+			
+			ElseIf (i + 30 == 52) || (ItemHasKeyword(ItemRef, UnderwearKeywords)
+			;if this item is in the underwear slot OR has any of the underwear keywords
+			
+				StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Underwear", ItemRef, allowDuplicate = false)
+				;adds this item to the underwear undress list
+			
+			EndIf		
 	
-		If (SexLab.IsStrippable(ItemRef) == true)
-		;if this item is strippable according to SexLab
-	
-			If ((StorageUtil.FormListFind(None, asExceptionListKey, ItemRef) As Form) == -1)
-			;if this item is not found in the exception array
+			If (SexLab.IsStrippable(ItemRef) == true)
+			;if this item is strippable according to SexLab	
+			
+				If (IsValidSlot(i, UserConfigSlots, abSlotOverrideList))
+				;if either the modder or the user have configured this slot to be strippable
 				
-				If (i + 30 == 32 && IsValidSlot(i, UserConfigSlots, abSlotOverrideList))
-				;if this is the hair slot (checking for helmets)
-				;and both the modder and the user has configured this slot to be strippable
+					If ((i + 30 == 31) || StorageUtil.FormListFind(akActorRef, "APPS.SerialUndressList.Helmet", ItemRef) != -1)
+					;if this is the hair slot (checking for helmets) OR we already know the item has one of the helmet keywords				
+					
+						IsActiveStripArray[2] = true
+						;activate the helmet stripping array
 				
-					StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Helmet", ItemRef, allowDuplicate = false)
-					;adds this item to the helmet undress list
+					ElseIf ((i + 30 == 32) || StorageUtil.FormListFind(akActorRef, "APPS.SerialUndressList.Body", ItemRef) != -1)
+					;if this is the body slot OR we already know the item has one of the body keywords
 					
-				ElseIf (i + 30 == 32 && IsValidSlot(i, UserConfigSlots, abSlotOverrideList))
-				;if this is the body slot
-				;and both the modder and the user has configured this slot to be strippable
-				
-					StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Body", ItemRef, allowDuplicate = false)
-					;adds this item to the body undress list
-				
-				ElseIf (i + 30 == 33) && IsValidSlot(i, UserConfigSlots, abSlotOverrideList))
-				;if this is the hands slot
-				;and both the modder and the user has configured this slot to be strippable
-				
-					StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Hands", ItemRef, allowDuplicate = false)
-					;adds this item to the hands undress list
-				
-				ElseIf (i + 30 == 37) && IsValidSlot(i, UserConfigSlots, abSlotOverrideList))
-				;if this is the feet slot
-				;and both the modder and the user has configured this slot to be strippable
+						IsActiveStripArray[4] = true
+						;activate the body stripping array
 					
-					StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Feet", ItemRef, allowDuplicate = false)
-					;adds this item to the feet undress list
+					ElseIf ((i + 30 == 33) || StorageUtil.FormListFind(akActorRef, "APPS.SerialUndressList.Hands", ItemRef) != -1)
+					;if this is the hands slot OR we already know the item has one of the hands keywords
 					
-				ElseIf (i + 30 == 52) && IsValidSlot(i, UserConfigSlots, abSlotOverrideList))
-				;if this is the underwear slot
-				;and both the modder and the user has configured this slot to be strippable
-				
-					StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Underwear", ItemRef, allowDuplicate = false)
-					;adds this item to the underwear undress list
+						IsActiveStripArray[1] = true
+						;activate the hands stripping array
 					
-				Else
-				
-					If (ItemHasKeyword(ItemRef, HelmetKeywords)) && IsValidSlot(i, UserConfigSlots, abSlotOverrideList))
-					;if this item has any of the helmet keywords
-					;and both the modder and the user has configured this slot to be strippable
-					
-						StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Helmet", ItemRef, allowDuplicate = false)
-						;adds this item to the helmet undress list
-					
-					ElseIf (ItemHasKeyword(ItemRef, BodyKeywords)) && IsValidSlot(i, UserConfigSlots, abSlotOverrideList))
-					;if this item has any of the body keywords
-					;and both the modder and the user has configured this slot to be strippable
-					
-						StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Body", ItemRef, allowDuplicate = false)
-						;adds this item to the body undress list
-					
-					ElseIf (ItemHasKeyword(ItemRef, HandsKeywords)) && IsValidSlot(i, UserConfigSlots, abSlotOverrideList))
-					;if this item has any of the hands keywords
-					;and both the modder and the user has configured this slot to be strippable
-					
-						StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Hands", ItemRef, allowDuplicate = false)
-						;adds this item to the hands undress list
-					
-					ElseIf (ItemHasKeyword(ItemRef, FeetKeywords)) && IsValidSlot(i, UserConfigSlots, abSlotOverrideList))
-					;if this item has any of the feet keywords
-					;and both the modder and the user has configured this slot to be strippable
-					
-						StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Feet", ItemRef, allowDuplicate = false)
-						;adds this item to the feet undress list
-					
-					ElseIf (ItemHasKeyword(ItemRef, UnderwearKeywords)) && IsValidSlot(i, UserConfigSlots, abSlotOverrideList))
-					;if this item has any of the underwear keywords
-					;and both the modder and the user has configured this slot to be strippable
-					
-						StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Underwear", ItemRef, allowDuplicate = false)
-						;adds this item to the underwear undress list
+					ElseIf ((i + 30 == 37) || StorageUtil.FormListFind(akActorRef, "APPS.SerialUndressList.Feet", ItemRef) != -1)
+					;if this is the feet slot OR we already know the item has one of the feet keywords
 						
-					ElseIf (IsValidSlot(i, UserConfigSlots, abSlotOverrideList
+						IsActiveStripArray[3] = true
+						;activate the feet stripping array
+						
+					ElseIf ((i + 30 == 52) || StorageUtil.FormListFind(akActorRef, "APPS.SerialUndressList.Underwear", ItemRef) != -1)
+					;if this is the underwear slot OR we already know the item has one of the underwear keywords
+					
+						IsActiveStripArray[5] = true
+						;activate the underwear stripping array
+					
+					Else					
 						
 						StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Other", ItemRef, allowDuplicate = false)
 						;adds this item to the "other" undress list
+
+						IsActiveStripArray[6] = true
+						;activate the "other" stripping array
 						
 					EndIf
 				EndIf
 			EndIf
 		EndIf
 		i += 1
-		;moves the loop to check the next slot (backwards)
+		;moves the loop to check the next slot (forwards)
 	EndWhile
 	
 	;WEAPONS AND SHIELDS
 	;In SexLab's StripFemale and StripMale arrays, this is item 32
+	;weapons and shields employ a more economical logic
 	
 	Form ItemRef = akActorRef.GetEquippedWeapon(false)
 	;fetches right-hand weapon and puts it in ItemRef
 	
-		If (SexLab.IsStrippable(ItemRef) == true && afExceptionList.Find(ItemRef) == -1)
+	If ((StorageUtil.FormListFind(None, asExceptionListKey, ItemRef) As Form) == -1)
+	;if the item is not found in the exception array
+
+		If (SexLab.IsStrippable(ItemRef) == true && IsValidSlot(i, UserConfigSlots, abSlotOverrideList)
 		;if this item is strippable according to SexLab and is not found in the exception array
 		
 			StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.WeaponsAndShields", ItemRef, allowDuplicate = false)
 			;adds this item to the WeaponsAndShields undress list
 			
+			IsActiveStripArray[0] = true
+			
 		EndIf
+	EndIf
 		
 	Form ItemRef = akActorRef.GetEquippedWeapon(true)
 	;fetches left-hand weapon and puts it in ItemRef
 	
-		If (SexLab.IsStrippable(ItemRef) == true && afExceptionList.Find(ItemRef) == -1)
+	If ((StorageUtil.FormListFind(None, asExceptionListKey, ItemRef) As Form) == -1)
+	;if the item is not found in the exception array
+
+		If (SexLab.IsStrippable(ItemRef) == true && IsValidSlot(i, UserConfigSlots, abSlotOverrideList)
 		;if this item is strippable according to SexLab and is not found in the exception array
 		
 			StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.WeaponsAndShields", ItemRef, allowDuplicate = false)
 			;adds this item to the WeaponsAndShields undress list
 			
+			IsActiveStripArray[0] = true
+			
 		EndIf
+	EndIf
 		
 	Form ItemRef = akActorRef.GetEquippedShield()
 	;fetches shield and puts it in ItemRef
 	
-		If (SexLab.IsStrippable(ItemRef) == true && afExceptionList.Find(ItemRef) == -1)
+	If ((StorageUtil.FormListFind(None, asExceptionListKey, ItemRef) As Form) == -1)
+	;if the item is not found in the exception array
+
+		If (SexLab.IsStrippable(ItemRef) == true && IsValidSlot(i, UserConfigSlots, abSlotOverrideList)
 		;if this item is strippable according to SexLab and is not found in the exception array
 		
 			StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.WeaponsAndShields", ItemRef, allowDuplicate = false)
 			;adds this item to the WeaponsAndShields undress list
 			
+			IsActiveStripArray[0] = true
+			
 		EndIf
+	EndIf
+	
+	Return IsActiveStripArray
+	
 EndFunction
 
 Bool Function ItemHasKeyword(Form akItemRef, String[] asKeywords)
@@ -210,7 +242,7 @@ Bool Function ItemHasKeyword(Form akItemRef, String[] asKeywords)
 EndFunction
 
 Bool Function IsValidSlot(int aiSlot, Bool[] abIsUserConfigStrippable, Bool[] abIsSlotOverride)
-;returns true if both the user and the modder have designated this slot as strippable
+;returns true if either the modder or the user have designated this slot as strippable
 
 	If (abIsSlotOverride[aiSlot])
 	;if the modder has overridden this slot to strippable
