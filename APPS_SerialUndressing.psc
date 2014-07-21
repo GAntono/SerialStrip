@@ -215,11 +215,6 @@ Returns a bool array whose 7 items indicate whether to strip from the 7 arrays o
 	
 EndFunction
 
-Function SerialStrip(Actor akActorRef, Bool[] IsGroupStrippable)
-
-	If akActorRef == none 
-	;validation
-
 Bool Function ItemHasKeyword(Form akItemRef, String[] asKeywords)
 ;checks whether ItemRef has any of the keywords stored in the Keywords array
 
