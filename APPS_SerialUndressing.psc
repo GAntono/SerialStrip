@@ -69,31 +69,31 @@ Returns a bool array whose 7 items indicate whether to strip from the 7 arrays o
 		If ((StorageUtil.FormListFind(None, asExceptionListKey, ItemRef) As Form) == -1)
 		;if the item is not found in the exception array
 		
-			If (i + 30 == 31) || (ItemHasKeyword(ItemRef, HelmetKeywords)
+			If (i + 30 == 31) || (ItemHasKeyword(ItemRef, HelmetKeywords))
 			;if this item is in the hair slot OR has any of the helmet keywords
 			
 				StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Helmet", ItemRef, allowDuplicate = false)
 				;adds this item to the helmet undress list
 				
-			ElseIf (i + 30 == 32) || (ItemHasKeyword(ItemRef, BodyKeywords)
+			ElseIf (i + 30 == 32) || (ItemHasKeyword(ItemRef, BodyKeywords))
 			;if this item is in the body slot OR has any of the body keywords
 			
 				StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Body", ItemRef, allowDuplicate = false)
 				;adds this item to the body undress list
 				
-			ElseIf (i + 30 == 33) || (ItemHasKeyword(ItemRef, HandsKeywords)
+			ElseIf (i + 30 == 33) || (ItemHasKeyword(ItemRef, HandsKeywords))
 			;if this item is in the hands slot OR has any of the hands keywords
 			
 				StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Hands", ItemRef, allowDuplicate = false)
 				;adds this item to the hands undress list
 			
-			ElseIf (i + 30 == 37) || (ItemHasKeyword(ItemRef, FeetKeywords)
+			ElseIf (i + 30 == 37) || (ItemHasKeyword(ItemRef, FeetKeywords))
 			;if this item is in the feet slot OR has any of the feet keywords
 			
 				StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Feet", ItemRef, allowDuplicate = false)
 				;adds this item to the feet undress list
 			
-			ElseIf (i + 30 == 52) || (ItemHasKeyword(ItemRef, UnderwearKeywords)
+			ElseIf (i + 30 == 52) || (ItemHasKeyword(ItemRef, UnderwearKeywords))
 			;if this item is in the underwear slot OR has any of the underwear keywords
 			
 				StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Underwear", ItemRef, allowDuplicate = false)
@@ -219,23 +219,23 @@ Bool Function ItemHasKeyword(Form akItemRef, String[] asKeywords)
 	;validation
 		return false
 	EndIf
-
-	;CREATING A LOOP to run through all of the item's keywords (backwards)
-	Int i = ItemRef.GetNumKeywords()
-	;fetches the number of keywords this item has and stores it in i				
 	
-	While (i > 0)
-	;run this loop up to and including first keyword				
-		Keyword KeywordRef = ItemRef.GetNthKeyword(i)
-		;the actual keyword this loop is looking at with each pass
-		If (Keywords.Find(KeywordRef.GetString()) >= 0)
-		;if this actual keyword exists in the Keywords array
-			Return True		
+	Int i = asKeywords.Length - 1
+	;sets i to the length of the asKeywords array (-1 because arrays are zero based while length's result is 1-based)
+
+	While (i >= 0)
+	;runs this loop up to and including the first item (backwards)
+	
+		String KeywordRef = asKeywords[i]
+		;fetch the keyword in this position in the array
+		
+		If SexLabUtil.HasKeywordSub(akItemRef, KeywordRef)
+		;if the item has this keyword
+			return true			
 		EndIf
 		
-		i -= 1		
-		;go to the next item in the loop (backwards)
-		
+	i -= 1		
+	;go to the next item in the loop (backwards)		
 	EndWhile
 	
 	Return False
