@@ -7,6 +7,9 @@ SexLabFramework Property SexLab Auto
 sslSystemConfig Property SexLabSystemConfig Auto
 ;points to the SexLab's sslSystemConfig.psc script so we can use its functions
 
+Int Property StripKeyCode Auto
+;the key that will be used to input stripping commands
+
 Bool[] Function PrepareForStripping(Actor akActorRef, String asExceptionListKey, Form[] afExceptionList, Bool[] abSlotOverrideList = True)
 ;/analyses items worn by ActorRef and puts them into 7 arrays for the actual
 	stripping function to use.
@@ -17,21 +20,21 @@ abSlotOverrideList: a 33-item-long array which defaults to false. Set any item [
 Returns a bool array whose 7 items indicate whether to strip from the 7 arrays or not
 /;
 
-	If (akActorRef == none)
+	If (akActorRef == none) || abSlotOverrideList.Length != 33
 	;validation
 		return none
 	EndIf
 	
-	Bool[] IsActiveStripArray = new Bool[7]
+	Bool[] GroupIsStrippable = new Bool[7]
 	;/Informs the stripping function on whether to strip a group of items or not.
 	This is the result of the function.
-	IsActiveStripArray[0] WeaponsAndShields
-	IsActiveStripArray[1] Hands
-	IsActiveStripArray[2] Helmet
-	IsActiveStripArray[3] Feet
-	IsActiveStripArray[4] Body
-	IsActiveStripArray[5] Underwear
-	IsActiveStripArray[6] Other
+	GroupIsStrippable[0] WeaponsAndShields
+	GroupIsStrippable[1] Hands
+	GroupIsStrippable[2] Helmet
+	GroupIsStrippable[3] Feet
+	GroupIsStrippable[4] Body
+	GroupIsStrippable[5] Underwear
+	GroupIsStrippable[6] Other
 	/;
 	
 	Int Gender = SexLab.GetGender(akActorRef)
@@ -69,31 +72,31 @@ Returns a bool array whose 7 items indicate whether to strip from the 7 arrays o
 		If ((StorageUtil.FormListFind(None, asExceptionListKey, ItemRef) As Form) == -1)
 		;if the item is not found in the exception array
 		
-			If (i + 30 == 31) || (ItemHasKeyword(ItemRef, HelmetKeywords)
+			If (i + 30 == 31) || (ItemHasKeyword(ItemRef, HelmetKeywords))
 			;if this item is in the hair slot OR has any of the helmet keywords
 			
 				StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Helmet", ItemRef, allowDuplicate = false)
 				;adds this item to the helmet undress list
 				
-			ElseIf (i + 30 == 32) || (ItemHasKeyword(ItemRef, BodyKeywords)
+			ElseIf (i + 30 == 32) || (ItemHasKeyword(ItemRef, BodyKeywords))
 			;if this item is in the body slot OR has any of the body keywords
 			
 				StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Body", ItemRef, allowDuplicate = false)
 				;adds this item to the body undress list
 				
-			ElseIf (i + 30 == 33) || (ItemHasKeyword(ItemRef, HandsKeywords)
+			ElseIf (i + 30 == 33) || (ItemHasKeyword(ItemRef, HandsKeywords))
 			;if this item is in the hands slot OR has any of the hands keywords
 			
 				StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Hands", ItemRef, allowDuplicate = false)
 				;adds this item to the hands undress list
 			
-			ElseIf (i + 30 == 37) || (ItemHasKeyword(ItemRef, FeetKeywords)
+			ElseIf (i + 30 == 37) || (ItemHasKeyword(ItemRef, FeetKeywords))
 			;if this item is in the feet slot OR has any of the feet keywords
 			
 				StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Feet", ItemRef, allowDuplicate = false)
 				;adds this item to the feet undress list
 			
-			ElseIf (i + 30 == 52) || (ItemHasKeyword(ItemRef, UnderwearKeywords)
+			ElseIf (i + 30 == 52) || (ItemHasKeyword(ItemRef, UnderwearKeywords))
 			;if this item is in the underwear slot OR has any of the underwear keywords
 			
 				StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Underwear", ItemRef, allowDuplicate = false)
@@ -110,31 +113,31 @@ Returns a bool array whose 7 items indicate whether to strip from the 7 arrays o
 					If ((i + 30 == 31) || StorageUtil.FormListFind(akActorRef, "APPS.SerialUndressList.Helmet", ItemRef) != -1)
 					;if this is the hair slot (checking for helmets) OR we already know the item has one of the helmet keywords				
 					
-						IsActiveStripArray[2] = true
+						GroupIsStrippable[2] = true
 						;activate the helmet stripping array
 				
 					ElseIf ((i + 30 == 32) || StorageUtil.FormListFind(akActorRef, "APPS.SerialUndressList.Body", ItemRef) != -1)
 					;if this is the body slot OR we already know the item has one of the body keywords
 					
-						IsActiveStripArray[4] = true
+						GroupIsStrippable[4] = true
 						;activate the body stripping array
 					
 					ElseIf ((i + 30 == 33) || StorageUtil.FormListFind(akActorRef, "APPS.SerialUndressList.Hands", ItemRef) != -1)
 					;if this is the hands slot OR we already know the item has one of the hands keywords
 					
-						IsActiveStripArray[1] = true
+						GroupIsStrippable[1] = true
 						;activate the hands stripping array
 					
 					ElseIf ((i + 30 == 37) || StorageUtil.FormListFind(akActorRef, "APPS.SerialUndressList.Feet", ItemRef) != -1)
 					;if this is the feet slot OR we already know the item has one of the feet keywords
 						
-						IsActiveStripArray[3] = true
+						GroupIsStrippable[3] = true
 						;activate the feet stripping array
 						
 					ElseIf ((i + 30 == 52) || StorageUtil.FormListFind(akActorRef, "APPS.SerialUndressList.Underwear", ItemRef) != -1)
 					;if this is the underwear slot OR we already know the item has one of the underwear keywords
 					
-						IsActiveStripArray[5] = true
+						GroupIsStrippable[5] = true
 						;activate the underwear stripping array
 					
 					Else					
@@ -142,7 +145,7 @@ Returns a bool array whose 7 items indicate whether to strip from the 7 arrays o
 						StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.Other", ItemRef, allowDuplicate = false)
 						;adds this item to the "other" undress list
 
-						IsActiveStripArray[6] = true
+						GroupIsStrippable[6] = true
 						;activate the "other" stripping array
 						
 					EndIf
@@ -169,7 +172,7 @@ Returns a bool array whose 7 items indicate whether to strip from the 7 arrays o
 			StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.WeaponsAndShields", ItemRef, allowDuplicate = false)
 			;adds this item to the WeaponsAndShields undress list
 			
-			IsActiveStripArray[0] = true
+			GroupIsStrippable[0] = true
 			
 		EndIf
 	EndIf
@@ -186,7 +189,7 @@ Returns a bool array whose 7 items indicate whether to strip from the 7 arrays o
 			StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.WeaponsAndShields", ItemRef, allowDuplicate = false)
 			;adds this item to the WeaponsAndShields undress list
 			
-			IsActiveStripArray[0] = true
+			GroupIsStrippable[0] = true
 			
 		EndIf
 	EndIf
@@ -203,12 +206,12 @@ Returns a bool array whose 7 items indicate whether to strip from the 7 arrays o
 			StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.WeaponsAndShields", ItemRef, allowDuplicate = false)
 			;adds this item to the WeaponsAndShields undress list
 			
-			IsActiveStripArray[0] = true
+			GroupIsStrippable[0] = true
 			
 		EndIf
 	EndIf
 	
-	Return IsActiveStripArray
+	Return GroupIsStrippable
 	
 EndFunction
 
@@ -219,23 +222,23 @@ Bool Function ItemHasKeyword(Form akItemRef, String[] asKeywords)
 	;validation
 		return false
 	EndIf
-
-	;CREATING A LOOP to run through all of the item's keywords (backwards)
-	Int i = ItemRef.GetNumKeywords()
-	;fetches the number of keywords this item has and stores it in i				
 	
-	While (i > 0)
-	;run this loop up to and including first keyword				
-		Keyword KeywordRef = ItemRef.GetNthKeyword(i)
-		;the actual keyword this loop is looking at with each pass
-		If (Keywords.Find(KeywordRef.GetString()) >= 0)
-		;if this actual keyword exists in the Keywords array
-			Return True		
+	Int i = asKeywords.Length - 1
+	;sets i to the length of the asKeywords array (-1 because arrays are zero based while length's result is 1-based)
+
+	While (i >= 0)
+	;runs this loop up to and including the first item (backwards)
+	
+		String KeywordRef = asKeywords[i]
+		;fetch the keyword in this position in the array
+		
+		If SexLabUtil.HasKeywordSub(akItemRef, KeywordRef)
+		;if the item has this keyword
+			return true			
 		EndIf
 		
-		i -= 1		
-		;go to the next item in the loop (backwards)
-		
+	i -= 1		
+	;go to the next item in the loop (backwards)		
 	EndWhile
 	
 	Return False
@@ -330,12 +333,12 @@ EndFunction
 /;
 	
 
-
+;/
 Bool Function IsStrippableEnhanced(Form ItemRef, String[] NoStripKeywords)
 ;checks the item with SexLab's IsStrippable(), then checks again for NoStripKeywords
 ;/QUESTION: I put IsStrippable() and ItemHasKeyword() in If/ElseIf block to avoid
 running 2 loops if not needed. Is this correct or should I check with an OR clause?
-/;
+
 
 	If (SexLab.IsStrippable(ItemRef) == False)
 	;if the item is checked by SexLab's IsStrippable() and is deemed un-strippable
@@ -349,7 +352,7 @@ running 2 loops if not needed. Is this correct or should I check with an OR clau
 		Return True
 	EndIf
 EndFunction
-
+/;
 	
 	
 	;/do a loop into a loop. first loop run through all the slots, second loop through the keywords to check.
