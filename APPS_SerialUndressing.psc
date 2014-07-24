@@ -10,7 +10,13 @@ sslSystemConfig Property SexLabSystemConfig Auto
 Int Property StripKeyCode Auto
 ;the key that will be used to input stripping commands
 
-Bool[] Function PrepareForStripping(Actor akActorRef, String asExceptionListKey, Form[] afExceptionList, Bool[] abSlotOverrideList = True)
+String[] Property HelmetKeywords Auto
+String[] Property BodyKeywords Auto
+String[] Property HandsKeywords Auto
+String[] Property FeetKeywords Auto
+String[] Property UnderwearKeywords Auto
+
+Bool[] Function PrepareForStripping(Actor akActorRef, String asExceptionListKey, Form[] afExceptionList, Bool[] abSlotOverrideList)
 ;/analyses items worn by ActorRef and puts them into 7 arrays for the actual
 	stripping function to use.
 ActorRef: actor to prepare
@@ -43,13 +49,13 @@ Returns a bool array whose 7 items indicate whether to strip from the 7 arrays o
 	Bool[] UserConfigSlots = new Bool[33]
 	;declares an array to hold the user's configuration
 	
-	If Gender = 0
+	If Gender == 0
 	;if the actor is male
 	
 		UserConfigSlots = SexLabSystemConfig.GetStrip(IsFemale = False)
 		;fetch the user's MCM stripping configuration for males
 		
-	ElseIf Gender = 1
+	ElseIf Gender == 1
 	;if the actor is female
 	
 		UserConfigSlots = SexLabSystemConfig.GetStrip(IsFemale = True)
@@ -69,7 +75,7 @@ Returns a bool array whose 7 items indicate whether to strip from the 7 arrays o
 		Form ItemRef = akActorRef.GetWornForm(Armor.GetMaskForSlot(i + 30))
 		;fetch the item worn in this slot and load it in the ItemRef variable
 		
-		If ((StorageUtil.FormListFind(None, asExceptionListKey, ItemRef) As Form) == -1)
+		If ((StorageUtil.FormListFind(None, asExceptionListKey, ItemRef) == -1))
 		;if the item is not found in the exception array
 		
 			If (i + 30 == 31) || (ItemHasKeyword(ItemRef, HelmetKeywords))
@@ -163,10 +169,10 @@ Returns a bool array whose 7 items indicate whether to strip from the 7 arrays o
 	Form ItemRef = akActorRef.GetEquippedWeapon(false)
 	;fetches right-hand weapon and puts it in ItemRef
 	
-	If ((StorageUtil.FormListFind(None, asExceptionListKey, ItemRef) As Form) == -1)
+	If ((StorageUtil.FormListFind(None, asExceptionListKey, ItemRef) == -1))
 	;if the item is not found in the exception array
 
-		If (SexLab.IsStrippable(ItemRef) == true && IsValidSlot(i, UserConfigSlots, abSlotOverrideList)
+		If (SexLab.IsStrippable(ItemRef) == true && IsValidSlot(i, UserConfigSlots, abSlotOverrideList))
 		;if this item is strippable according to SexLab and is not found in the exception array
 		
 			StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.WeaponsAndShields", ItemRef, allowDuplicate = false)
@@ -177,13 +183,13 @@ Returns a bool array whose 7 items indicate whether to strip from the 7 arrays o
 		EndIf
 	EndIf
 		
-	Form ItemRef = akActorRef.GetEquippedWeapon(true)
+	ItemRef = akActorRef.GetEquippedWeapon(true)
 	;fetches left-hand weapon and puts it in ItemRef
 	
-	If ((StorageUtil.FormListFind(None, asExceptionListKey, ItemRef) As Form) == -1)
+	If ((StorageUtil.FormListFind(None, asExceptionListKey, ItemRef) == -1))
 	;if the item is not found in the exception array
 
-		If (SexLab.IsStrippable(ItemRef) == true && IsValidSlot(i, UserConfigSlots, abSlotOverrideList)
+		If (SexLab.IsStrippable(ItemRef) == true && IsValidSlot(i, UserConfigSlots, abSlotOverrideList))
 		;if this item is strippable according to SexLab and is not found in the exception array
 		
 			StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.WeaponsAndShields", ItemRef, allowDuplicate = false)
@@ -194,13 +200,13 @@ Returns a bool array whose 7 items indicate whether to strip from the 7 arrays o
 		EndIf
 	EndIf
 		
-	Form ItemRef = akActorRef.GetEquippedShield()
+	ItemRef = akActorRef.GetEquippedShield()
 	;fetches shield and puts it in ItemRef
 	
-	If ((StorageUtil.FormListFind(None, asExceptionListKey, ItemRef) As Form) == -1)
+	If ((StorageUtil.FormListFind(None, asExceptionListKey, ItemRef) == -1))
 	;if the item is not found in the exception array
 
-		If (SexLab.IsStrippable(ItemRef) == true && IsValidSlot(i, UserConfigSlots, abSlotOverrideList)
+		If (SexLab.IsStrippable(ItemRef) == true && IsValidSlot(i, UserConfigSlots, abSlotOverrideList))
 		;if this item is strippable according to SexLab and is not found in the exception array
 		
 			StorageUtil.FormListAdd(akActorRef, "APPS.SerialUndressList.WeaponsAndShields", ItemRef, allowDuplicate = false)
@@ -216,9 +222,9 @@ Returns a bool array whose 7 items indicate whether to strip from the 7 arrays o
 EndFunction
 
 Bool Function ItemHasKeyword(Form akItemRef, String[] asKeywords)
-;checks whether ItemRef has any of the keywords stored in the Keywords array
+;checks whether akItemRef has any of the keywords stored in the Keywords array
 
-	If (ItemRef == none || Keywords == none)
+	If (akItemRef == none || asKeywords == none)
 	;validation
 		return false
 	EndIf
@@ -470,3 +476,4 @@ Function SlotsToStrip(Actor ActorRef, Form[] afExceptionList)
 3.1.2 if not known slot → check for supported Keywords (array with KeyW f.e., hardcoded)
 3.1.3 if Keyword known (armor f.e.) → save in appropriate array (armor to StorageUtil.Strip.Armor)
 4. call strip function
+/;
