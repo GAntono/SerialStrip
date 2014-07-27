@@ -427,13 +427,13 @@ Function StripWeaponsAndShields(Actor akActorRef)
 	th.SetHook("StripWeaponsAndShields")
 	;sets a hook for this animation
 	
-	RegisterForModEvent("AnimationEnd_StripWeaponsAndShields", "WeaponsAndShieldsStripped")
+	RegisterForModEvent("AnimationEnd_StripWeaponsAndShields", "OnWeaponsAndShieldsStripped")
 	
 	th.StartThread()
 
 EndFunction
 
-Event WeaponsAndShieldsStripped(string eventName, string argString, float argNum, form sender)
+Event OnWeaponsAndShieldsStripped(string eventName, string argString, float argNum, form sender)
 ;when the animation for stripping weapons and shields has finished
 
 	Actor[] Actors = SexLab.HookActors(argString)
@@ -500,15 +500,9 @@ Event WeaponsAndShieldsStripped(string eventName, string argString, float argNum
 	
 EndEvent
 
-Function StripArray_helper(Actor akActorRef)
-;makes the actor strip a given array
 
-	If (akActorRef == none)
-	;validation
-		return
-	EndIf
-	
-	
+
+
 	;/
 	Form[] ToStrip = new Form[34]
 	;declares a 34 item long array to hold the items to be stripped
