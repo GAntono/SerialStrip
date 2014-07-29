@@ -4,6 +4,9 @@ ScriptName APPS_SerialUndressing Extends ReferenceAlias
 SexLabFramework Property SexLab Auto
 ;points to the SexLab Framework script so we can use its functions
 
+sslAnimationSlots Property sslAnimSlots Auto
+;points to the SexLab sslAnimationSlots script so we can use its functions
+
 sslSystemConfig Property SexLabSystemConfig Auto
 ;points to the SexLab's sslSystemConfig.psc script so we can use its functions
 
@@ -73,6 +76,8 @@ abSlotOverrideList: a 33-item-long array which defaults to false. Set any item [
 	for slot i+30 and force-strip it.
 Returns a bool array whose 7 items indicate whether to strip from the 7 arrays or not
 TODO: Create a parameter for the modder to specify which slots he'd like to strip (not just override)
+TODO: Create a parameter for unequipping by dropping to the ground and not added to APPS.Stripped
+TODO: Create a parameter for unequipping and giving it to an actor / container etc.
 /;
 
 	If (akActorRef == none) || abSlotOverrideList.Length != 33
@@ -270,13 +275,14 @@ TODO: Create a parameter for the modder to specify which slots he'd like to stri
 /;
 	
 	;clears the arrays if they are not active (i.e. there's nothing strippable in them)
-	ClearIfInactive(akActorRef, "APPS.SerialStripList.WeaponsAndShields", bArrayIsActive[0])
-	ClearIfInactive(akActorRef, "APPS.SerialStripList.Hands", bArrayIsActive[1])
-	ClearIfInactive(akActorRef, "APPS.SerialStripList.Helmet", bArrayIsActive[2])
-	ClearIfInactive(akActorRef, "APPS.SerialStripList.Feet", bArrayIsActive[3])
-	ClearIfInactive(akActorRef, "APPS.SerialStripList.Body", bArrayIsActive[4])
-	ClearIfInactive(akActorRef, "APPS.SerialStripList.Underwear", bArrayIsActive[5])
-	ClearIfInactive(akActorRef, "APPS.SerialStripList.Other", bArrayIsActive[6])	
+	ClearIfInactive(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsR", bArrayIsActive[0])
+	ClearIfInactive(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsL", bArrayIsActive[1])
+	ClearIfInactive(akActorRef, "APPS.SerialStripList.Hands", bArrayIsActive[2])
+	ClearIfInactive(akActorRef, "APPS.SerialStripList.Helmet", bArrayIsActive[3])
+	ClearIfInactive(akActorRef, "APPS.SerialStripList.Feet", bArrayIsActive[4])
+	ClearIfInactive(akActorRef, "APPS.SerialStripList.Body", bArrayIsActive[5])
+	ClearIfInactive(akActorRef, "APPS.SerialStripList.Underwear", bArrayIsActive[6])
+	ClearIfInactive(akActorRef, "APPS.SerialStripList.Other", bArrayIsActive[7])
 	
 EndFunction
 
@@ -469,6 +475,13 @@ Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, S
 	Game.SetPlayerAIDriven(true)
 	;instead of DisablePlayerControls(true)
 	
+	If (PlayerRef.IsWeaponDrawn())
+	;if the player has their weapon drawn
+	
+		PlayerRef.SheatheWeapon()
+		
+	EndIf
+	
 	kCurrentActor = PlayerRef
 	;sets the currently stripping actor to be the player
 	
@@ -612,6 +625,124 @@ Function SingleArrayStrip(Actor akActorRef, String asStripArray, String asStripp
 		Game.SetPlayerAIDriven(false)
 		
 	EndIf
+	
+EndFunction
+
+Function FullSerialStrip(Actor akActorRef)
+;makes the actor play all the valid stripping animations and undress their corresponding groups of clothing
+
+	If (akActorRef == none)
+	;validation
+		return
+	EndIf
+	
+	If (akActorRef == PlayerRef)
+	;if the actor stripping is the player
+	
+		DisablePlayerControls(true)
+		;disables player's controls
+		
+	EndIf
+	
+	;CREATE ephemeral animation
+	SexLab.NewAnimationObject("FullStrippingAnimation", akActorRef)
+	;creates a new temporary animation and stores it on akActorRef
+	
+	sslBaseAnimation anim = sslAnimSlots.GetByRegistrar("FullStrippingAnimation")
+	
+	If (anim != None)
+	
+		Int iGender = GetGender(akActorRef)
+		;fetch the gender of the actor and store it in iGender
+	
+		anim.Name = "FullStrippingAnimation"
+		;set the name of the animation
+		
+		anim.SetContent(Misc)
+		;set the content of the animation
+
+		int a1 = anim.AddPosition(iGender)
+		;sets the first (and only) actor in this animation
+		
+		If (FormListCount(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsR") > 0 || (FormListCount(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsL") > 0)
+		;if either the right hand or the left hand weapon array are not empty
+		
+			If (sWeaponsAndShieldsAnimName != none)
+			;if there is an animation for stripping weapons and shields
+			
+				anim.AddPositionStage(a1, sWeaponsAndShieldsAnimName)
+				;add the weapons stripping as the first stage of the animation
+				
+			EndIf
+		EndIf
+			
+		If (FormListCount(akActorRef, "APPS.SerialStripList.Hands") > 0)
+		
+			If (sHandsAnimName != none)
+			;if there is an animation for stripping hands
+			
+				anim.AddPositionStage(a1, sHandsAnimName)
+				;add the hands stripping animation as the next stage
+			
+			EndIf
+		EndIf
+			
+		If (FormListCount(akActorRef, "APPS.SerialStripList.Helmet") > 0)
+		
+			If (sHelmetAnimName != none)
+			;if there is an animation for stripping helmets
+			
+				anim.AddPositionStage(a1, sHelmetAnimName)
+				;add the helmet stripping animation as the next stage
+				
+			EndIf
+		EndIf
+		
+		If (FormListCount(akActorRef, "APPS.SerialStripList.Feet") > 0)
+		
+			If (sFeetAnimName != none)
+			;if there is an animation for stripping feet
+			
+				anim.AddPositionStage(a1, sFeetAnimName)
+				;add the feet stripping animation as the next stage
+				
+			EndIf
+		EndIf
+		
+		If (FormListCount(akActorRef, "APPS.SerialStripList.Body") > 0)
+		
+			If (sBodyAnimName != none)
+			;if there is an animation for stripping the body
+			
+				anim.AddPositionStage(a1, sBodyAnimName)
+				;add the body stripping animation as the next stage
+				
+			EndIf
+		EndIf
+		
+		If (FormListCount(akActorRef, "APPS.SerialStripList.Underwear") > 0)
+		
+			If (sUnderwearAnimName != none)
+			;if there is an animation for stripping underwear
+			
+				anim.AddPositionStage(a1, sUnderwearAnimName)
+				;add the underwear stripping animation as the next stage
+				
+			EndIf
+		EndIf
+		
+		If (FormListCount(akActorRef, "APPS.SerialStripList.Other") > 0)
+		
+			If (sOtherAnimName != none)
+			;if there is an animation for stripping other
+			
+				anim.AddPositionStage(a1, sOtherAnimName)
+				;add the other stripping animation as the next stage
+				
+			EndIf
+		EndIf
+		
+		
 	
 EndFunction
 
