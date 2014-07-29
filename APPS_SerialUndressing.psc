@@ -40,7 +40,28 @@ String Property sCurrentStripArray Auto
 String Property sCurrentStrippedArray Auto
 ;the array that is currently holding the stripped items
 
-String Property 
+String Property sWeaponsAndShieldsAnimName Auto
+;the name of the weapons and shields stripping animation
+
+String Property sHandsAnimName Auto
+;the name of the hands stripping animation
+
+String Property sHelmetAnimName Auto
+;the name of the helmet stripping animation
+
+String Property sFeetAnimName Auto
+;the name of the feet stripping animation
+
+String Property sBodyAnimName Auto
+;the name of the body stripping animation
+
+String Property sUnderwearAnimName Auto
+;the name of the underwear stripping animation
+
+String Property sOtherAnimName Auto
+;the name of the "other" stripping animation
+
+
 
 
 Bool[] Function PrepareForStripping(Actor akActorRef, String asExceptionListKey, Form[] afExceptionList, Bool[] abSlotOverrideList)
@@ -369,7 +390,7 @@ Event OnKeyUp(Int KeyCode)
 		
 		If fKeyPressDuration < fDurationForFullStrip
 		
-			SingleSerialStrip(PlayerRef)
+			SingleSerialStrip()
 			
 		Else
 		
@@ -383,38 +404,70 @@ Function SingleSerialStrip()
 ;makes the actor strip one item/group of clothing (one array)
 
 	If (FormListCount(PlayerRef, "APPS.SerialStripList.WeaponsAndShieldsR") > 0 ||  FormListCount(PlayerRef, "APPS.SerialStripList.WeaponsAndShieldsL") > 0)
-	;if the weapons and shields arrays (Right and Left) are not empty
+	;if the weapons or shields arrays (Right and Left) are not empty
 	
-		SingleArrayAnimThenStrip("APPS.SerialStripList.WeaponsAndShieldsR", "APPS.SerialStrippedList.WeaponsAndShieldsR", "")
-		;run the function to play the appropriate animation
+		If (FormListCount(PlayerRef, "APPS.SerialStripList.WeaponsAndShieldsR") == 0)
+		;if the right hand array is empty i.e. the left is not empty
+	
+			SingleArrayAnimThenStrip("APPS.SerialStripList.WeaponsAndShieldsL", "APPS.SerialStrippedList.WeaponsAndShieldsL", sWeaponsAndShieldsAnimName)
+			;run the function to play the appropriate animation
+			
+		ElseIf (FormListCount(PlayerRef, "APPS.SerialStripList.WeaponsAndShieldsL") == 0)
+		;if the left hand array is empty i.e. the right is not empty
+		
+			SingleArrayAnimThenStrip("APPS.SerialStripList.WeaponsAndShieldsR", "APPS.SerialStrippedList.WeaponsAndShieldsR", sWeaponsAndShieldsAnimName)
+			;run the function to play the appropriate animation
+			
+		Else
+		;if both right and left hand arrays are non empty
+		
+			SingleArrayAnimThenStrip("APPS.SerialStripList.WeaponsAndShieldsR", "APPS.SerialStrippedList.WeaponsAndShieldsR", sWeaponsAndShieldsAnimName)
+			;run the function to play the appropriate animation
+			
+			SingleArrayAnimThenStrip("APPS.SerialStripList.WeaponsAndShieldsL", "APPS.SerialStrippedList.WeaponsAndShieldsL", "")
+			;run the function to just strip the left hand without playing an animation
+			
+		EndIf
 		
 	ElseIf FormListCount(PlayerRef, "APPS.SerialStripList.Hands") > 0
 	
+		SingleArrayAnimThenStrip("APPS.SerialStripList.Hands", "APPS.SerialStrippedList.Hands", sHandsAnimName)
+		;run the function to play the appropriate animation
+	
 	ElseIf FormListCount(PlayerRef, "APPS.SerialStripList.Helmet") > 0
+	
+		SingleArrayAnimThenStrip("APPS.SerialStripList.Helmet", "APPS.SerialStrippedList.Helmet", sHelmetAnimName)
+		;run the function to play the appropriate animation
 	
 	ElseIf FormListCount(PlayerRef, "APPS.SerialStripList.Feet") > 0
 	
+		SingleArrayAnimThenStrip("APPS.SerialStripList.Feet", "APPS.SerialStrippedList.Feet", sFeetAnimName)
+		;run the function to play the appropriate animation
+	
 	ElseIf FormListCount(PlayerRef, "APPS.SerialStripList.Body") > 0
+	
+		SingleArrayAnimThenStrip("APPS.SerialStripList.Body", "APPS.SerialStrippedList.Body", sBodyAnimName)
+		;run the function to play the appropriate animation
 	
 	ElseIf FormListCount(PlayerRef, "APPS.SerialStripList.Underwear") > 0
 	
+		SingleArrayAnimThenStrip("APPS.SerialStripList.Underwear", "APPS.SerialStrippedList.Underwear", sUnderwearAnimName)
+		;run the function to play the appropriate animation
+	
 	ElseIf FormListCount(PlayerRef, "APPS.SerialStripList.Other") > 0
+	
+		SingleArrayAnimThenStrip("APPS.SerialStripList.Other", "APPS.SerialStrippedList.Other", sOtherAnimName)
+		;run the function to play the appropriate animation
 	
 EndIf
 
-Function SingleArrayAnimThenStrip(String asStripArray, Sting asStrippedArray, String asAnimation, Float afAnimDuration)
+Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, String asAnimation, Float afAnimDuration)
 ;makes the player animate the stripping animation for a single group of clothing, then strips it
 
 	Game.ForceThirdPerson()
 	;force third person camera mode
 	Game.SetPlayerAIDriven(true)
 	;instead of DisablePlayerControls(true)
-	
-	Debug.SendAnimationEvent(PlayerRef, asAnimation)
-	;makes the player play the stripping animation	
-	
-	RegisterForSingleUpdate(afAnimDuration)
-	;registers to be notified when the animation ends
 	
 	kCurrentActor = PlayerRef
 	;sets the currently stripping actor to be the player
@@ -424,7 +477,22 @@ Function SingleArrayAnimThenStrip(String asStripArray, Sting asStrippedArray, St
 	
 	sCurrentStrippedArray = asStrippedArray
 	;sets the array currently holding the stripped items to be asStrippedArray
-
+	
+	If (asAnimation != none && afAnimDuration != none)
+	;if the function has been given an animation to play
+	
+		Debug.SendAnimationEvent(PlayerRef, asAnimation)
+		;makes the player play the stripping animation	
+		
+		RegisterForSingleUpdate(afAnimDuration)
+		;registers to be notified when the animation ends
+	
+	Else
+		
+		SingleArrayStrip(PlayerRef, sCurrentStripArray, sCurrentStrippedArray)
+		;go directly to stripping the array without animation
+		
+	EndIf
 EndFunction
 
 Event OnUpdate()
@@ -455,11 +523,16 @@ Function SingleArrayStrip(Actor akActorRef, String asStripArray, String asStripp
 			Form kItemRef = StorageUtil.FormListGet(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsR", i)
 			;fetches the item stored in i position in the array
 			
-			akActorRef.UnequipItemEX(kItemRef, 1)
-			;unequips this item from the actor's right hand
+			If (kItemRef != none)
+			;if this is an actual item, i.e. the array has not been cleared
 			
-			StorageUtil.FormListAdd(akActorRef, "APPS.SerialStrippedList.WeaponsAndShieldsR", kItemRef)
-			;adds the item to this array
+				akActorRef.UnequipItemEX(kItemRef, 1)
+				;unequips this item from the actor's right hand
+				
+				StorageUtil.FormListAdd(akActorRef, "APPS.SerialStrippedList.WeaponsAndShieldsR", kItemRef)
+				;adds the item to this array
+				
+			EndIf
 			
 			i -= 1
 			;go to the next item in the array (backwards)
@@ -482,11 +555,16 @@ Function SingleArrayStrip(Actor akActorRef, String asStripArray, String asStripp
 			Form kItemRef = StorageUtil.FormListGet(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsL", i)
 			;fetches the item stored in i position in the array
 			
-			akActorRef.UnequipItemEX(kItemRef, 2)
-			;unequips this item from the actor's right hand
+			If (kItemRef != none)
+			;if this is an actual item, i.e. the array has not been cleared
 			
-			StorageUtil.FormListAdd(akActorRef, "APPS.SerialStrippedList.WeaponsAndShieldsL", kItemRef)
-			;adds the item to this array
+				akActorRef.UnequipItemEX(kItemRef, 2)
+				;unequips this item from the actor's right hand
+				
+				StorageUtil.FormListAdd(akActorRef, "APPS.SerialStrippedList.WeaponsAndShieldsL", kItemRef)
+				;adds the item to this array
+				
+			EndIf
 			
 			i -= 1
 			;go to the next item in the array (backwards)
@@ -508,11 +586,16 @@ Function SingleArrayStrip(Actor akActorRef, String asStripArray, String asStripp
 			Form kItemRef = StorageUtil.FormListGet(akActorRef, asStripArray, i)
 			;fetches the item stored in i position in the array
 			
-			akActorRef.UnequipItem(kItemRef)
-			;unequips this item
+			If (kItemRef != none)
+			;if this is an actual item, i.e. the array has not been cleared
 			
-			StorageUtil.FormListAdd(akActorRef, asStrippedArray, kItemRef)
-			;adds the item to this array
+				akActorRef.UnequipItem(kItemRef)
+				;unequips this item
+				
+				StorageUtil.FormListAdd(akActorRef, asStrippedArray, kItemRef)
+				;adds the item to this array
+				
+			EndIf
 			
 			i -= 1
 			;go to the next item in the array (backwards)
