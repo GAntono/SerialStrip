@@ -644,6 +644,30 @@ Function FullSerialStrip(Actor akActorRef)
 		
 	EndIf
 	
+	int stage
+	;declares a variable we can use to count the stages
+	
+	int WeaponsAndShieldsStage
+	;the stage for stripping weapons and shields
+	
+	Int HandsStage
+	;the stage for stripping hands
+	
+	Int HelmetStage
+	;the stage for stripping the helmet
+	
+	Int FeetStage
+	;the stage for stripping feet
+	
+	Int BodyStage
+	;the stage for stripping body
+	
+	Int UnderwearStage
+	;the stage for stripping underwear
+	
+	Int OtherStage
+	;the stage for stripping other clothing items
+	
 	akActorRef.SheatheWeapon()
 	;makes the actor sheath her weapon
 	
@@ -652,8 +676,10 @@ Function FullSerialStrip(Actor akActorRef)
 	;creates a new temporary animation and stores it on akActorRef
 	
 	sslBaseAnimation anim = sslAnimSlots.GetByRegistrar("FullStrippingAnimation")
+	;fetched the animation entry just created and stores it in anim
 	
 	If (anim != None)
+	;if the entry has indeed been created
 	
 		Int iGender = GetGender(akActorRef)
 		;fetch the gender of the actor and store it in iGender
@@ -667,23 +693,6 @@ Function FullSerialStrip(Actor akActorRef)
 		int a1 = anim.AddPosition(iGender)
 		;sets the first (and only) actor in this animation
 		
-		int stage
-		;declares a variable we can use to count the stages
-		
-		int WeaponsAndShieldsStage
-		
-		Int HandsStage
-		
-		Int HelmetStage
-		
-		Int FeetStage
-		
-		Int BodyStage
-		
-		Int UnderwearStage
-		
-		Int OtherStage
-		
 		If (FormListCount(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsR") > 0 || (FormListCount(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsL") > 0)
 		;if either the right hand or the left hand weapon array are not empty
 		
@@ -694,15 +703,16 @@ Function FullSerialStrip(Actor akActorRef)
 				;add the weapons stripping as the first stage of the animation
 				
 				stage += 1
-				
-				
-				
-				anim.SetStageTimer(stage, DURATION)
+				;increases stage by one
+
+				WeaponsAndShieldsStage = stage
+				;sets WeaponsAndShieldsStage equal to current stage
 				
 			EndIf
 		EndIf
 			
 		If (FormListCount(akActorRef, "APPS.SerialStripList.Hands") > 0)
+		;if the hands array is not empty
 		
 			If (sHandsAnimName != none)
 			;if there is an animation for stripping hands
@@ -711,13 +721,16 @@ Function FullSerialStrip(Actor akActorRef)
 				;add the hands stripping animation as the next stage
 				
 				stage += 1
+				;increases stage by one
 				
-				anim.SetStageTimer(stage, DURATION)
+				HandsStage = stage
+				;sets HandsStage equal to current stage
 			
 			EndIf
 		EndIf
 			
 		If (FormListCount(akActorRef, "APPS.SerialStripList.Helmet") > 0)
+		;if the helmbet array is not empty
 		
 			If (sHelmetAnimName != none)
 			;if there is an animation for stripping helmets
@@ -726,13 +739,16 @@ Function FullSerialStrip(Actor akActorRef)
 				;add the helmet stripping animation as the next stage
 				
 				stage += 1
+				;increases stage by one
 				
-				anim.SetStageTimer(stage, DURATION)
+				HelmetStage = stage
+				;sets HelmetStage equal to current stage
 				
 			EndIf
 		EndIf
 		
 		If (FormListCount(akActorRef, "APPS.SerialStripList.Feet") > 0)
+		;if the feet array is not empty
 		
 			If (sFeetAnimName != none)
 			;if there is an animation for stripping feet
@@ -741,13 +757,16 @@ Function FullSerialStrip(Actor akActorRef)
 				;add the feet stripping animation as the next stage
 				
 				stage += 1
+				;increases stage by one
 				
-				anim.SetStageTimer(stage, DURATION)
+				FeetStage = stage
+				;sets FeetStage equal to current stage
 				
 			EndIf
 		EndIf
 		
 		If (FormListCount(akActorRef, "APPS.SerialStripList.Body") > 0)
+		;if the body array is not empty
 		
 			If (sBodyAnimName != none)
 			;if there is an animation for stripping the body
@@ -756,13 +775,16 @@ Function FullSerialStrip(Actor akActorRef)
 				;add the body stripping animation as the next stage
 				
 				stage += 1
+				;increases stage by one
 				
-				anim.SetStageTimer(stage, DURATION)
+				BodyStage = stage
+				;sets BodyStage equal to current stage
 				
 			EndIf
 		EndIf
 		
 		If (FormListCount(akActorRef, "APPS.SerialStripList.Underwear") > 0)
+		;if the underwear array is not empty
 		
 			If (sUnderwearAnimName != none)
 			;if there is an animation for stripping underwear
@@ -771,13 +793,16 @@ Function FullSerialStrip(Actor akActorRef)
 				;add the underwear stripping animation as the next stage
 				
 				stage += 1
+				;increases stage by one
 				
-				anim.SetStageTimer(stage, DURATION)
+				UnderwearStage = stage
+				;sets UnderwearStage equal to current stage
 				
 			EndIf
 		EndIf
 		
 		If (FormListCount(akActorRef, "APPS.SerialStripList.Other") > 0)
+		;if the "other items" array is not empty
 		
 			If (sOtherAnimName != none)
 			;if there is an animation for stripping other
@@ -786,13 +811,52 @@ Function FullSerialStrip(Actor akActorRef)
 				;add the other stripping animation as the next stage
 				
 				stage += 1
+				;increases stage by one
 				
-				anim.SetStageTimer(stage, DURATION)
+				OtherStage = stage
+				;sets OtherStage equal to current stage
 				
 			EndIf
-		EndIf	
+		EndIf
+		
+		anim.Save(sslAnimSlots.FindByName(FullStrippingAnimation))
+		;saves the animation (has to be done before setting the timers)
+		
+		If (WeaponsAndShieldsStage != 0)
+		;if there is a weapons and shields stripping stage
+		
+			anim.SetStageTimer(WeaponsAndShieldsStage, DURATION)
+		
+		If (HandsStage != 0)
+		;if there is a hands stripping animation stage
+		
+			anim.SetStageTimer(HandsStage, DURATION)
+		
+		If (HelmetStage != 0)
+		;if there is a helmet stripping animation stage
+		
+			anim.SetStageTimer(HelmetStage, DURATION)
+		
+		If (FeetStage != 0)
+		;if there is a feet stripping animation stage
+		
+			anim.SetStageTimer(FeetStage, DURATION)
+		
+		If (BodyStage != 0)
+		;if there is a body stripping animation stage
+		
+			anim.SetStageTimer(BodyStage, DURATION)
+		
+		If (OtherStage != 0)
+		;if there is a other stripping animation stage
+		
+			anim.SetStageTimer(OtherStage, DURATION)
 		
 	EndIf
+	
+	;CREATE  a new SexLab thread to play the animation
+	sslThreadModel thread = SexLab.NewThread()
+	
 	
 EndFunction
 
