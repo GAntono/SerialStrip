@@ -644,6 +644,9 @@ Function FullSerialStrip(Actor akActorRef)
 		
 	EndIf
 	
+	akActorRef.SheatheWeapon()
+	;makes the actor sheath her weapon
+	
 	;CREATE ephemeral animation
 	SexLab.NewAnimationObject("FullStrippingAnimation", akActorRef)
 	;creates a new temporary animation and stores it on akActorRef
@@ -664,6 +667,23 @@ Function FullSerialStrip(Actor akActorRef)
 		int a1 = anim.AddPosition(iGender)
 		;sets the first (and only) actor in this animation
 		
+		int stage
+		;declares a variable we can use to count the stages
+		
+		int WeaponsAndShieldsStage
+		
+		Int HandsStage
+		
+		Int HelmetStage
+		
+		Int FeetStage
+		
+		Int BodyStage
+		
+		Int UnderwearStage
+		
+		Int OtherStage
+		
 		If (FormListCount(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsR") > 0 || (FormListCount(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsL") > 0)
 		;if either the right hand or the left hand weapon array are not empty
 		
@@ -672,6 +692,12 @@ Function FullSerialStrip(Actor akActorRef)
 			
 				anim.AddPositionStage(a1, sWeaponsAndShieldsAnimName)
 				;add the weapons stripping as the first stage of the animation
+				
+				stage += 1
+				
+				
+				
+				anim.SetStageTimer(stage, DURATION)
 				
 			EndIf
 		EndIf
@@ -683,6 +709,10 @@ Function FullSerialStrip(Actor akActorRef)
 			
 				anim.AddPositionStage(a1, sHandsAnimName)
 				;add the hands stripping animation as the next stage
+				
+				stage += 1
+				
+				anim.SetStageTimer(stage, DURATION)
 			
 			EndIf
 		EndIf
@@ -695,6 +725,10 @@ Function FullSerialStrip(Actor akActorRef)
 				anim.AddPositionStage(a1, sHelmetAnimName)
 				;add the helmet stripping animation as the next stage
 				
+				stage += 1
+				
+				anim.SetStageTimer(stage, DURATION)
+				
 			EndIf
 		EndIf
 		
@@ -705,6 +739,10 @@ Function FullSerialStrip(Actor akActorRef)
 			
 				anim.AddPositionStage(a1, sFeetAnimName)
 				;add the feet stripping animation as the next stage
+				
+				stage += 1
+				
+				anim.SetStageTimer(stage, DURATION)
 				
 			EndIf
 		EndIf
@@ -717,6 +755,10 @@ Function FullSerialStrip(Actor akActorRef)
 				anim.AddPositionStage(a1, sBodyAnimName)
 				;add the body stripping animation as the next stage
 				
+				stage += 1
+				
+				anim.SetStageTimer(stage, DURATION)
+				
 			EndIf
 		EndIf
 		
@@ -727,6 +769,10 @@ Function FullSerialStrip(Actor akActorRef)
 			
 				anim.AddPositionStage(a1, sUnderwearAnimName)
 				;add the underwear stripping animation as the next stage
+				
+				stage += 1
+				
+				anim.SetStageTimer(stage, DURATION)
 				
 			EndIf
 		EndIf
@@ -739,10 +785,14 @@ Function FullSerialStrip(Actor akActorRef)
 				anim.AddPositionStage(a1, sOtherAnimName)
 				;add the other stripping animation as the next stage
 				
+				stage += 1
+				
+				anim.SetStageTimer(stage, DURATION)
+				
 			EndIf
-		EndIf
+		EndIf	
 		
-		
+	EndIf
 	
 EndFunction
 
