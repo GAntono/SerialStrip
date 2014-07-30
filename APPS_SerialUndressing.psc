@@ -826,36 +826,49 @@ Function FullSerialStrip(Actor akActorRef)
 		;if there is a weapons and shields stripping stage
 		
 			anim.SetStageTimer(WeaponsAndShieldsStage, DURATION)
+			
+		EndIf
 		
 		If (HandsStage != 0)
 		;if there is a hands stripping animation stage
 		
 			anim.SetStageTimer(HandsStage, DURATION)
+			
+		EndIf
 		
 		If (HelmetStage != 0)
 		;if there is a helmet stripping animation stage
 		
 			anim.SetStageTimer(HelmetStage, DURATION)
+			
+		EndIf
 		
 		If (FeetStage != 0)
 		;if there is a feet stripping animation stage
 		
 			anim.SetStageTimer(FeetStage, DURATION)
+			
+		EndIf
 		
 		If (BodyStage != 0)
 		;if there is a body stripping animation stage
 		
 			anim.SetStageTimer(BodyStage, DURATION)
+			
+		EndIf
 		
 		If (OtherStage != 0)
 		;if there is a other stripping animation stage
 		
 			anim.SetStageTimer(OtherStage, DURATION)
-		
+			
+		EndIf		
 	EndIf
 	
 	;CREATE  a new SexLab thread to play the animation
 	sslThreadModel thread = SexLab.NewThread()
+	;create a new animation thread
+	
 	
 	
 EndFunction
