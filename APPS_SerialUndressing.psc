@@ -63,6 +63,9 @@ String Property sUnderwearAnimName Auto
 
 String Property sOtherAnimName Auto
 ;the name of the "other" stripping animation
+
+Float Property DURATION Auto
+;PLACEHOLDER, remove when ready
 	
 
 
@@ -531,6 +534,7 @@ Function SingleArrayStrip(Actor akActorRef, String asStripArray, String asStripp
 	
 		Int i = StorageUtil.FormListCount(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsR") - 1
 		;sets i equal to the length of the array (-1 because FormListCount's result is 1-based while the array is 0 based)
+		;this also validates the function i.e. if the array is empty, it will not check the loop
 		
 		While i >= 0
 		;sets the loop to run up to and including position zero in the array (backwards)
@@ -891,10 +895,12 @@ Event OnStripStageStart(string eventName, string argString, float argNum, form s
 ;when a stripping animation stage starts
 
 	Actor[] actorList = SexLab.HookActors(argString)
+	;fetches the list of actors (should be only 1) and stores it into the actorList array
 	
 	Actor kActor = actorList[0]
+	;fetches the first and only entry in the actorList and stores it into kActor
 	
-	If (FormListCount(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsR") > 0 || (FormListCount(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsL") > 0)
+	If (FormListCount(kActor, "APPS.SerialStripList.WeaponsAndShieldsR") > 0 || (FormListCount(kActor, "APPS.SerialStripList.WeaponsAndShieldsL") > 0)
 	;if either the right hand or the left hand weapon array are not empty
 	
 		Utility.Wait(DURATION)
@@ -903,12 +909,56 @@ Event OnStripStageStart(string eventName, string argString, float argNum, form s
 		SingleArrayStrip(kActor, "APPS.SerialStripList.WeaponsAndShieldsR", "APPS.SerialStrippedList.WeaponsAndShieldsR")
 		;strips the actor of this group of clothing and stores stripped items into the array
 		
-	ElseIf If (FormListCount(akActorRef, "APPS.SerialStripList.Helmet") > 0)
+		SingleArrayStrip(kActor, "APPS.SerialStripList.WeaponsAndShieldsL", "APPS.SerialStrippedList.WeaponsAndShieldsL")
+		;strips the actor of this group of clothing and sores stripped items into the array
+		
+	ElseIf (FormListCount(kActor, "APPS.SerialStripList.Helmet") > 0)
 	;if the helmbet array is not empty
 	
 		Utility.Wait(DURATION)
 		
+		SingleArrayStrip(kActor, "APPS.SerialStripList.Helmet", "APPS.SerialStrippedList.Helmet")
+		;strips the actor of this group of clothing and stores stripped items into the array
+		
+	ElseIf (FormListCount(kActor, "APPS.SerialStripList.Feet") > 0)
+	;if the feet array is not empty
+	
+		Utility.Wait(DURATION)
+		
+		SingleArrayStrip(kActor, "APPS.SerialStripList.Feet", "APPS.SerialStrippedList.Feet")
+		;strips the actor of this group of clothing and stores stripped items into the array
+	
+	ElseIf (FormListCount(kActor, "APPS.SerialStripList.Body") > 0)
+	;if the body array is not empty
+	
+		Utility.Wait(DURATION)
+		
+		SingleArrayStrip(kActor, "APPS.SerialStripList.Body", "APPS.SerialStrippedList.Body")
+		;strips the actor of this group of clothing and stores stripped items into the array
+		
+	ElseIf (FormListCount(kActor, "APPS.SerialStripList.Underwear") > 0)
+	;if the underwear array is not empty
+		
+		Utility.Wait(DURATION)
+		
+		SingleArrayStrip(kActor, "APPS.SerialStripList.Underwear", "APPS.SerialStrippedList.Underwear")
+		;strips the actor of this group of clothing and stores stripped items into the array
+		
+	ElseIf (FormListCount(kActor, "APPS.SerialStripList.Other") > 0)
+	;if the "other items" array is not empty
+		
+		Utility.Wait(DURATION)
+		
+		SingleArrayStrip(kActor, "APPS.SerialStripList.Other", "APPS.SerialStrippedList.Other")
+		;strips the actor of this group of clothing and stores stripped items into the array
+		
+	EndIf
+		
 EndEvent
+
+
+
+;/leftover code
 
 Function StripWeaponsAndShields(Actor akActorRef)
 ;makes the actor strip weapons and shields
