@@ -63,6 +63,8 @@ String Property sUnderwearAnimName Auto
 
 String Property sOtherAnimName Auto
 ;the name of the "other" stripping animation
+	
+
 
 
 
@@ -636,14 +638,6 @@ Function FullSerialStrip(Actor akActorRef)
 		return
 	EndIf
 	
-	If (akActorRef == PlayerRef)
-	;if the actor stripping is the player
-	
-		DisablePlayerControls(true)
-		;disables player's controls
-		
-	EndIf
-	
 	int stage
 	;declares a variable we can use to count the stages
 	
@@ -692,6 +686,9 @@ Function FullSerialStrip(Actor akActorRef)
 
 		int a1 = anim.AddPosition(iGender)
 		;sets the first (and only) actor in this animation
+		
+		int stage
+		;declares a variable we can use to count the stages
 		
 		If (FormListCount(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsR") > 0 || (FormListCount(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsL") > 0)
 		;if either the right hand or the left hand weapon array are not empty
@@ -869,9 +866,49 @@ Function FullSerialStrip(Actor akActorRef)
 	sslThreadModel thread = SexLab.NewThread()
 	;create a new animation thread
 	
+	thread.AddActor(akActorRef)
+	;adds the actor to the thread
+	thread.DisableUndressAnimation(akActorRef, true)
+	;disables SexLab's default undressing animation. We'll use our own.
+	thread.DisableRagdollEnd(akActorRef, true)
+	;disables SexLab's auto-ragdoll on animation end
+	thread.DisableRedress(akActorRef, true)
+	;disables SexLab's auto redress on animation end
+	thread.SetAnimations(SexLab.GetAnimationByName("FullStrippingAnimation"))
+	;sets the animation for stripping weapons and shields
+	thread.SetHook("FullStrippingAnimation")
+	;sets a hook for this animation so we can selectively catch its events
 	
+	RegisterForModEvent("StageStart_FullStrippingAnimation", "OnStripStageStart")
+	;registers to be notified when each stripping stage begins
+	
+	thread.StartThread()
+	;starts the thread (starts the animation)
 	
 EndFunction
+
+Event OnStripStageStart(string eventName, string argString, float argNum, form sender)
+;when a stripping animation stage starts
+
+	Actor[] actorList = SexLab.HookActors(argString)
+	
+	Actor kActor = actorList[0]
+	
+	If (FormListCount(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsR") > 0 || (FormListCount(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsL") > 0)
+	;if either the right hand or the left hand weapon array are not empty
+	
+		Utility.Wait(DURATION)
+		;wait a little before unequipping items
+		
+		SingleArrayStrip(kActor, "APPS.SerialStripList.WeaponsAndShieldsR", "APPS.SerialStrippedList.WeaponsAndShieldsR")
+		;strips the actor of this group of clothing and stores stripped items into the array
+		
+	ElseIf If (FormListCount(akActorRef, "APPS.SerialStripList.Helmet") > 0)
+	;if the helmbet array is not empty
+	
+		Utility.Wait(DURATION)
+		
+EndEvent
 
 Function StripWeaponsAndShields(Actor akActorRef)
 ;makes the actor strip weapons and shields
