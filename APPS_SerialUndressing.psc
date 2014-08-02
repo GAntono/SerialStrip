@@ -5,7 +5,7 @@ SexLabFramework Property SexLab Auto
 ;points to the SexLab Framework script so we can use its functions
 
 sslAnimationFactory Property sslAnimFactory Auto
-;points to the SexLab sslAnimationFactory script se we can use its functions and properties
+;points to the SexLab sslAnimationFactory script so we can use its functions and properties
 
 sslAnimationSlots Property sslAnimSlots Auto
 ;points to the SexLab sslAnimationSlots script so we can use its functions
