@@ -94,7 +94,11 @@ TODO: Create a parameter for unequipping and giving it to an actor / container e
 	bArrayIsActive[4] Feet
 	bArrayIsActive[5] Body
 	bArrayIsActive[6] Underwear
+	;bras
 	bArrayIsActive[7] Other
+	;circlets
+	;rings (right)
+	;necklaces
 	/;
 	
 	Int iGender = SexLab.GetGender(akActorRef)
@@ -451,6 +455,7 @@ EndFunction
 
 Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, String asAnimation = "", Float afAnimDuration = 0.0)
 ;makes the player animate the stripping animation for a single group of clothing, then strips it
+;TODO: check for immersive first person mod and bypass ForceThirdPerson if it is installed
 
 	Game.ForceThirdPerson()
 	;force third person camera mode
@@ -840,12 +845,14 @@ Function FullSerialStrip(Actor akActorRef)
 		EndIf		
 	EndIf
 	
-	;CREATE  a new SexLab thread to play the animation
+	;CREATE a new SexLab thread to play the animation
 	sslThreadModel thread = SexLab.NewThread()
 	;create a new animation thread
 	
 	thread.AddActor(akActorRef)
 	;adds the actor to the thread
+	thread.CenterOnObject(akActorRef)
+	;centers the animation on the position the actor was in
 	thread.DisableUndressAnimation(akActorRef, true)
 	;disables SexLab's default undressing animation. We'll use our own.
 	thread.DisableRagdollEnd(akActorRef, true)
