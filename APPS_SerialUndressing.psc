@@ -1265,3 +1265,20 @@ Function SlotsToStrip(Actor ActorRef, Form[] afExceptionList)
 3.1.3 if Keyword known (armor f.e.) → save in appropriate array (armor to StorageUtil.Strip.Armor)
 4. call strip function
 /;
+;/
+STRIP ANIMATIONS DESCRIPTIONS
+StripFArGl		Remove Gloves
+StripFArGl		Remove Helmet
+StripFArBo		Remove Boots
+StripFArNoUS	Remove Torso?
+StripFArChB		Remove Torso?
+StripFClGl		Equip Gloves
+StripFClHo		Equip Helmet
+StripFClBo		Equip Boots
+StripFClCi		Equip Circlet
+StripFClChB		Equip Torso
+StripFULB		Remove Panties
+StripFUUB		Remove Bra
+StripFJN		Equip Ring
+StripFJC		Remove Ring
+/;
