@@ -66,11 +66,11 @@ Float Property DURATION Auto
 
 
 
-Bool[] Function PrepareForStripping(Actor akActorRef, String asExceptionListKey, Form[] afExceptionList, Bool[] abSlotOverrideList)
+Bool[] Function PrepareForStripping(Actor akActorRef, String asExceptionListKey, Form[] akExceptionList, Bool[] abSlotOverrideList)
 ;/analyses items worn by akActorRef and puts them into 7 arrays for the actual
 	stripping function to use.
 akActorRef: actor to prepare
-afExceptionList: forms passed within this array will NOT be stripped
+akExceptionList: forms passed within this array will NOT be stripped
 abSlotOverrideList: a 33-item-long array which defaults to false. Set any item [i] to true to override the user configuration
 	for slot i+30 and force-strip it.
 Returns a bool array whose 7 items indicate whether to strip from the 7 arrays or not
@@ -231,7 +231,7 @@ TODO: Create a parameter for unequipping and giving it to an actor / container e
 	;if the item is not found in the exception array
 
 		If (SexLab.IsStrippable(kItemRef) == true && IsValidSlot(i, bUserConfigSlots, abSlotOverrideList))
-		;if this item is strippable according to SexLab and is not found in the exception array
+		;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 		
 			StorageUtil.FormListAdd(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsR", kItemRef, allowDuplicate = false)
 			;adds this item to the WeaponsAndShields undress list
@@ -248,7 +248,7 @@ TODO: Create a parameter for unequipping and giving it to an actor / container e
 	;if the item is not found in the exception array
 
 		If (SexLab.IsStrippable(kItemRef) == true && IsValidSlot(i, bUserConfigSlots, abSlotOverrideList))
-		;if this item is strippable according to SexLab and is not found in the exception array
+		;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 		
 			StorageUtil.FormListAdd(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsL", kItemRef, allowDuplicate = false)
 			;adds this item to the WeaponsAndShields undress list
@@ -356,7 +356,8 @@ Bool Function IsValidSlot(int aiSlot, Bool[] abIsUserConfigStrippable, Bool[] ab
 	EndIf
 EndFunction
 
-Function SerialStripOn(Bool abSerialStripActivate)
+Function SerialStripOn(Bool abSerialStripActivate = true)
+;turns on serial stripping. Pass true to run on, off to turn off.
 
 	If abSerialStripActivate
 	;if serial stripping is set to activate
@@ -380,12 +381,16 @@ Event OnKeyUp(Int KeyCode, Float HoldTime)
 	;if the key that was released is the key for serial stripping
 		
 		If HoldTime < fDurationForFullStrip
+		;if the key has not been held down long enough
 		
 			SingleSerialStrip()
+			;just strip one group of garments
 			
 		Else
+		;if the key has been held down long enough
 		
 			FullSerialStrip(PlayerRef)
+			;do a full strip
 			
 		EndIf		
 	EndIf
@@ -410,7 +415,7 @@ Function SingleSerialStrip()
 			;run the function to play the appropriate animation
 			
 		Else
-		;if both right and left hand arrays are non empty
+		;if both right and left hand arrays are not empty
 		
 			SingleArrayAnimThenStrip("APPS.SerialStripList.WeaponsAndShieldsR", "APPS.SerialStrippedList.WeaponsAndShieldsR", sWeaponsAndShieldsAnimName, DURATION)
 			;run the function to play the appropriate animation
@@ -466,6 +471,7 @@ Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, S
 	;if the player has their weapon drawn
 	
 		PlayerRef.SheatheWeapon()
+		;make the player sheath their weapon
 		
 	EndIf
 	
@@ -499,6 +505,7 @@ Event OnUpdate()
 ;when the script receives an update event
 
 	SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray)
+	;strip this array
 	
 EndEvent
 
@@ -609,8 +616,10 @@ Function SingleArrayStrip(Actor akActorRef, String asStripArray, String asStripp
 	EndIf
 	
 	If (akActorRef == PlayerRef)
+	;if the stripping actor is the player we assume their controls have been deactivated by SetPlayerAIDriven(true)
 	
 		Game.SetPlayerAIDriven(false)
+		;give control back to the player		
 		
 	EndIf
 	
@@ -1250,7 +1259,7 @@ A. if weapon drawn, holster
 B. unequip shields and weapons
 C. Clear all SexLab.Strip arrays
 
-Function SlotsToStrip(Actor ActorRef, Form[] afExceptionList)
+Function SlotsToStrip(Actor ActorRef, Form[] akExceptionList)
 
 0. int i = 1
 1. Loop through all possible slots (int AmountOfSlots = 31)
@@ -1267,18 +1276,18 @@ Function SlotsToStrip(Actor ActorRef, Form[] afExceptionList)
 /;
 ;/
 STRIP ANIMATIONS DESCRIPTIONS
-StripFArGl		Remove Gloves
-StripFArGl		Remove Helmet
-StripFArBo		Remove Boots
-StripFArNoUS	Remove Torso?
-StripFArChB		Remove Torso?
-StripFClGl		Equip Gloves
-StripFClHo		Equip Helmet
-StripFClBo		Equip Boots
-StripFClCi		Equip Circlet
-StripFClChB		Equip Torso
-StripFULB		Remove Panties
-StripFUUB		Remove Bra
-StripFJN		Equip Ring
-StripFJC		Remove Ring
+StripFArGl		Remove Gloves 4.83 sec
+StripFArHe		Remove Helmet 4.67 sec
+StripFArBo		Remove Boots 6.17 sec
+StripFArNoUS	Remove Torso (no underwear shy)
+StripFArChB		Remove Torso 4.67 sec
+StripFClGl		Equip Gloves 2.83 sec
+StripFClHo		Equip Helmet 2.83 sec
+StripFClBo		Equip Boots 6.17 sec
+StripFClCi		Equip Circlet 2.83 sec
+StripFClChB		Equip Torso 6.03 sec
+StripFULB		Remove Panties 3.1 sec
+StripFUUB		Remove Bra 3.5 sec
+StripFJN		Equip Ring 2.5 sec
+StripFJC		Remove Ring 2.5 sec
 /;
