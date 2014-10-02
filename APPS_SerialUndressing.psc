@@ -37,30 +37,46 @@ String Property sCurrentStripArray Auto
 String Property sCurrentStrippedArray Auto
 ;the array that is currently holding the stripped items
 
-String Property sWeaponsAndShieldsAnimName Auto
+String Property sWeaponsAndShieldsAnimName AutoReadOnly
 ;the name of the weapons and shields stripping animation
 
-String Property sHandsAnimName Auto
+String Property sHandsAnim = "StripFArGl" AutoReadOnly
 ;the name of the hands stripping animation
 
-String Property sHelmetAnimName Auto
+String Property sHelmetAnim = "StripFArHe" AutoReadOnly
 ;the name of the helmet stripping animation
 
-String Property sFeetAnimName Auto
+String Property sFeetAnim = "StripFArBo" AutoReadOnly
 ;the name of the feet stripping animation
 
-String Property sBodyAnimName Auto
+String Property sBodyAnim = "StripFArChB" AutoReadOnly
 ;the name of the body stripping animation
 
-String Property sUnderwearAnimName Auto
+String Property sUnderwearAnim = "StripFULB" AutoReadOnly
 ;the name of the underwear stripping animation
 
-String Property sOtherAnimName Auto
+String Property sOtherAnim AutoReadOnly
 ;the name of the "other" stripping animation
 
-Float Property DURATION Auto
-;PLACEHOLDER, remove when ready
-	
+
+
+Float Property sHandsAnimDuration = 4.83 AutoReadOnly
+
+
+Float Property sHelmetAnimDuration = 4.67 AutoReadOnly
+;the name of the helmet stripping animation
+
+Float Property sFeetAnimDuration = 6.17 AutoReadOnly
+;the name of the feet stripping animation
+
+Float Property sBodyAnimDuration = 4.67 AutoReadOnly
+;the name of the body stripping animation
+
+Float Property sUnderwearAnimDuration = 3.1 AutoReadOnly
+;the name of the underwear stripping animation
+
+Float Property sOtherAnimDuration AutoReadOnly
+;the name of the "other" stripping animation
 
 
 
@@ -427,32 +443,32 @@ Function SingleSerialStrip()
 		
 	ElseIf (StorageUtil.FormListCount(PlayerRef, "APPS.SerialStripList.Hands") > 0)
 	
-		SingleArrayAnimThenStrip("APPS.SerialStripList.Hands", "APPS.SerialStrippedList.Hands", sHandsAnimName, DURATION)
+		SingleArrayAnimThenStrip("APPS.SerialStripList.Hands", "APPS.SerialStrippedList.Hands", sHandsAnim, DURATION)
 		;run the function to play the appropriate animation
 	
 	ElseIf (StorageUtil.FormListCount(PlayerRef, "APPS.SerialStripList.Helmet") > 0)
 	
-		SingleArrayAnimThenStrip("APPS.SerialStripList.Helmet", "APPS.SerialStrippedList.Helmet", sHelmetAnimName, DURATION)
+		SingleArrayAnimThenStrip("APPS.SerialStripList.Helmet", "APPS.SerialStrippedList.Helmet", sHelmetAnim, DURATION)
 		;run the function to play the appropriate animation
 	
 	ElseIf (StorageUtil.FormListCount(PlayerRef, "APPS.SerialStripList.Feet") > 0)
 	
-		SingleArrayAnimThenStrip("APPS.SerialStripList.Feet", "APPS.SerialStrippedList.Feet", sFeetAnimName, DURATION)
+		SingleArrayAnimThenStrip("APPS.SerialStripList.Feet", "APPS.SerialStrippedList.Feet", sFeetAnim, DURATION)
 		;run the function to play the appropriate animation
 	
 	ElseIf (StorageUtil.FormListCount(PlayerRef, "APPS.SerialStripList.Body") > 0)
 	
-		SingleArrayAnimThenStrip("APPS.SerialStripList.Body", "APPS.SerialStrippedList.Body", sBodyAnimName, DURATION)
+		SingleArrayAnimThenStrip("APPS.SerialStripList.Body", "APPS.SerialStrippedList.Body", sBodyAnim, DURATION)
 		;run the function to play the appropriate animation
 	
 	ElseIf (StorageUtil.FormListCount(PlayerRef, "APPS.SerialStripList.Underwear") > 0)
 	
-		SingleArrayAnimThenStrip("APPS.SerialStripList.Underwear", "APPS.SerialStrippedList.Underwear", sUnderwearAnimName, DURATION)
+		SingleArrayAnimThenStrip("APPS.SerialStripList.Underwear", "APPS.SerialStrippedList.Underwear", sUnderwearAnim, DURATION)
 		;run the function to play the appropriate animation
 	
 	ElseIf (StorageUtil.FormListCount(PlayerRef, "APPS.SerialStripList.Other") > 0)
 	
-		SingleArrayAnimThenStrip("APPS.SerialStripList.Other", "APPS.SerialStrippedList.Other", sOtherAnimName, DURATION)
+		SingleArrayAnimThenStrip("APPS.SerialStripList.Other", "APPS.SerialStrippedList.Other", sOtherAnim, DURATION)
 		;run the function to play the appropriate animation
 	
 	EndIf
@@ -703,10 +719,10 @@ Function FullSerialStrip(Actor akActorRef)
 		If (StorageUtil.FormListCount(akActorRef, "APPS.SerialStripList.Hands") > 0)
 		;if the hands array is not empty
 		
-			If (sHandsAnimName != "")
+			If (sHandsAnim != "")
 			;if there is an animation for stripping hands
 			
-				anim.AddPositionStage(a1, sHandsAnimName)
+				anim.AddPositionStage(a1, sHandsAnim)
 				;add the hands stripping animation as the next stage
 				
 				stage += 1
@@ -721,10 +737,10 @@ Function FullSerialStrip(Actor akActorRef)
 		If (StorageUtil.FormListCount(akActorRef, "APPS.SerialStripList.Helmet") > 0)
 		;if the helmbet array is not empty
 		
-			If (sHelmetAnimName != "")
+			If (sHelmetAnim != "")
 			;if there is an animation for stripping helmets
 			
-				anim.AddPositionStage(a1, sHelmetAnimName)
+				anim.AddPositionStage(a1, sHelmetAnim)
 				;add the helmet stripping animation as the next stage
 				
 				stage += 1
@@ -739,10 +755,10 @@ Function FullSerialStrip(Actor akActorRef)
 		If (StorageUtil.FormListCount(akActorRef, "APPS.SerialStripList.Feet") > 0)
 		;if the feet array is not empty
 		
-			If (sFeetAnimName != "")
+			If (sFeetAnim != "")
 			;if there is an animation for stripping feet
 			
-				anim.AddPositionStage(a1, sFeetAnimName)
+				anim.AddPositionStage(a1, sFeetAnim)
 				;add the feet stripping animation as the next stage
 				
 				stage += 1
@@ -757,10 +773,10 @@ Function FullSerialStrip(Actor akActorRef)
 		If (StorageUtil.FormListCount(akActorRef, "APPS.SerialStripList.Body") > 0)
 		;if the body array is not empty
 		
-			If (sBodyAnimName != "")
+			If (sBodyAnim != "")
 			;if there is an animation for stripping the body
 			
-				anim.AddPositionStage(a1, sBodyAnimName)
+				anim.AddPositionStage(a1, sBodyAnim)
 				;add the body stripping animation as the next stage
 				
 				stage += 1
@@ -775,10 +791,10 @@ Function FullSerialStrip(Actor akActorRef)
 		If (StorageUtil.FormListCount(akActorRef, "APPS.SerialStripList.Underwear") > 0)
 		;if the underwear array is not empty
 		
-			If (sUnderwearAnimName != "")
+			If (sUnderwearAnim != "")
 			;if there is an animation for stripping underwear
 			
-				anim.AddPositionStage(a1, sUnderwearAnimName)
+				anim.AddPositionStage(a1, sUnderwearAnim)
 				;add the underwear stripping animation as the next stage
 				
 				stage += 1
@@ -793,10 +809,10 @@ Function FullSerialStrip(Actor akActorRef)
 		If (StorageUtil.FormListCount(akActorRef, "APPS.SerialStripList.Other") > 0)
 		;if the "other items" array is not empty
 		
-			If (sOtherAnimName != "")
+			If (sOtherAnim != "")
 			;if there is an animation for stripping other
 			
-				anim.AddPositionStage(a1, sOtherAnimName)
+				anim.AddPositionStage(a1, sOtherAnim)
 				;add the other stripping animation as the next stage
 				
 				stage += 1
