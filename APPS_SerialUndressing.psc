@@ -65,9 +65,6 @@ asExceptionListKey: name of the StorageUtil array holding items that will NOT be
 abSlotOverrideList: a 33-item-long array which defaults to False. Set any item [i] to True to override the user configuration
 	for slot i+30 and force-strip it.
 Returns a bool array whose 7 items indicate whether to strip from the 7 arrays or not
-TODO: Create a parameter for the modder to specify which slots he'd like to strip (not just override)
-TODO: Create a parameter for unequipping by dropping to the ground and not added to APPS.Stripped
-TODO: Create a parameter for unequipping and giving it to an actor / container etc.
 /;
 
 	;/ beginValidation /;
@@ -304,7 +301,6 @@ EndFunction
 
 Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, String asAnimation = "", Float afAnimDuration = 0.0)
 ;makes the player animate the stripping animation for a single group of clothing, then strips it
-;TODO: check for immersive first person mod and bypass ForceThirdPerson if it is installed
 
 	Game.ForceThirdPerson() ;force third person camera mode
 	Game.SetPlayerAIDriven(True) ;instead of DisablePlayerControls(True)
@@ -567,18 +563,6 @@ Event OnStripStageStart(string eventName, string argString, float argNum, form s
 	EndIf
 
 EndEvent
-
-;/TODO LIST
-
-TODO General (there are more TODO lists inside functions)
-- PRIORITY: replace placeholders (e.g. DURATION) with actual values/variables.
-- Convert to using StorageUtil arrays instead of standard papyrus arrays.
-- Import StorageUtil script.
-- Use keys for arrays' names.
-
-DONE
-
-/;
 
 ;/leftover code
 
