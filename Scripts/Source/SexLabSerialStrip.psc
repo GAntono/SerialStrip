@@ -1,4 +1,4 @@
-ScriptName SexLabSerialStrip Extends ReferenceAlias
+ScriptName SexLabSerialStrip Extends Quest
 {serial undressing: press a button once to remove one garment, keep it depressed to remove all}
 
 SexLabFramework Property SexLab Auto ;points to the SexLab Framework script so we can use its functions
@@ -19,19 +19,20 @@ Float Property fDurationForFullStrip Auto ;cut-off point of key press: after thi
 Actor Property kCurrentActor Auto ;the actor that is currently animating
 String Property sCurrentStripArray Auto ;the array that is currently animating i.e. the actor is playing the animation for stripping from this array
 String Property sCurrentStrippedArray Auto ;the array that is currently holding the stripped items
-String Property sWeaponsAndShieldsAnimName Auto ;the name of the weapons and shields stripping animation
+String Property sWeaponsAndShieldsAnim Auto ;the name of the weapons and shields stripping animation
 String Property sHandsAnim = "StripFArGl" AutoReadOnly ;the name of the hands stripping animation
 String Property sHelmetAnim = "StripFArHe" AutoReadOnly ;the name of the helmet stripping animation
 String Property sFeetAnim = "StripFArBo" AutoReadOnly ;the name of the feet stripping animation
 String Property sBodyAnim = "StripFArChB" AutoReadOnly ;the name of the body stripping animation
 String Property sUnderwearAnim = "StripFULB" AutoReadOnly ;the name of the underwear stripping animation
 String Property sOtherAnim Auto ;the name of the "other" stripping animation
-Float Property sHandsAnimDuration = 4.83 AutoReadOnly ;the duration of the hands stripping animation
-Float Property sHelmetAnimDuration = 4.67 AutoReadOnly ;the duration of the helmet stripping animation
-Float Property sFeetAnimDuration = 6.17 AutoReadOnly ;the duration of the feet stripping animation
-Float Property sBodyAnimDuration = 4.67 AutoReadOnly ;the duration of the body stripping animation
-Float Property sUnderwearAnimDuration = 3.1 AutoReadOnly ;the duration of the underwear stripping animation
-Float Property sOtherAnimDuration Auto ;the name of the "other" stripping animation
+Float Property fWeaponsAndShieldsAnimDuration Auto ;the duration of the weapons and shields stripping animation
+Float Property fHandsAnimDuration = 4.83 AutoReadOnly ;the duration of the hands stripping animation
+Float Property fHelmetAnimDuration = 4.67 AutoReadOnly ;the duration of the helmet stripping animation
+Float Property fFeetAnimDuration = 6.17 AutoReadOnly ;the duration of the feet stripping animation
+Float Property fBodyAnimDuration = 4.67 AutoReadOnly ;the duration of the body stripping animation
+Float Property fUnderwearAnimDuration = 3.1 AutoReadOnly ;the duration of the underwear stripping animation
+Float Property fOtherAnimDuration Auto ;the name of the "other" stripping animation
 
 
 Bool[] Function PrepareForStripping(Actor akActorRef, String asExceptionListKey, Bool[] abSlotOverrideList)
@@ -253,26 +254,26 @@ Function SingleSerialStrip()
 	If (StorageUtil.FormListCount(PlayerRef, "APPS.SerialStripList.WeaponsAndShieldsR") > 0 ||  StorageUtil.FormListCount(PlayerRef, "APPS.SerialStripList.WeaponsAndShieldsL") > 0) ;if the weapons or shields arrays (Right and Left) are not empty
 
 		If (StorageUtil.FormListCount(PlayerRef, "APPS.SerialStripList.WeaponsAndShieldsR") == 0) ;if the right hand array is empty i.e. the left is not empty
-			SingleArrayAnimThenStrip("APPS.SerialStripList.WeaponsAndShieldsL", "APPS.SerialStrippedList.WeaponsAndShieldsL", sWeaponsAndShieldsAnimName, DURATION) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip("APPS.SerialStripList.WeaponsAndShieldsL", "APPS.SerialStrippedList.WeaponsAndShieldsL", sWeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
 		ElseIf (StorageUtil.FormListCount(PlayerRef, "APPS.SerialStripList.WeaponsAndShieldsL") == 0) ;if the left hand array is empty i.e. the right is not empty
-			SingleArrayAnimThenStrip("APPS.SerialStripList.WeaponsAndShieldsR", "APPS.SerialStrippedList.WeaponsAndShieldsR", sWeaponsAndShieldsAnimName, DURATION) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip("APPS.SerialStripList.WeaponsAndShieldsR", "APPS.SerialStrippedList.WeaponsAndShieldsR", sWeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
 		Else ;if both right and left hand arrays are not empty
-			SingleArrayAnimThenStrip("APPS.SerialStripList.WeaponsAndShieldsR", "APPS.SerialStrippedList.WeaponsAndShieldsR", sWeaponsAndShieldsAnimName, DURATION) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip("APPS.SerialStripList.WeaponsAndShieldsR", "APPS.SerialStrippedList.WeaponsAndShieldsR", sWeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
 			SingleArrayAnimThenStrip("APPS.SerialStripList.WeaponsAndShieldsL", "APPS.SerialStrippedList.WeaponsAndShieldsL", "") ;run the function to just strip the left hand without playing an animation
 		EndIf
 
 	ElseIf (StorageUtil.FormListCount(PlayerRef, "APPS.SerialStripList.Hands") > 0)
-		SingleArrayAnimThenStrip("APPS.SerialStripList.Hands", "APPS.SerialStrippedList.Hands", sHandsAnim, DURATION) ;run the function to play the appropriate animation
+		SingleArrayAnimThenStrip("APPS.SerialStripList.Hands", "APPS.SerialStrippedList.Hands", sHandsAnim, fHandsAnimDuration) ;run the function to play the appropriate animation
 	ElseIf (StorageUtil.FormListCount(PlayerRef, "APPS.SerialStripList.Helmet") > 0)
-		SingleArrayAnimThenStrip("APPS.SerialStripList.Helmet", "APPS.SerialStrippedList.Helmet", sHelmetAnim, DURATION) ;run the function to play the appropriate animation
+		SingleArrayAnimThenStrip("APPS.SerialStripList.Helmet", "APPS.SerialStrippedList.Helmet", sHelmetAnim, fHelmetAnimDuration) ;run the function to play the appropriate animation
 	ElseIf (StorageUtil.FormListCount(PlayerRef, "APPS.SerialStripList.Feet") > 0)
-		SingleArrayAnimThenStrip("APPS.SerialStripList.Feet", "APPS.SerialStrippedList.Feet", sFeetAnim, DURATION) ;run the function to play the appropriate animation
+		SingleArrayAnimThenStrip("APPS.SerialStripList.Feet", "APPS.SerialStrippedList.Feet", sFeetAnim, fFeetAnimDuration) ;run the function to play the appropriate animation
 	ElseIf (StorageUtil.FormListCount(PlayerRef, "APPS.SerialStripList.Body") > 0)
-		SingleArrayAnimThenStrip("APPS.SerialStripList.Body", "APPS.SerialStrippedList.Body", sBodyAnim, DURATION) ;run the function to play the appropriate animation
+		SingleArrayAnimThenStrip("APPS.SerialStripList.Body", "APPS.SerialStrippedList.Body", sBodyAnim, fBodyAnimDuration) ;run the function to play the appropriate animation
 	ElseIf (StorageUtil.FormListCount(PlayerRef, "APPS.SerialStripList.Underwear") > 0)
-		SingleArrayAnimThenStrip("APPS.SerialStripList.Underwear", "APPS.SerialStrippedList.Underwear", sUnderwearAnim, DURATION) ;run the function to play the appropriate animation
+		SingleArrayAnimThenStrip("APPS.SerialStripList.Underwear", "APPS.SerialStrippedList.Underwear", sUnderwearAnim, fUnderwearAnimDuration) ;run the function to play the appropriate animation
 	ElseIf (StorageUtil.FormListCount(PlayerRef, "APPS.SerialStripList.Other") > 0)
-		SingleArrayAnimThenStrip("APPS.SerialStripList.Other", "APPS.SerialStrippedList.Other", sOtherAnim, DURATION) ;run the function to play the appropriate animation
+		SingleArrayAnimThenStrip("APPS.SerialStripList.Other", "APPS.SerialStrippedList.Other", sOtherAnim, fOtherAnimDuration) ;run the function to play the appropriate animation
 	EndIf
 EndFunction
 
@@ -413,8 +414,8 @@ Function FullSerialStrip(Actor akActorRef)
 		Int a1 = anim.AddPosition(iGender) ;sets the first (and only) actor in this animation
 
 		If (StorageUtil.FormListCount(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsR") > 0 || StorageUtil.FormListCount(akActorRef, "APPS.SerialStripList.WeaponsAndShieldsL") > 0) ;if either the right hand or the left hand weapon array are not empty
-			If (sWeaponsAndShieldsAnimName != "") ;if there is an animation for stripping weapons and shields
-				anim.AddPositionStage(a1, sWeaponsAndShieldsAnimName) ;add the weapons stripping as the first stage of the animation
+			If (sWeaponsAndShieldsAnim != "") ;if there is an animation for stripping weapons and shields
+				anim.AddPositionStage(a1, sWeaponsAndShieldsAnim) ;add the weapons stripping as the first stage of the animation
 				Stage += 1 ;increases stage by one
 				WeaponsAndShieldsStage = Stage ;sets WeaponsAndShieldsStage equal to current stage
 			EndIf
@@ -472,27 +473,27 @@ Function FullSerialStrip(Actor akActorRef)
 		anim.Save(sslAnimSlots.FindByName("FullStrippingAnimation")) ;saves the animation (has to be done before setting the timers)
 
 		If (WeaponsAndShieldsStage != 0) ;if there is a weapons and shields stripping stage
-			anim.SetStageTimer(WeaponsAndShieldsStage, DURATION)
+			anim.SetStageTimer(WeaponsAndShieldsStage, fWeaponsAndShieldsAnimDuration)
 		EndIf
 
 		If (HandsStage != 0) ;if there is a hands stripping animation stage
-			anim.SetStageTimer(HandsStage, DURATION)
+			anim.SetStageTimer(HandsStage, fHandsAnimDuration)
 		EndIf
 
 		If (HelmetStage != 0) ;if there is a helmet stripping animation stage
-			anim.SetStageTimer(HelmetStage, DURATION)
+			anim.SetStageTimer(HelmetStage, fHelmetAnimDuration)
 		EndIf
 
 		If (FeetStage != 0) ;if there is a feet stripping animation stage
-			anim.SetStageTimer(FeetStage, DURATION)
+			anim.SetStageTimer(FeetStage, fFeetAnimDuration)
 		EndIf
 
 		If (BodyStage != 0) ;if there is a body stripping animation stage
-			anim.SetStageTimer(BodyStage, DURATION)
+			anim.SetStageTimer(BodyStage, fBodyAnimDuration)
 		EndIf
 
 		If (OtherStage != 0) ;if there is a other stripping animation stage
-			anim.SetStageTimer(OtherStage, DURATION)
+			anim.SetStageTimer(OtherStage, fOtherAnimDuration)
 		EndIf
 	EndIf
 
@@ -519,23 +520,23 @@ Event OnStripStageStart(string eventName, string argString, float argNum, form s
 	Actor kActor = actorList[0] ;fetches the first and only entry in the actorList and stores it into kActor
 
 	If (StorageUtil.FormListCount(kActor, "APPS.SerialStripList.WeaponsAndShieldsR") > 0 || StorageUtil.FormListCount(kActor, "APPS.SerialStripList.WeaponsAndShieldsL") > 0) ;if either the right hand or the left hand weapon array are not empty
-		Utility.Wait(DURATION) ;wait until the animation has ended before unequipping items
+		Utility.Wait(fWeaponsAndShieldsAnimDuration) ;wait until the animation has ended before unequipping items
 		SingleArrayStrip(kActor, "APPS.SerialStripList.WeaponsAndShieldsR", "APPS.SerialStrippedList.WeaponsAndShieldsR") ;strips the actor of this group of clothing and stores stripped items into the array
 		SingleArrayStrip(kActor, "APPS.SerialStripList.WeaponsAndShieldsL", "APPS.SerialStrippedList.WeaponsAndShieldsL") ;strips the actor of this group of clothing and sores stripped items into the array
 	ElseIf (StorageUtil.FormListCount(kActor, "APPS.SerialStripList.Helmet") > 0) ;if the helmbet array is not empty
-		Utility.Wait(DURATION)
+		Utility.Wait(fHelmetAnimDuration)
 		SingleArrayStrip(kActor, "APPS.SerialStripList.Helmet", "APPS.SerialStrippedList.Helmet");strips the actor of this group of clothing and stores stripped items into the array
 	ElseIf (StorageUtil.FormListCount(kActor, "APPS.SerialStripList.Feet") > 0) ;if the feet array is not empty
-		Utility.Wait(DURATION)
+		Utility.Wait(fFeetAnimDuration)
 		SingleArrayStrip(kActor, "APPS.SerialStripList.Feet", "APPS.SerialStrippedList.Feet") ;strips the actor of this group of clothing and stores stripped items into the array
 	ElseIf (StorageUtil.FormListCount(kActor, "APPS.SerialStripList.Body") > 0) ;if the body array is not empty
-		Utility.Wait(DURATION)
+		Utility.Wait(fBodyAnimDuration)
 		SingleArrayStrip(kActor, "APPS.SerialStripList.Body", "APPS.SerialStrippedList.Body") ;strips the actor of this group of clothing and stores stripped items into the array
 	ElseIf (StorageUtil.FormListCount(kActor, "APPS.SerialStripList.Underwear") > 0) ;if the underwear array is not empty
-		Utility.Wait(DURATION)
+		Utility.Wait(fUnderwearAnimDuration)
 		SingleArrayStrip(kActor, "APPS.SerialStripList.Underwear", "APPS.SerialStrippedList.Underwear") ;strips the actor of this group of clothing and stores stripped items into the array
 	ElseIf (StorageUtil.FormListCount(kActor, "APPS.SerialStripList.Other") > 0) ;if the "other items" array is not empty
-		Utility.Wait(DURATION)
+		Utility.Wait(fOtherAnimDuration)
 		SingleArrayStrip(kActor, "APPS.SerialStripList.Other", "APPS.SerialStrippedList.Other") ;strips the actor of this group of clothing and stores stripped items into the array
 	EndIf
 
@@ -615,7 +616,7 @@ Function StripWeaponsAndShields(Actor akActorRef)
 	;disables SexLab's auto-ragdoll on animation end
 	th.DisableRedress(akActorRef, True)
 	;disables SexLab's auto redress on animation end
-	th.SetAnimations(SexLab.GetAnimationByName(sWeaponsAndShieldsAnimName))
+	th.SetAnimations(SexLab.GetAnimationByName(sWeaponsAndShieldsAnim))
 	;sets the animation for stripping weapons and shields
 	th.SetHook("StripWeaponsAndShields")
 	;sets a hook for this animation
