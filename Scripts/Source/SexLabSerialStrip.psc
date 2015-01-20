@@ -2,11 +2,8 @@ ScriptName SexLabSerialStrip Extends ReferenceAlias
 {serial undressing: press a button once to remove one garment, keep it depressed to remove all}
 
 SexLabFramework Property SexLab Auto ;points to the SexLab Framework script so we can use its functions
-
 sslAnimationFactory Property sslAnimFactory Auto ;points to the SexLab sslAnimationFactory script so we can use its functions and properties
-
 sslAnimationSlots Property sslAnimSlots Auto ;points to the SexLab sslAnimationSlots script so we can use its functions
-
 sslSystemConfig Property SexLabSystemConfig Auto ;points to the SexLab's sslSystemConfig.psc script so we can use its functions
 
 Actor Property PlayerRef Auto ;points to the player
@@ -18,43 +15,23 @@ String[] Property FeetKeywords Auto
 String[] Property UnderwearKeywords Auto
 
 Int Property iStripKeyCode Auto ;the key that will be used to input stripping commands
-
 Float Property fDurationForFullStrip Auto ;cut-off point of key press: after this duration, the actor will strip fully
-
 Actor Property kCurrentActor Auto ;the actor that is currently animating
-
 String Property sCurrentStripArray Auto ;the array that is currently animating i.e. the actor is playing the animation for stripping from this array
-
 String Property sCurrentStrippedArray Auto ;the array that is currently holding the stripped items
-
-String Property sWeaponsAndShieldsAnimName AutoReadOnly ;the name of the weapons and shields stripping animation
-
+String Property sWeaponsAndShieldsAnimName Auto ;the name of the weapons and shields stripping animation
 String Property sHandsAnim = "StripFArGl" AutoReadOnly ;the name of the hands stripping animation
-
 String Property sHelmetAnim = "StripFArHe" AutoReadOnly ;the name of the helmet stripping animation
-
 String Property sFeetAnim = "StripFArBo" AutoReadOnly ;the name of the feet stripping animation
-
 String Property sBodyAnim = "StripFArChB" AutoReadOnly ;the name of the body stripping animation
-
 String Property sUnderwearAnim = "StripFULB" AutoReadOnly ;the name of the underwear stripping animation
-
-String Property sOtherAnim AutoReadOnly ;the name of the "other" stripping animation
-
+String Property sOtherAnim Auto ;the name of the "other" stripping animation
 Float Property sHandsAnimDuration = 4.83 AutoReadOnly ;the duration of the hands stripping animation
-
 Float Property sHelmetAnimDuration = 4.67 AutoReadOnly ;the duration of the helmet stripping animation
-
 Float Property sFeetAnimDuration = 6.17 AutoReadOnly ;the duration of the feet stripping animation
-
 Float Property sBodyAnimDuration = 4.67 AutoReadOnly ;the duration of the body stripping animation
-
 Float Property sUnderwearAnimDuration = 3.1 AutoReadOnly ;the duration of the underwear stripping animation
-
-Float Property sOtherAnimDuration AutoReadOnly ;the name of the "other" stripping animation
-
-
-
+Float Property sOtherAnimDuration Auto ;the name of the "other" stripping animation
 
 
 Bool[] Function PrepareForStripping(Actor akActorRef, String asExceptionListKey, Bool[] abSlotOverrideList)
@@ -563,6 +540,51 @@ Event OnStripStageStart(string eventName, string argString, float argNum, form s
 	EndIf
 
 EndEvent
+
+;/ Animation Descriptions & Durations
+
+StripFArGl		Remove Gloves
+StripFArGl		Remove Helmet
+StripFArBo		Remove Boots
+StripFArNoUS	Remove Torso?
+StripFArChB		Remove Torso?
+StripFClGl		Equip Gloves
+StripFClHo		Equip Helmet
+StripFClBo		Equip Boots
+StripFClCi		Equip Circlet
+StripFClChB		Equip Torso
+StripFULB		Remove Panties
+StripFUUB		Remove Bra
+StripFJN		Equip Ring
+StripFJC		Remove Ring
+
+FArBo 185 frames - 6.17 sec
+
+FArChB 140 frames - 4.67 sec
+
+FArGl 145 frames - 4.83 sec
+
+FArHe 140 frames - 4.67 sec
+
+FClBo 185 frames - 6.17 sec
+
+FClChB 181 frames - 6.03 sec
+
+FClCi 85 frames - 2.83 sec
+
+FClGl 85 frames - 2.83 sec
+
+FClHo 85 frames - 2.83 sec
+
+FULB 93 frames - 3.1 sec
+
+FUUB 105 frames - 3.5 sec
+
+FJR 74 frames - 2.5 sec
+
+FJN 74 frames - 2.5 sec
+
+/;
 
 ;/leftover code
 
