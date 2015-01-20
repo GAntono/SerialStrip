@@ -1,4 +1,4 @@
-ScriptName APPS_SerialUndressing Extends ReferenceAlias
+ScriptName SexLabSerialStrip Extends ReferenceAlias
 {serial undressing: press a button once to remove one garment, keep it depressed to remove all}
 
 SexLabFramework Property SexLab Auto ;points to the SexLab Framework script so we can use its functions
