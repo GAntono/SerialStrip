@@ -188,7 +188,7 @@ EndEvent
 Function ClearIfInactive(Actor akActorRef, String asArrayName, Bool abIsArrayActive)
 ;clears the asArrayName array on akActorRef, depending on whether abIsArrayActive
 	;/ beginValidation /;
-	If (akActorRef == None || asArrayName == "")
+	If (!akActorRef || asArrayName == "")
 		Return
 	EndIf
 	;/ endValidation /;
@@ -315,7 +315,7 @@ Function SingleArrayStrip(Actor akActorRef, String asStripArray, String asStripp
 ;makes the player strip a single group of clothing
 
 	;/ beginValidation /;
-	If (akActorRef == None)
+	If (!akActorRef)
 		Return
 	EndIf
 	;/ endValidation /;
@@ -391,7 +391,7 @@ Function FullSerialStrip(Actor akActorRef)
 ;makes the actor play all the valid stripping animations and undress their corresponding groups of clothing
 
 	;/ beginValidation /;
-	If (akActorRef == None)
+	If (!akActorRef)
 		Return
 	EndIf
 	;/ endValidation /;
@@ -610,7 +610,7 @@ FJN 74 frames - 2.5 sec
 Function StripWeaponsAndShields(Actor akActorRef)
 ;makes the actor strip weapons and shields
 
-	If (akActorRef == None)
+	If (!akActorRef)
 	;validation
 		Return
 	EndIf
