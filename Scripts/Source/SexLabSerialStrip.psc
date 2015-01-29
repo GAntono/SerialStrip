@@ -256,12 +256,11 @@ Event OnKeyUp(Int KeyCode, Float HoldTime)
 EndEvent
 
 Function SingleSerialStrip()
-;makes the actor strip one item/group of clothing (one array)
+;makes the actor strip one item/group of clothing (one array) and then strip the next one and so on. To be used for button taps.
 
 	If (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) > 0 ||  FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) > 0) ;if the weapons or shields arrays (Right and Left) are not empty
 		
-		PlayerRef.SheatheWeapon() ;makes the actor sheath her weapons
-		
+		;until we have special weapons stripping animation, this is being deprecated later on in SingleArrayAnimThenStrip()
 		If (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) == 0) ;if the right hand array is empty i.e. the left is not empty
 			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L, sWeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
 		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) == 0) ;if the left hand array is empty i.e. the right is not empty
@@ -303,6 +302,8 @@ Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, S
 	If (asAnimation != "" && afAnimDuration != 0.0) ;if the function has been given an animation to play
 		Debug.SendAnimationEvent(PlayerRef, asAnimation) ;makes the player play the stripping animation
 		RegisterForSingleUpdate(afAnimDuration) ;registers to be notified when the animation ends - it will then strip the array by calling SingleArrayStrip()
+	ElseIf (asAnimation == sWeaponsAndShieldsAnim) ;special case for weapons and shields because we don't have special animations, just vanilla sheathing
+		RegisterForSingleUpdate(2.0) ;insert length of vanilla weapons sheathing animation here
 	Else
 		SingleArrayStrip(PlayerRef, sCurrentStripArray, sCurrentStrippedArray) ;go directly to stripping the array without animation
 	EndIf
