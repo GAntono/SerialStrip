@@ -259,7 +259,9 @@ Function SingleSerialStrip()
 ;makes the actor strip one item/group of clothing (one array)
 
 	If (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) > 0 ||  FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) > 0) ;if the weapons or shields arrays (Right and Left) are not empty
-
+		
+		PlayerRef.SheatheWeapon() ;makes the actor sheath her weapons
+		
 		If (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) == 0) ;if the right hand array is empty i.e. the left is not empty
 			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L, sWeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
 		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) == 0) ;if the left hand array is empty i.e. the right is not empty
