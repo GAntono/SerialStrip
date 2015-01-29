@@ -77,7 +77,7 @@ Returns a bool array whose 7 items indicate whether to strip from the 7 arrays o
 	EndIf
 	;/ endValidation /;
 
-	Bool[] bArrayIsActive = new Bool[7]
+	Bool[] bArrayIsActive = new Bool[8]
 	;/Activates or deactivates (and clears) the stripping arrays
 	bArrayIsActive[0] WeaponsAndShieldsR
 	bArrayIsActive[1] WeaponsAndShieldsL
@@ -155,7 +155,7 @@ Returns a bool array whose 7 items indicate whether to strip from the 7 arrays o
 	Form kItemRef = akActorRef.GetEquippedWeapon(False) ;fetches right-hand weapon and puts it in kItemRef
 
 	If ((FormListFind(None, asExceptionListKey, kItemRef) == -1)) ;if the item is not found in the exception array
-		If (SexLab.IsStrippable(kItemRef) == True && IsValidSlot(i, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
+		If (SexLab.IsStrippable(kItemRef) == True && IsValidSlot(32, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 			FormListAdd(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
 			bArrayIsActive[0] = True ;activate the WeaponsAndShieldsR array
 		EndIf
@@ -202,7 +202,7 @@ EndFunction
 Bool Function ItemHasKeyword(Form akItemRef, String[] asKeywords)
 ;checks whether akItemRef has any of the keywords stored in the Keywords array
 	;/ beginValidation /;
-	If (akItemRef == None || asKeywords == None)
+	If (!akItemRef || !asKeywords)
 		Return False
 	EndIf
 	;/ endValidation /;
