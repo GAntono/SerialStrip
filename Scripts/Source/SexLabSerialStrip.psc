@@ -504,6 +504,8 @@ Function FullSerialStrip(Actor akActorRef)
 		If (OtherStage != 0) ;if there is a other stripping animation stage
 			anim.SetStageTimer(OtherStage, fOtherAnimDuration)
 		EndIf
+	Else
+		Debug.Notification("Our FullSerialStrip animation is None!")
 	EndIf
 
 	;CREATE a new SexLab thread to play the animation
