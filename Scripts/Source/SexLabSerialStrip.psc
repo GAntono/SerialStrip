@@ -15,6 +15,7 @@ String[] Property BodyKeywords Auto
 String[] Property HandsKeywords Auto
 String[] Property FeetKeywords Auto
 String[] Property UnderwearKeywords Auto
+Bool[] Property bSlotOverrideDefauList Auto
 
 String Property SLSS_STRIPLIST_WEAPONSANDSHIELDS_R = "APPS.SerialStripList.WeaponsAndShieldsR" AutoReadOnly
 String Property SLSS_STRIPLIST_WEAPONSANDSHIELDS_L = "APPS.SerialStripList.WeaponsAndShieldsL" AutoReadOnly
@@ -53,8 +54,14 @@ Float Property fOtherAnimDuration Auto ;the name of the "other" stripping animat
 Float Property fDurationForFullStrip = 2.0 Auto ;2 seconds cut-off point of key press: after this duration, the actor will strip fully
 Int Property iStripKeyCode = 48 Auto ;B - the key that will be used to input stripping commands
 
+Event OnInit()
+	InitDefaultArrays()
+	
+	PrepareForStripping(PlayerRef, "", bSlotOverrideDefauList)
+	SerialStripOn()
+EndEvent
 
-Function PrepareForStripping(Actor akActorRef, String asExceptionListKey, Bool[] abSlotOverrideList)
+Function PrepareForStripping(Actor akActorRef, String asExceptionListKey = "", Bool[] abSlotOverrideList)
 ;/analyses items worn by akActorRef and puts them into 7 arrays for the actual
 	stripping function to use.
 akActorRef: actor to prepare
@@ -65,8 +72,8 @@ Returns a bool array whose 7 items indicate whether to strip from the 7 arrays o
 /;
 
 	;/ beginValidation /;
-	If (akActorRef == None) || abSlotOverrideList.Length != 33
-		Return None
+	If (!akActorRef || abSlotOverrideList.Length != 33) 
+		Return
 	EndIf
 	;/ endValidation /;
 
@@ -541,6 +548,17 @@ Event OnStripStageStart(string eventName, string argString, float argNum, form s
 	EndIf
 
 EndEvent
+
+Function InitDefaultArrays()
+	bSlotOverrideDefauList = New Bool[33]
+	
+	Int i
+	
+	While (i < 33)
+		bSlotOverrideDefauList[i] = False
+		i += 1
+	EndWhile
+EndFunction
 
 ;/ Animation Descriptions & Durations
 
