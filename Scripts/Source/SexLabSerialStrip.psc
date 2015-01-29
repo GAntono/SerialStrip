@@ -50,8 +50,8 @@ Float Property fFeetAnimDuration = 6.17 AutoReadOnly ;the duration of the feet s
 Float Property fBodyAnimDuration = 4.67 AutoReadOnly ;the duration of the body stripping animation
 Float Property fUnderwearAnimDuration = 3.1 AutoReadOnly ;the duration of the underwear stripping animation
 Float Property fOtherAnimDuration Auto ;the name of the "other" stripping animation
-Float Property fDurationForFullStrip Auto ;cut-off point of key press: after this duration, the actor will strip fully
-Int Property iStripKeyCode Auto ;the key that will be used to input stripping commands
+Float Property fDurationForFullStrip = 2.0 Auto ;2 seconds cut-off point of key press: after this duration, the actor will strip fully
+Int Property iStripKeyCode = 48 Auto ;B - the key that will be used to input stripping commands
 
 
 Function PrepareForStripping(Actor akActorRef, String asExceptionListKey, Bool[] abSlotOverrideList)
