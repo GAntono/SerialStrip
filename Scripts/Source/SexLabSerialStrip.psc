@@ -56,12 +56,11 @@ Int Property iStripKeyCode = 48 Auto ;B - the key that will be used to input str
 
 Event OnInit()
 	InitDefaultArrays()
-	
-	PrepareForStripping(PlayerRef, "", bSlotOverrideDefauList)
+
 	SerialStripOn()
 EndEvent
 
-Function PrepareForStripping(Actor akActorRef, String asExceptionListKey = "", Bool[] abSlotOverrideList)
+Function PrepareForStripping(Actor akActorRef, Bool[] abSlotOverrideList, String asExceptionListKey = "")
 ;/analyses items worn by akActorRef and puts them into 7 arrays for the actual
 	stripping function to use.
 akActorRef: actor to prepare
@@ -237,6 +236,7 @@ Function SerialStripOn(Bool abActivateSerialStrip = True)
 ;turns on serial stripping. Pass True to run on, off to turn off.
 
 	If (abActivateSerialStrip) ;if serial stripping is set to activate
+		PrepareForStripping(PlayerRef, bSlotOverrideDefauList)
 		RegisterForKey(iStripKeyCode) ;registers to listen for the iStripKeyCode
 	Else ;if serial stripping is set to deactivate
 		UnRegisterForKey(iStripKeyCode) ;stops listening for the iStripKeyCode
