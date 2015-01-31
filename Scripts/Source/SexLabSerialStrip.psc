@@ -411,7 +411,7 @@ Function FullSerialStrip(Actor akActorRef)
 	akActorRef.SheatheWeapon() ;makes the actor sheath her weapon
 
 	;CREATE ephemeral animation
-	sslBaseAnimation anim = SexLab.NewAnimationObject("FullStrippingAnimation", akActorRef) ;creates a new temporary animation and stores it on akActorRef.
+	sslBaseAnimation anim = SexLab.NewAnimationObject("FullStrippingAnimation", Self) ;creates a new temporary animation and stores it on this quest.
 
 	If (anim != None) ;if the entry has indeed been created
 
@@ -479,8 +479,7 @@ Function FullSerialStrip(Actor akActorRef)
 			EndIf
 		EndIf
 		
-		Debug.MessageBox("FindByName returns slot " + sslAnimSlots.FindByName("FullStrippingAnimation"))
-		anim.Save(sslAnimSlots.FindByName("FullStrippingAnimation")) ;saves the animation (has to be done before setting the timers)
+		;Debug.MessageBox("FindByName returns slot " + sslAnimSlots.FindByName("FullStrippingAnimation"))
 
 		If (WeaponsAndShieldsStage != 0) ;if there is a weapons and shields stripping stage
 			anim.SetStageTimer(WeaponsAndShieldsStage, fWeaponsAndShieldsAnimDuration)
@@ -505,6 +504,9 @@ Function FullSerialStrip(Actor akActorRef)
 		If (OtherStage != 0) ;if there is a other stripping animation stage
 			anim.SetStageTimer(OtherStage, fOtherAnimDuration)
 		EndIf
+		
+		anim.Save() ;saves the animation
+		
 	Else
 		Debug.Notification("Our FullSerialStrip animation is None!")
 	EndIf
