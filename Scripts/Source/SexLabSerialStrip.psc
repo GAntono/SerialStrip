@@ -558,7 +558,7 @@ Event OnStripStageEnd(string eventName, string argString, float argNum, form sen
 EndEvent
 
 Event OnStripAnimEnd(string eventName, string argString, float argNum, form sender)
-;when a stripping animation ends
+;when a stripping animation ends, strip all remaining arrays
 
 	Actor[] actorList = SexLab.HookActors(argString) ;fetches the list of actors (should be only 1) and stores it into the actorList array
 
@@ -567,19 +567,32 @@ Event OnStripAnimEnd(string eventName, string argString, float argNum, form send
 	If (FormListCount(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) > 0 || FormListCount(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) > 0) ;if either the right hand or the left hand weapon array are not empty
 		SingleArrayStrip(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R) ;strips the actor of this group of clothing and stores stripped items into the array
 		SingleArrayStrip(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L) ;strips the actor of this group of clothing and stores stripped items into the array
-	ElseIf (FormListCount(kActor, SLSS_STRIPLIST_HANDS) > 0) ;if the hands array is not empty
+	EndIf
+	
+	If (FormListCount(kActor, SLSS_STRIPLIST_HANDS) > 0) ;if the hands array is not empty
 		SingleArrayStrip(kActor, SLSS_STRIPLIST_HANDS, SLSS_STRIPPEDLIST_HANDS);strips the actor of this group of clothing and stores stripped items into the array
-	ElseIf (FormListCount(kActor, SLSS_STRIPLIST_HELMET) > 0) ;if the helmet array is not empty
+	EndIf
+	
+	If (FormListCount(kActor, SLSS_STRIPLIST_HELMET) > 0) ;if the helmet array is not empty
 		SingleArrayStrip(kActor, SLSS_STRIPLIST_HELMET, SLSS_STRIPPEDLIST_HELMET);strips the actor of this group of clothing and stores stripped items into the array
-	ElseIf (FormListCount(kActor, SLSS_STRIPLIST_FEET) > 0) ;if the feet array is not empty
+	EndIf
+	
+	If (FormListCount(kActor, SLSS_STRIPLIST_FEET) > 0) ;if the feet array is not empty
 		SingleArrayStrip(kActor, SLSS_STRIPLIST_FEET, SLSS_STRIPPEDLIST_FEET) ;strips the actor of this group of clothing and stores stripped items into the array
-	ElseIf (FormListCount(kActor, SLSS_STRIPLIST_BODY) > 0) ;if the body array is not empty
+	EndIf
+	
+	If (FormListCount(kActor, SLSS_STRIPLIST_BODY) > 0) ;if the body array is not empty
 		SingleArrayStrip(kActor, SLSS_STRIPLIST_BODY, SLSS_STRIPPEDLIST_BODY) ;strips the actor of this group of clothing and stores stripped items into the array
-	ElseIf (FormListCount(kActor, SLSS_STRIPLIST_UNDERWEAR) > 0) ;if the underwear array is not empty
+	EndIf
+	
+	If (FormListCount(kActor, SLSS_STRIPLIST_UNDERWEAR) > 0) ;if the underwear array is not empty
 		SingleArrayStrip(kActor, SLSS_STRIPLIST_UNDERWEAR, SLSS_STRIPPEDLIST_UNDERWEAR) ;strips the actor of this group of clothing and stores stripped items into the array
-	ElseIf (FormListCount(kActor, SLSS_STRIPLIST_OTHER) > 0) ;if the "other items" array is not empty
+	EndIf
+	
+	If (FormListCount(kActor, SLSS_STRIPLIST_OTHER) > 0) ;if the "other items" array is not empty
 		SingleArrayStrip(kActor, SLSS_STRIPLIST_OTHER, SLSS_STRIPPEDLIST_OTHER) ;strips the actor of this group of clothing and stores stripped items into the array
 	EndIf
+	
 EndEvent
 
 
