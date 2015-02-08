@@ -44,15 +44,15 @@ String Property sFeetAnim = "StripFArBo" AutoReadOnly ;the name of the feet stri
 String Property sBodyAnim = "StripFArChB" AutoReadOnly ;the name of the body stripping animation
 String Property sUnderwearAnim = "StripFULB" AutoReadOnly ;the name of the underwear stripping animation
 String Property sOtherAnim Auto ;the name of the "other" stripping animation
-Float Property fWeaponsAndShieldsAnimDuration Auto ;the duration of the weapons and shields stripping animation
+Float Property fWeaponsAndShieldsAnimDuration = 0.5 AutoReadOnly ;the duration of the weapons and shields stripping animation
 Float Property fHandsAnimDuration = 4.83 AutoReadOnly ;the duration of the hands stripping animation
 Float Property fHelmetAnimDuration = 4.67 AutoReadOnly ;the duration of the helmet stripping animation
 Float Property fFeetAnimDuration = 6.17 AutoReadOnly ;the duration of the feet stripping animation
 Float Property fBodyAnimDuration = 4.67 AutoReadOnly ;the duration of the body stripping animation
 Float Property fUnderwearAnimDuration = 3.1 AutoReadOnly ;the duration of the underwear stripping animation
-Float Property fOtherAnimDuration Auto ;the name of the "other" stripping animation
-Float Property fDurationForFullStrip = 2.0 Auto ;2 seconds cut-off point of key press: after this duration, the actor will strip fully
-Int Property iStripKeyCode = 48 Auto ;B - the key that will be used to input stripping commands
+Float Property fOtherAnimDuration = 0.5 AutoReadOnly ;the name of the "other" stripping animation
+Float Property fDurationForFullStrip = 2.0 AutoReadOnly ;2 seconds cut-off point of key press: after this duration, the actor will strip fully
+Int Property iStripKeyCode = 48 AutoReadOnly ;B - the key that will be used to input stripping commands
 
 Event OnInit()
 	InitDefaultArrays()
@@ -408,7 +408,9 @@ Function FullSerialStrip(Actor akActorRef)
 	Int UnderwearStage ;the stage for stripping underwear
 	Int OtherStage ;the stage for stripping other clothing items
 	
-	akActorRef.SheatheWeapon() ;makes the actor sheath her weapon
+	If (PlayerRef.IsWeaponDrawn()) ;if the player has their weapon drawn
+		PlayerRef.SheatheWeapon() ;make the player sheath their weapon
+	EndIf
 
 	;CREATE ephemeral animation
 	sslBaseAnimation anim = SexLab.NewAnimationObject("FullStrippingAnimation", Self) ;creates a new temporary animation and stores it on this quest.
@@ -513,15 +515,16 @@ Function FullSerialStrip(Actor akActorRef)
 
 	;CREATE a new SexLab thread to play the animation
 	sslThreadModel thread = SexLab.NewThread();create a new animation thread
-	sslBaseAnimation[] ForcedAnimations = new sslBaseAnimation[1] ;create a single-item array to hold our full-stripping animation
-	ForcedAnimations[0] = anim ;load our animation on the first and only item in the array
+	sslBaseAnimation[] ForcedAnimationsList = New sslBaseAnimation[1] ;create a single-item array to hold our full-stripping animation
+	ForcedAnimationsList[0] = anim ;load our animation on the first and only item in the array
 
 	thread.AddActor(akActorRef) ;adds the actor to the thread
 	thread.CenterOnObject(akActorRef) ;centers the animation on the position the actor was in
+	thread.SetStrip(akActorRef, bSlotOverrideDefauList)
 	thread.DisableUndressAnimation(akActorRef, True) ;disables SexLab's default undressing animation. We'll use our own.
 	thread.DisableRagdollEnd(akActorRef, True) ;disables SexLab's auto-ragdoll on animation end
 	thread.DisableRedress(akActorRef, True) ;disables SexLab's auto redress on animation end
-	thread.SetForcedAnimations(ForcedAnimations) ;sets the animation
+	thread.SetForcedAnimations(ForcedAnimationsList) ;sets the animation
 	thread.SetHook("FullStrippingAnimation") ;sets a hook for this animation so we can selectively catch its events
 	RegisterForModEvent("StageStart_FullStrippingAnimation", "OnStripStageStart") ;registers to be notified when each stripping stage begins
 	thread.StartThread() ;starts the thread (starts the animation)
@@ -538,7 +541,7 @@ Event OnStripStageStart(string eventName, string argString, float argNum, form s
 	If (FormListCount(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) > 0 || FormListCount(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) > 0) ;if either the right hand or the left hand weapon array are not empty
 		Utility.Wait(fWeaponsAndShieldsAnimDuration) ;wait until the animation has ended before unequipping items
 		SingleArrayStrip(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R) ;strips the actor of this group of clothing and stores stripped items into the array
-		SingleArrayStrip(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L) ;strips the actor of this group of clothing and sores stripped items into the array
+		SingleArrayStrip(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L) ;strips the actor of this group of clothing and stores stripped items into the array
 	ElseIf (FormListCount(kActor, SLSS_STRIPLIST_HELMET) > 0) ;if the helmbet array is not empty
 		Utility.Wait(fHelmetAnimDuration)
 		SingleArrayStrip(kActor, SLSS_STRIPLIST_HELMET, SLSS_STRIPPEDLIST_HELMET);strips the actor of this group of clothing and stores stripped items into the array
@@ -559,8 +562,7 @@ Event OnStripStageStart(string eventName, string argString, float argNum, form s
 EndEvent
 
 Function InitDefaultArrays()
-	bSlotOverrideDefauList = New Bool[33]
-	
+	bSlotOverrideDefauList = New Bool[33]	
 	Int i
 	
 	While (i < 33)
