@@ -425,11 +425,15 @@ Function FullSerialStrip(Actor akActorRef)
 		Int a1 = anim.AddPosition(iGender) ;sets the first (and only) actor in this animation
 
 		If (FormListCount(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) > 0 || FormListCount(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) > 0) ;if either the right hand or the left hand weapon array are not empty
+			SingleArrayStrip(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R) ;strips the actor of this group of clothing and stores stripped items into the array
+			SingleArrayStrip(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L) ;strips the actor of this group of clothing and stores stripped items into the array
+			;/Disabled for now, until we have special weapons stripping animation
 			If (sWeaponsAndShieldsAnim != "") ;if there is an animation for stripping weapons and shields
 				anim.AddPositionStage(a1, sWeaponsAndShieldsAnim) ;add the weapons stripping as the first stage of the animation
 				Stage += 1 ;increases stage by one
 				WeaponsAndShieldsStage = Stage ;sets WeaponsAndShieldsStage equal to current stage
 			EndIf
+			/;
 		EndIf
 
 		If (FormListCount(akActorRef, SLSS_STRIPLIST_HANDS) > 0) ;if the hands array is not empty
