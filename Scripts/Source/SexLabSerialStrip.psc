@@ -480,8 +480,6 @@ Function FullSerialStrip(Actor akActorRef)
 				OtherStage = Stage ;sets OtherStage equal to current stage
 			EndIf
 		EndIf
-		
-		;Debug.MessageBox("FindByName returns slot " + sslAnimSlots.FindByName("FullStrippingAnimation"))
 
 		If (WeaponsAndShieldsStage != 0) ;if there is a weapons and shields stripping stage
 			anim.SetStageTimer(WeaponsAndShieldsStage, fWeaponsAndShieldsAnimDuration)
@@ -508,9 +506,6 @@ Function FullSerialStrip(Actor akActorRef)
 		EndIf
 		
 		anim.Save() ;saves the animation
-		
-	Else
-		Debug.Notification("Our FullSerialStrip animation is None!")
 	EndIf
 
 	;CREATE a new SexLab thread to play the animation
@@ -526,36 +521,36 @@ Function FullSerialStrip(Actor akActorRef)
 	thread.DisableRedress(akActorRef, True) ;disables SexLab's auto redress on animation end
 	thread.SetForcedAnimations(ForcedAnimationsList) ;sets the animation
 	thread.SetHook("FullStrippingAnimation") ;sets a hook for this animation so we can selectively catch its events
-	RegisterForModEvent("StageStart_FullStrippingAnimation", "OnStripStageStart") ;registers to be notified when each stripping stage begins
+	RegisterForModEvent("StageEnd_FullStrippingAnimation", "OnStripStageEnd") ;registers to be notified when each stripping stage ends
 	thread.StartThread() ;starts the thread (starts the animation)
 
 EndFunction
 
-Event OnStripStageStart(string eventName, string argString, float argNum, form sender)
-;when a stripping animation stage starts
+Event OnStripStageEnd(string eventName, string argString, float argNum, form sender)
+;when a stripping animation stage ends
 
 	Actor[] actorList = SexLab.HookActors(argString) ;fetches the list of actors (should be only 1) and stores it into the actorList array
 
 	Actor kActor = actorList[0] ;fetches the first and only entry in the actorList and stores it into kActor
 
 	If (FormListCount(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) > 0 || FormListCount(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) > 0) ;if either the right hand or the left hand weapon array are not empty
-		Utility.Wait(fWeaponsAndShieldsAnimDuration) ;wait until the animation has ended before unequipping items
+		;Utility.Wait(fWeaponsAndShieldsAnimDuration) ;wait until the animation has ended before unequipping items
 		SingleArrayStrip(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R) ;strips the actor of this group of clothing and stores stripped items into the array
 		SingleArrayStrip(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L) ;strips the actor of this group of clothing and stores stripped items into the array
 	ElseIf (FormListCount(kActor, SLSS_STRIPLIST_HELMET) > 0) ;if the helmbet array is not empty
-		Utility.Wait(fHelmetAnimDuration)
+		;Utility.Wait(fHelmetAnimDuration)
 		SingleArrayStrip(kActor, SLSS_STRIPLIST_HELMET, SLSS_STRIPPEDLIST_HELMET);strips the actor of this group of clothing and stores stripped items into the array
 	ElseIf (FormListCount(kActor, SLSS_STRIPLIST_FEET) > 0) ;if the feet array is not empty
-		Utility.Wait(fFeetAnimDuration)
+		;Utility.Wait(fFeetAnimDuration)
 		SingleArrayStrip(kActor, SLSS_STRIPLIST_FEET, SLSS_STRIPPEDLIST_FEET) ;strips the actor of this group of clothing and stores stripped items into the array
 	ElseIf (FormListCount(kActor, SLSS_STRIPLIST_BODY) > 0) ;if the body array is not empty
-		Utility.Wait(fBodyAnimDuration)
+		;Utility.Wait(fBodyAnimDuration)
 		SingleArrayStrip(kActor, SLSS_STRIPLIST_BODY, SLSS_STRIPPEDLIST_BODY) ;strips the actor of this group of clothing and stores stripped items into the array
 	ElseIf (FormListCount(kActor, SLSS_STRIPLIST_UNDERWEAR) > 0) ;if the underwear array is not empty
-		Utility.Wait(fUnderwearAnimDuration)
+		;Utility.Wait(fUnderwearAnimDuration)
 		SingleArrayStrip(kActor, SLSS_STRIPLIST_UNDERWEAR, SLSS_STRIPPEDLIST_UNDERWEAR) ;strips the actor of this group of clothing and stores stripped items into the array
 	ElseIf (FormListCount(kActor, SLSS_STRIPLIST_OTHER) > 0) ;if the "other items" array is not empty
-		Utility.Wait(fOtherAnimDuration)
+		;Utility.Wait(fOtherAnimDuration)
 		SingleArrayStrip(kActor, SLSS_STRIPLIST_OTHER, SLSS_STRIPPEDLIST_OTHER) ;strips the actor of this group of clothing and stores stripped items into the array
 	EndIf
 
