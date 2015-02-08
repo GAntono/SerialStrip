@@ -513,13 +513,15 @@ Function FullSerialStrip(Actor akActorRef)
 
 	;CREATE a new SexLab thread to play the animation
 	sslThreadModel thread = SexLab.NewThread();create a new animation thread
+	sslBaseAnimation[] ForcedAnimations = new sslBaseAnimation[1] ;create a single-item array to hold our full-stripping animation
+	ForcedAnimations[0] = anim ;load our animation on the first and only item in the array
 
 	thread.AddActor(akActorRef) ;adds the actor to the thread
 	thread.CenterOnObject(akActorRef) ;centers the animation on the position the actor was in
 	thread.DisableUndressAnimation(akActorRef, True) ;disables SexLab's default undressing animation. We'll use our own.
 	thread.DisableRagdollEnd(akActorRef, True) ;disables SexLab's auto-ragdoll on animation end
 	thread.DisableRedress(akActorRef, True) ;disables SexLab's auto redress on animation end
-	thread.AddAnimation(SexLab.GetAnimationByName("FullStrippingAnimation")) ;sets the animation for stripping weapons and shields
+	thread.SetForcedAnimations(ForcedAnimations) ;sets the animation
 	thread.SetHook("FullStrippingAnimation") ;sets a hook for this animation so we can selectively catch its events
 	RegisterForModEvent("StageStart_FullStrippingAnimation", "OnStripStageStart") ;registers to be notified when each stripping stage begins
 	thread.StartThread() ;starts the thread (starts the animation)
