@@ -413,6 +413,7 @@ Function FullSerialStrip(Actor akActorRef)
 	EndIf
 
 	;CREATE ephemeral animation
+	SexLab.ReleaseAnimationObject("FullStrippingAnimation") ;release any previously used ephemeral animation
 	sslBaseAnimation anim = SexLab.NewAnimationObject("FullStrippingAnimation", Self) ;creates a new temporary animation and stores it on this quest.
 
 	If (anim != None) ;if the entry has indeed been created
@@ -486,27 +487,27 @@ Function FullSerialStrip(Actor akActorRef)
 		EndIf
 
 		If (WeaponsAndShieldsStage != 0) ;if there is a weapons and shields stripping stage
-			anim.SetStageTimer(WeaponsAndShieldsStage, fWeaponsAndShieldsAnimDuration + 1)
+			anim.SetStageTimer(WeaponsAndShieldsStage, fWeaponsAndShieldsAnimDuration + 0.5) ;adding 0.5 seconds because SexLab is a bit slow to animate and skips stripping
 		EndIf
 
 		If (HandsStage != 0) ;if there is a hands stripping animation stage
-			anim.SetStageTimer(HandsStage, fHandsAnimDuration + 1)
+			anim.SetStageTimer(HandsStage, fHandsAnimDuration + 0.5) ;adding 0.5 seconds because SexLab is a bit slow to animate and skips stripping
 		EndIf
 
 		If (HelmetStage != 0) ;if there is a helmet stripping animation stage
-			anim.SetStageTimer(HelmetStage, fHelmetAnimDuration + 1)
+			anim.SetStageTimer(HelmetStage, fHelmetAnimDuration + 0.5) ;adding 0.5 seconds because SexLab is a bit slow to animate and skips stripping
 		EndIf
 
 		If (FeetStage != 0) ;if there is a feet stripping animation stage
-			anim.SetStageTimer(FeetStage, fFeetAnimDuration + 1)
+			anim.SetStageTimer(FeetStage, fFeetAnimDuration + 0.5) ;adding 0.5 seconds because SexLab is a bit slow to animate and skips stripping
 		EndIf
 
 		If (BodyStage != 0) ;if there is a body stripping animation stage
-			anim.SetStageTimer(BodyStage, fBodyAnimDuration + 1)
+			anim.SetStageTimer(BodyStage, fBodyAnimDuration + 0.5) ;adding 0.5 seconds because SexLab is a bit slow to animate and skips stripping
 		EndIf
 
 		If (OtherStage != 0) ;if there is a other stripping animation stage
-			anim.SetStageTimer(OtherStage, fOtherAnimDuration + 1)
+			anim.SetStageTimer(OtherStage, fOtherAnimDuration + 0.5) ;adding 0.5 seconds because SexLab is a bit slow to animate and skips stripping
 		EndIf
 		
 		anim.Save() ;saves the animation
