@@ -179,6 +179,14 @@ Returns a bool array whose 7 items indicate whether to strip from the 7 arrays o
 	ClearIfInactive(akActorRef, SLSS_STRIPLIST_UNDERWEAR, bArrayIsActive[6])
 	ClearIfInactive(akActorRef, SLSS_STRIPLIST_OTHER, bArrayIsActive[7])
 
+	Debug.Trace("Array " + SLSS_STRIPLIST_HELMET + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_HELMET) + " elements.")
+	Debug.Trace("Array " + SLSS_STRIPLIST_BODY + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_BODY) + " elements.")
+	Debug.Trace("Array " + SLSS_STRIPLIST_HANDS + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_HANDS) + " elements.")
+	Debug.Trace("Array " + SLSS_STRIPLIST_FEET + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_FEET) + " elements.")
+	Debug.Trace("Array " + SLSS_STRIPLIST_UNDERWEAR + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_UNDERWEAR) + " elements.")
+	Debug.Trace("Array " + SLSS_STRIPLIST_OTHER + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_OTHER) + " elements.")
+	Debug.Trace("Array " + SLSS_STRIPLIST_WEAPONSANDSHIELDS_R + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) + " elements.")
+	Debug.Trace("Array " + SLSS_STRIPLIST_WEAPONSANDSHIELDS_L + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) + " elements.")
 EndFunction
 
 Event OnEquipped(Actor akActor)
@@ -236,7 +244,6 @@ Function SerialStripOn(Bool abActivateSerialStrip = True)
 ;turns on serial stripping. Pass True to run on, off to turn off.
 
 	If (abActivateSerialStrip) ;if serial stripping is set to activate
-		PrepareForStripping(PlayerRef, bSlotOverrideDefauList)
 		RegisterForKey(iStripKeyCode) ;registers to listen for the iStripKeyCode
 	Else ;if serial stripping is set to deactivate
 		UnRegisterForKey(iStripKeyCode) ;stops listening for the iStripKeyCode
@@ -247,6 +254,8 @@ Event OnKeyUp(Int KeyCode, Float HoldTime)
 ;when the key is released
 
 	If (KeyCode == iStripKeyCode) ;if the key that was released is the key for serial stripping
+		PrepareForStripping(PlayerRef, bSlotOverrideDefauList)
+		
 		If (HoldTime < fDurationForFullStrip) ;if the key has not been held down long enough
 			SingleSerialStrip() ;just strip one group of garments
 		Else ;if the key has been held down long enough
@@ -486,31 +495,35 @@ Function FullSerialStrip(Actor akActorRef)
 			EndIf
 		EndIf
 
-		If (WeaponsAndShieldsStage != 0) ;if there is a weapons and shields stripping stage
+		If (WeaponsAndShieldsStage) ;if there is a weapons and shields stripping stage
 			anim.SetStageTimer(WeaponsAndShieldsStage, fWeaponsAndShieldsAnimDuration + 0.5) ;adding 0.5 seconds because SexLab is a bit slow to animate and skips stripping
 		EndIf
 
-		If (HandsStage != 0) ;if there is a hands stripping animation stage
+		If (HandsStage) ;if there is a hands stripping animation stage
 			anim.SetStageTimer(HandsStage, fHandsAnimDuration + 0.5) ;adding 0.5 seconds because SexLab is a bit slow to animate and skips stripping
 		EndIf
 
-		If (HelmetStage != 0) ;if there is a helmet stripping animation stage
+		If (HelmetStage) ;if there is a helmet stripping animation stage
 			anim.SetStageTimer(HelmetStage, fHelmetAnimDuration + 0.5) ;adding 0.5 seconds because SexLab is a bit slow to animate and skips stripping
 		EndIf
 
-		If (FeetStage != 0) ;if there is a feet stripping animation stage
+		If (FeetStage) ;if there is a feet stripping animation stage
 			anim.SetStageTimer(FeetStage, fFeetAnimDuration + 0.5) ;adding 0.5 seconds because SexLab is a bit slow to animate and skips stripping
 		EndIf
 
-		If (BodyStage != 0) ;if there is a body stripping animation stage
+		If (BodyStage) ;if there is a body stripping animation stage
 			anim.SetStageTimer(BodyStage, fBodyAnimDuration + 0.5) ;adding 0.5 seconds because SexLab is a bit slow to animate and skips stripping
 		EndIf
 
-		If (OtherStage != 0) ;if there is a other stripping animation stage
+		If (OtherStage) ;if there is a other stripping animation stage
 			anim.SetStageTimer(OtherStage, fOtherAnimDuration + 0.5) ;adding 0.5 seconds because SexLab is a bit slow to animate and skips stripping
 		EndIf
 		
 		anim.Save() ;saves the animation
+	EndIf
+	
+	If (!Stage) ;fail-safe to prevent SexLab form crashing trying to animate a zero-stage animation
+		Return
 	EndIf
 
 	;CREATE a new SexLab thread to play the animation
