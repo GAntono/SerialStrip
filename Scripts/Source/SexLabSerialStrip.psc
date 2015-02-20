@@ -47,7 +47,7 @@ String Property sOtherAnim Auto ;the name of the "other" stripping animation
 Float Property fWeaponsAndShieldsAnimDuration = 0.5 AutoReadOnly ;the duration of the weapons and shields stripping animation
 Float Property fHandsAnimDuration = 4.83 AutoReadOnly ;the duration of the hands stripping animation
 Float Property fHelmetAnimDuration = 4.67 AutoReadOnly ;the duration of the helmet stripping animation
-Float Property fFeetAnimDuration = 6.17 AutoReadOnly ;the duration of the feet stripping animation
+Float Property fFeetAnimDuration = 6.67 AutoReadOnly ;the duration of the feet stripping animation (increased by 0.5 seconds)
 Float Property fBodyAnimDuration = 4.67 AutoReadOnly ;the duration of the body stripping animation
 Float Property fUnderwearAnimDuration = 3.1 AutoReadOnly ;the duration of the underwear stripping animation
 Float Property fOtherAnimDuration = 0.5 AutoReadOnly ;the name of the "other" stripping animation
@@ -267,6 +267,13 @@ EndEvent
 Function SingleSerialStrip()
 ;makes the actor strip one item/group of clothing (one array) and then strip the next one and so on. To be used for button taps.
 
+	Game.ForceThirdPerson() ;force third person camera mode
+	Game.SetPlayerAIDriven(True) ;instead of DisablePlayerControls(True)
+	
+	If (PlayerRef.IsWeaponDrawn()) ;if the player has their weapon drawn
+		PlayerRef.SheatheWeapon() ;make the player sheath their weapon
+	EndIf
+
 	If (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) > 0 ||  FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) > 0) ;if the weapons or shields arrays (Right and Left) are not empty
 		
 		;until we have special weapons stripping animation, this is being deprecated later on in SingleArrayAnimThenStrip()
@@ -292,17 +299,12 @@ Function SingleSerialStrip()
 	ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_OTHER) > 0)
 		SingleArrayAnimThenStrip(SLSS_STRIPLIST_OTHER, SLSS_STRIPPEDLIST_OTHER, sOtherAnim, fOtherAnimDuration) ;run the function to play the appropriate animation
 	EndIf
+	
+	Game.SetPlayerAIDriven(False) ;give control back to the player
 EndFunction
 
 Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, String asAnimation = "", Float afAnimDuration = 0.0)
 ;makes the player animate the stripping animation for a single group of clothing, then strips it
-
-	Game.ForceThirdPerson() ;force third person camera mode
-	Game.SetPlayerAIDriven(True) ;instead of DisablePlayerControls(True)
-
-	If (PlayerRef.IsWeaponDrawn()) ;if the player has their weapon drawn
-		PlayerRef.SheatheWeapon() ;make the player sheath their weapon
-	EndIf
 
 	kCurrentActor = PlayerRef ;sets the currently stripping actor to be the player
 	sCurrentStripArray = asStripArray ;sets the currently stripping array to be asStripArray
@@ -312,18 +314,11 @@ Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, S
 		Debug.SendAnimationEvent(PlayerRef, asAnimation) ;makes the player play the stripping animation
 		Utility.Wait(afAnimDuration) ;waits until the animation ends - it will then strip the array by calling SingleArrayStrip()
 		SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
-	ElseIf (asAnimation == sWeaponsAndShieldsAnim) ;special case for weapons and shields because we don't have special animations, just vanilla sheathing
-		Utility.Wait(2.0) ;insert length of vanilla weapons sheathing animation here
-		SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
 	Else
 		SingleArrayStrip(PlayerRef, sCurrentStripArray, sCurrentStrippedArray) ;go directly to stripping the array without animation
 	EndIf
-EndFunction
 
-Event OnUpdate()
-;when the script receives an update event
-	SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
-EndEvent
+EndFunction
 
 Function SingleArrayStrip(Actor akActorRef, String asStripArray, String asStrippedArray)
 ;makes the player strip a single group of clothing
@@ -394,16 +389,18 @@ Function SingleArrayStrip(Actor akActorRef, String asStripArray, String asStripp
 		FormListClear(akActorRef, asStripArray) ;clears the array
 
 	EndIf
-
-	If (akActorRef == PlayerRef) ;if the stripping actor is the player, then we assume their controls have been deactivated by SetPlayerAIDriven(True)
-		Game.SetPlayerAIDriven(False) ;give control back to the player
-	EndIf
-
 EndFunction
 
 Function FullSerialStrip(Actor akActorRef)
 ;makes the actor strip all groups of clothing (all arrays) that are valid. To be used for prolonged button presses.
 ;same logic as SingleSerialStrip(), only using "IF" instead of "ElseIf".
+
+	Game.ForceThirdPerson() ;force third person camera mode
+	Game.SetPlayerAIDriven(True) ;instead of DisablePlayerControls(True)
+	
+	If (PlayerRef.IsWeaponDrawn()) ;if the player has their weapon drawn
+		PlayerRef.SheatheWeapon() ;make the player sheath their weapon
+	EndIf
 
 	If (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) > 0 ||  FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) > 0) ;if the weapons or shields arrays (Right and Left) are not empty
 		
@@ -441,6 +438,8 @@ Function FullSerialStrip(Actor akActorRef)
 	If (FormListCount(PlayerRef, SLSS_STRIPLIST_OTHER) > 0)
 		SingleArrayAnimThenStrip(SLSS_STRIPLIST_OTHER, SLSS_STRIPPEDLIST_OTHER, sOtherAnim, fOtherAnimDuration) ;run the function to play the appropriate animation
 	EndIf
+	
+	Game.SetPlayerAIDriven(False) ;give control back to the player
 EndFunction
 
 Event OnStripStageEnd(string eventName, string argString, float argNum, form sender)
@@ -560,270 +559,6 @@ FJR 74 frames - 2.5 sec
 FJN 74 frames - 2.5 sec
 
 /;
-
-;/leftover code
-
-Function StripWeaponsAndShields(Actor akActorRef)
-;makes the actor strip weapons and shields
-
-	If (!akActorRef)
-	;validation
-		Return
-	EndIf
-
-	If (akActorRef == PlayerRef)
-	;if the actor stripping is the player
-
-		DisablePlayerControls(True)
-		;disables player's controls
-
-	EndIf
-
-	sslThreadModel th = SexLab.NewThread()
-	;starts a new SexLab thread called "th"
-
-	th.AddActor(akActorRef)
-	;adds akActorRef to the thread
-	th.DisableUndressAnimation(akActorRef, True)
-	;disables SexLab's default undressing animation. We'll use our own.
-	th.DisableRagdollEnd(akActorRef, True)
-	;disables SexLab's auto-ragdoll on animation end
-	th.DisableRedress(akActorRef, True)
-	;disables SexLab's auto redress on animation end
-	th.SetAnimations(SexLab.GetAnimationByName(sWeaponsAndShieldsAnim))
-	;sets the animation for stripping weapons and shields
-	th.SetHook("StripWeaponsAndShields")
-	;sets a hook for this animation
-
-	RegisterForModEvent("AnimationEnd_StripWeaponsAndShields", "OnWeaponsAndShieldsStripped")
-
-	th.StartThread()
-
-EndFunction
-
-Event OnWeaponsAndShieldsStripped(string eventName, string argString, float argNum, form sender)
-;when the animation for stripping weapons and shields has finished
-
-	Actor[] Actors = SexLab.HookActors(argString)
-	;fetches the actor that just stripped her weapons and loads her into the array
-
-	Actor akActorRef = Actors[0]
-
-	;RIGHT HAND
-	Int i = FormListCount(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) - 1
-	;sets i equal to the length of the array (-1 because FormListCount's result is 1-based while the array is 0 based)
-
-	While i >= 0
-	;sets the loop to run up to and including position zero in the array (backwards)
-
-		Form kItemRef = FormListGet(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, i)
-		;fetches the item stored in i position in the array
-
-		akActorRef.UnequipItemEX(kItemRef, 1)
-		;unequips this item from the actor's right hand
-
-		FormListAdd(akActorRef, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, kItemRef)
-		;adds the item to this array
-
-		i -= 1
-		;go to the next item in the array (backwards)
-
-	EndWhile
-
-	FormListClear(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R)
-	;clears the array
-
-	;LEFT HAND
-	i = FormListCount(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) - 1
-	;sets i equal to the length of the array (-1 because FormListCount's result is 1-based while the array is 0 based)
-
-	While i >= 0
-	;sets the loop to run up to and including position zero in the array (backwards)
-
-		Form kItemRef = FormListGet(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, i)
-		;fetches the item stored in i position in the array
-
-		akActorRef.UnequipItemEX(kItemRef, 2)
-		;unequips this item from the actor's right hand
-
-		FormListAdd(akActorRef, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L, kItemRef)
-		;adds the item to this array
-
-		i -= 1
-		;go to the next item in the array (backwards)
-
-	EndWhile
-
-	FormListClear(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L)
-	;clears the array
-
-
-	If (akActorRef == PlayerRef)
-	;if the actor stripping is the player
-
-		DisablePlayerControls(True)
-		;disables player's controls
-
-	EndIf
-
-EndEvent
-
-
-
-;/
------------------------------------------------------------
-
-	STATES
-
------------------------------------------------------------
-/;
-
-;/
-	Form[] ToStrip = new Form[34]
-	;declares a 34 item long array to hold the items to be stripped
-
-	Form kItemRef
-	;declares this variable to temporarily store each item we're working on
-
-	;ARMORS
-
-		;CREATING A LOOP to run through all the possible slots (backwards)
-		Int i = 31
-		;sets i equal to 31 in order to run through 32 items in the array (0 -> 31 equals 32).
-
-		While (i >= 0)
-		;run this loop up to and including item at position 0
-
-			kItemRef = akActorRef.GetWornForm(Armor.GetMaskForSlot(i + 30)
-			;fetch the item worn in this slot and load it in kItemRef
-
-			If ((IsStrippableEnhanced(kItemRef, NoStripKeywords) == False)
-			;if the item on this slot is not strippable
-			;IF GIVEN NoStripKeywords ARRAY, IT WILL RUN A LOOP
-				ToStrip[i] == False
-				;mark this slot as not to be stripped
-			ElseIf (SlotsToCheck[i] == True || ItemHasKeyword(kItemRef, KeywordsToCheck) == True)
-			;if this slot was given in the SlotsToCheck array or has any keyword given in the KeywordsToCheck array
-			;TO CHECK ItemHasKeyword IT WILL RUN A LOOP
-				ToStrip[i] == True
-				;mark this slot to be stripped
-			EndIf
-			i -= 1
-			;move the next item in the loop (backwards)
-		EndWhile
-
-
-	;WEAPONS
-
-		kItemRef = akActorRef.GetEquippedWeapon(False)
-		;fetches right-hand weapon and puts it in kItemRef
-
-		If ((IsStrippableEnhanced(kItemRef, NoStripKeywords) == False)
-		;if the item on this slot is not strippable
-			ToStrip[33] = False
-			;marks this slot (hence this item) to not strip
-		ElseIf (SlotsToCheck[33] == True || ItemHasKeyword(kItemRef, KeywordsToCheck) == True)
-		;if this slot was given in the SlotsToCheck array or has any keyword given in the KeywordsToCheck array
-			ToStrip[33] == True
-			;marks this slot to strip
-		EndIf
-
-
-		kItemRef = akActorRef.GetEquippedWeapon(True)
-		;fetches left-hand weapon and puts it in kItemRef
-
-		If ((IsStrippableEnhanced(kItemRef, NoStripKeywords) == False)
-		;if the item on this slot is not strippable
-			ToStrip[32] = False
-			;marks this slot (hence this item) to not strip
-		ElseIf (SlotsToCheck[32] == True || ItemHasKeyword(kItemRef, KeywordsToCheck) == True)
-		;if this slot was given in the SlotsToCheck array or has any keyword given in the KeywordsToCheck array
-			ToStrip[32] == True
-		EndIf
-
-	Return ToStrip
-EndFunction
-/;
-
-;/
-Bool Function IsStrippableEnhanced(Form kItemRef, String[] NoStripKeywords)
-;checks the item with SexLab's IsStrippable(), then checks again for NoStripKeywords
-;/QUESTION: I put IsStrippable() and ItemHasKeyword() in If/ElseIf block to avoid
-running 2 loops if not needed. Is this correct or should I check with an OR clause?
-
-
-	If (SexLab.IsStrippable(kItemRef) == False)
-	;if the item is checked by SexLab's IsStrippable() and is deemed un-strippable
-		Return False
-
-	ElseIf (ItemHasKeyword(kItemRef, NoStripKeywords)
-	;if this item has any of the NoStripKeywords
-		Return False
-
-	Else
-		Return True
-	EndIf
-EndFunction
-/;
-
-
-	;/do a loop into a loop. first loop run through all the slots, second loop through the keywords to check.
-	remove items with the keywords we want, then re-check which slots have been left and if they are one of the 4 slots we want, unequip/;
-
-;/SexLab's script
-Form[] function StripSlots(Actor ActorRef, bool[] Strip, bool DoAnimate = False, bool AllowNudesuit = True)
-	if Strip.Length != 33
-		Return None
-	endIf
-	Int Gender = ActorRef.GetLeveledActorBase().GetSex()
-	; Start stripping animation
-	if DoAnimate
-		Debug.SendAnimationEvent(ActorRef, "Arrok_Undress_G"+Gender)
-	endIf
-	; Get Nudesuit
-	bool UseNudeSuit = Strip[2] && ((Gender == 0 && Config.UseMaleNudeSuit) || (Gender == 1 && Config.UseFemaleNudeSuit))
-	if UseNudeSuit && ActorRef.GetItemCount(Config.NudeSuit) < 1
-		ActorRef.AddItem(Config.NudeSuit, 1, True)
-	endIf
-	; Stripped storage
-	Form[] Stripped = new Form[34]
-	Form kItemRef
-	; Strip weapon
-	if Strip[32]
-		; Right hand
-		kItemRef = ActorRef.GetEquippedWeapon(False)
-		if IsStrippable(kItemRef)
-			ActorRef.UnequipItemEX(kItemRef, 1, False)
-			Stripped[33] = kItemRef
-		endIf
-		; Left hand
-		kItemRef = ActorRef.GetEquippedWeapon(True)
-		if IsStrippable(kItemRef)
-			ActorRef.UnequipItemEX(kItemRef, 2, False)
-			Stripped[32] = kItemRef
-		endIf
-	endIf
-	; Strip armors
-	Int i = Strip.RFind(True, 31)
-	while i >= 0
-		if Strip[i]
-			; Grab item in slot
-			kItemRef = ActorRef.GetWornForm(Armor.GetMaskForSlot(i + 30))
-			if IsStrippable(kItemRef)
-				ActorRef.UnequipItem(kItemRef, False, True)
-				Stripped[i] = kItemRef
-			endIf
-		endIf
-		i -= 1
-	endWhile
-	; Apply Nudesuit
-	if UseNudeSuit
-		ActorRef.EquipItem(NudeSuit, True, True)
-	endIf
-	; output stripped items
-	Return sslUtility.ClearNone(Stripped)
-endFunction
-;/
 
 ;/DUMMY SCRIPT
 Int ActiveSlot
