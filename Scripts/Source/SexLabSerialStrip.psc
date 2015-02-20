@@ -45,18 +45,24 @@ String Property sBodyAnim = "StripFArChB" AutoReadOnly ;the name of the body str
 String Property sUnderwearAnim = "StripFULB" AutoReadOnly ;the name of the underwear stripping animation
 String Property sOtherAnim Auto ;the name of the "other" stripping animation
 Float Property fWeaponsAndShieldsAnimDuration = 0.5 AutoReadOnly ;the duration of the weapons and shields stripping animation
-Float Property fHandsAnimDuration = 4.83 AutoReadOnly ;the duration of the hands stripping animation
-Float Property fHelmetAnimDuration = 4.67 AutoReadOnly ;the duration of the helmet stripping animation
-Float Property fFeetAnimDuration = 6.67 AutoReadOnly ;the duration of the feet stripping animation (increased by 0.5 seconds)
-Float Property fBodyAnimDuration = 4.67 AutoReadOnly ;the duration of the body stripping animation
-Float Property fUnderwearAnimDuration = 3.1 AutoReadOnly ;the duration of the underwear stripping animation
+Float Property fHandsAnimDuration = 4.83 Auto ;the duration of the hands stripping animation
+Float Property fHelmetAnimDuration = 4.67 Auto ;the duration of the helmet stripping animation
+Float Property fFeetAnimDuration = 6.17 Auto ;the duration of the feet stripping animation (increased by 0.5 seconds)
+Float Property fBodyAnimDuration = 4.67 Auto ;the duration of the body stripping animation
+Float Property fUnderwearAnimDuration = 3.1 Auto ;the duration of the underwear stripping animation
 Float Property fOtherAnimDuration = 0.5 AutoReadOnly ;the name of the "other" stripping animation
 Float Property fDurationForFullStrip = 2.0 AutoReadOnly ;2 seconds cut-off point of key press: after this duration, the actor will strip fully
 Int Property iStripKeyCode = 48 AutoReadOnly ;B - the key that will be used to input stripping commands
 
 Event OnInit()
+	;add 0.5 seconds to all animation durations (temporary measure)
+	fHandsAnimDuration += 0.5
+	fHelmetAnimDuration += 0.5
+	fFeetAnimDuration += 0.5
+	fBodyAnimDuration += 0.5
+	fUnderwearAnimDuration += 0.5
+	
 	InitDefaultArrays()
-
 	SerialStripOn()
 EndEvent
 
