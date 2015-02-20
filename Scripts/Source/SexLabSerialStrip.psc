@@ -310,9 +310,11 @@ Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, S
 
 	If (asAnimation != "" && afAnimDuration != 0.0) ;if the function has been given an animation to play
 		Debug.SendAnimationEvent(PlayerRef, asAnimation) ;makes the player play the stripping animation
-		RegisterForSingleUpdate(afAnimDuration) ;registers to be notified when the animation ends - it will then strip the array by calling SingleArrayStrip()
+		Utility.Wait(afAnimDuration) ;waits until the animation ends - it will then strip the array by calling SingleArrayStrip()
+		SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
 	ElseIf (asAnimation == sWeaponsAndShieldsAnim) ;special case for weapons and shields because we don't have special animations, just vanilla sheathing
-		RegisterForSingleUpdate(2.0) ;insert length of vanilla weapons sheathing animation here
+		Utility.Wait(2.0) ;insert length of vanilla weapons sheathing animation here
+		SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
 	Else
 		SingleArrayStrip(PlayerRef, sCurrentStripArray, sCurrentStrippedArray) ;go directly to stripping the array without animation
 	EndIf
@@ -400,149 +402,45 @@ Function SingleArrayStrip(Actor akActorRef, String asStripArray, String asStripp
 EndFunction
 
 Function FullSerialStrip(Actor akActorRef)
-;makes the actor play all the valid stripping animations and undress their corresponding groups of clothing
+;makes the actor strip all groups of clothing (all arrays) that are valid. To be used for prolonged button presses.
+;same logic as SingleSerialStrip(), only using "IF" instead of "ElseIf".
 
-	;/ beginValidation /;
-	If (!akActorRef)
-		Return
-	EndIf
-	;/ endValidation /;
-
-	Int Stage ;declares a variable we can use to count the stages
-	Int WeaponsAndShieldsStage ;the stage for stripping weapons and shields
-	Int HandsStage ;the stage for stripping hands
-	Int HelmetStage ;the stage for stripping the helmet
-	Int FeetStage ;the stage for stripping feet
-	Int BodyStage ;the stage for stripping body
-	Int UnderwearStage ;the stage for stripping underwear
-	Int OtherStage ;the stage for stripping other clothing items
-	
-	If (PlayerRef.IsWeaponDrawn()) ;if the player has their weapon drawn
-		PlayerRef.SheatheWeapon() ;make the player sheath their weapon
-	EndIf
-
-	;CREATE ephemeral animation
-	SexLab.ReleaseAnimationObject("FullStrippingAnimation") ;release any previously used ephemeral animation
-	sslBaseAnimation anim = SexLab.NewAnimationObject("FullStrippingAnimation", Self) ;creates a new temporary animation and stores it on this quest.
-
-	If (anim != None) ;if the entry has indeed been created
-
-		Int iGender = SexLab.GetGender(akActorRef) ;fetch the gender of the actor and store it in iGender
-
-		anim.Name = "FullStrippingAnimation" ;set the name of the animation
-		anim.SetContent(sslAnimFactory.Misc) ;set the content of the animation
-
-		Int a1 = anim.AddPosition(iGender) ;sets the first (and only) actor in this animation
-
-		If (FormListCount(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) > 0 || FormListCount(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) > 0) ;if either the right hand or the left hand weapon array are not empty
-			SingleArrayStrip(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R) ;strips the actor of this group of clothing and stores stripped items into the array
-			SingleArrayStrip(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L) ;strips the actor of this group of clothing and stores stripped items into the array
-			;/Disabled for now, until we have special weapons stripping animation
-			If (sWeaponsAndShieldsAnim != "") ;if there is an animation for stripping weapons and shields
-				anim.AddPositionStage(a1, sWeaponsAndShieldsAnim) ;add the weapons stripping as the first stage of the animation
-				Stage += 1 ;increases stage by one
-				WeaponsAndShieldsStage = Stage ;sets WeaponsAndShieldsStage equal to current stage
-			EndIf
-			/;
-		EndIf
-
-		If (FormListCount(akActorRef, SLSS_STRIPLIST_HANDS) > 0) ;if the hands array is not empty
-			If (sHandsAnim != "") ;if there is an animation for stripping hands
-				anim.AddPositionStage(a1, sHandsAnim) ;add the hands stripping animation as the next stage
-				Stage += 1 ;increases stage by one
-				HandsStage = Stage
-				;sets HandsStage equal to current stage
-			EndIf
-		EndIf
-
-		If (FormListCount(akActorRef, SLSS_STRIPLIST_HELMET) > 0) ;if the helmet array is not empty
-			If (sHelmetAnim != "") ;if there is an animation for stripping helmets
-				anim.AddPositionStage(a1, sHelmetAnim) ;add the helmet stripping animation as the next stage
-				Stage += 1 ;increases stage by one
-				HelmetStage = Stage ;sets HelmetStage equal to current stage
-			EndIf
-		EndIf
-
-		If (FormListCount(akActorRef, SLSS_STRIPLIST_FEET) > 0) ;if the feet array is not empty
-			If (sFeetAnim != "") ;if there is an animation for stripping feet
-				anim.AddPositionStage(a1, sFeetAnim) ;add the feet stripping animation as the next stage
-				Stage += 1 ;increases stage by one
-				FeetStage = Stage ;sets FeetStage equal to current stage
-			EndIf
-		EndIf
-
-		If (FormListCount(akActorRef, SLSS_STRIPLIST_BODY) > 0) ;if the body array is not empty
-			If (sBodyAnim != "") ;if there is an animation for stripping the body
-				anim.AddPositionStage(a1, sBodyAnim) ;add the body stripping animation as the next stage
-				Stage += 1 ;increases stage by one
-				BodyStage = Stage ;sets BodyStage equal to current stage
-			EndIf
-		EndIf
-
-		If (FormListCount(akActorRef, SLSS_STRIPLIST_UNDERWEAR) > 0) ;if the underwear array is not empty
-			If (sUnderwearAnim != "") ;if there is an animation for stripping underwear
-				anim.AddPositionStage(a1, sUnderwearAnim) ;add the underwear stripping animation as the next stage
-				Stage += 1 ;increases stage by one
-				UnderwearStage = Stage ;sets UnderwearStage equal to current stage
-			EndIf
-		EndIf
-
-		If (FormListCount(akActorRef, SLSS_STRIPLIST_OTHER) > 0) ;if the "other items" array is not empty
-			If (sOtherAnim != "") ;if there is an animation for stripping other
-				anim.AddPositionStage(a1, sOtherAnim) ;add the other stripping animation as the next stage
-				Stage += 1 ;increases stage by one
-				OtherStage = Stage ;sets OtherStage equal to current stage
-			EndIf
-		EndIf
-
-		If (WeaponsAndShieldsStage) ;if there is a weapons and shields stripping stage
-			anim.SetStageTimer(WeaponsAndShieldsStage, fWeaponsAndShieldsAnimDuration + 0.5) ;adding 0.5 seconds because SexLab is a bit slow to animate and skips stripping
-		EndIf
-
-		If (HandsStage) ;if there is a hands stripping animation stage
-			anim.SetStageTimer(HandsStage, fHandsAnimDuration + 0.5) ;adding 0.5 seconds because SexLab is a bit slow to animate and skips stripping
-		EndIf
-
-		If (HelmetStage) ;if there is a helmet stripping animation stage
-			anim.SetStageTimer(HelmetStage, fHelmetAnimDuration + 0.5) ;adding 0.5 seconds because SexLab is a bit slow to animate and skips stripping
-		EndIf
-
-		If (FeetStage) ;if there is a feet stripping animation stage
-			anim.SetStageTimer(FeetStage, fFeetAnimDuration + 0.5) ;adding 0.5 seconds because SexLab is a bit slow to animate and skips stripping
-		EndIf
-
-		If (BodyStage) ;if there is a body stripping animation stage
-			anim.SetStageTimer(BodyStage, fBodyAnimDuration + 0.5) ;adding 0.5 seconds because SexLab is a bit slow to animate and skips stripping
-		EndIf
-
-		If (OtherStage) ;if there is a other stripping animation stage
-			anim.SetStageTimer(OtherStage, fOtherAnimDuration + 0.5) ;adding 0.5 seconds because SexLab is a bit slow to animate and skips stripping
-		EndIf
+	If (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) > 0 ||  FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) > 0) ;if the weapons or shields arrays (Right and Left) are not empty
 		
-		anim.Save() ;saves the animation
+		;until we have special weapons stripping animation, this is being deprecated later on in SingleArrayAnimThenStrip()
+		If (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) == 0) ;if the right hand array is empty i.e. the left is not empty
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L, sWeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
+		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) == 0) ;if the left hand array is empty i.e. the right is not empty
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, sWeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
+		Else ;if both right and left hand arrays are not empty
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, sWeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L, "") ;run the function to just strip the left hand without playing an animation
+		EndIf
+	EndIf
+
+	If (FormListCount(PlayerRef, SLSS_STRIPLIST_HANDS) > 0)
+		SingleArrayAnimThenStrip(SLSS_STRIPLIST_HANDS, SLSS_STRIPPEDLIST_HANDS, sHandsAnim, fHandsAnimDuration) ;run the function to play the appropriate animation
 	EndIf
 	
-	If (!Stage) ;fail-safe to prevent SexLab form crashing trying to animate a zero-stage animation
-		Return
+	If (FormListCount(PlayerRef, SLSS_STRIPLIST_HELMET) > 0)
+		SingleArrayAnimThenStrip(SLSS_STRIPLIST_HELMET, SLSS_STRIPPEDLIST_HELMET, sHelmetAnim, fHelmetAnimDuration) ;run the function to play the appropriate animation
 	EndIf
-
-	;CREATE a new SexLab thread to play the animation
-	sslThreadModel thread = SexLab.NewThread();create a new animation thread
-	sslBaseAnimation[] ForcedAnimationsList = New sslBaseAnimation[1] ;create a single-item array to hold our full-stripping animation
-	ForcedAnimationsList[0] = anim ;load our animation on the first and only item in the array
-
-	thread.AddActor(akActorRef) ;adds the actor to the thread
-	thread.CenterOnObject(akActorRef) ;centers the animation on the position the actor was in
-	thread.SetStrip(akActorRef, bSlotOverrideDefauList)
-	thread.DisableUndressAnimation(akActorRef, True) ;disables SexLab's default undressing animation. We'll use our own.
-	thread.DisableRagdollEnd(akActorRef, True) ;disables SexLab's auto-ragdoll on animation end
-	thread.DisableRedress(akActorRef, True) ;disables SexLab's auto redress on animation end
-	thread.SetForcedAnimations(ForcedAnimationsList) ;sets the animation
-	thread.SetHook("FullStrippingAnimation") ;sets a hook for this animation so we can selectively catch its events
-	RegisterForModEvent("StageEnd_FullStrippingAnimation", "OnStripStageEnd") ;registers to be notified when each stripping stage ends
-	RegisterForModEvent("AnimationEnd_FullStrippingAnimation", "OnStripAnimEnd") ;registers to be notified when the whole animation ends (because no StageEnd fires at the end of the last stage of the animation)
-	thread.StartThread() ;starts the thread (starts the animation)
-
+	
+	If (FormListCount(PlayerRef, SLSS_STRIPLIST_FEET) > 0)
+		SingleArrayAnimThenStrip(SLSS_STRIPLIST_FEET, SLSS_STRIPPEDLIST_FEET, sFeetAnim, fFeetAnimDuration) ;run the function to play the appropriate animation
+	EndIf
+	
+	If (FormListCount(PlayerRef, SLSS_STRIPLIST_BODY) > 0)
+		SingleArrayAnimThenStrip(SLSS_STRIPLIST_BODY, SLSS_STRIPPEDLIST_BODY, sBodyAnim, fBodyAnimDuration) ;run the function to play the appropriate animation
+	EndIf
+	
+	If (FormListCount(PlayerRef, SLSS_STRIPLIST_UNDERWEAR) > 0)
+		SingleArrayAnimThenStrip(SLSS_STRIPLIST_UNDERWEAR, SLSS_STRIPPEDLIST_UNDERWEAR, sUnderwearAnim, fUnderwearAnimDuration) ;run the function to play the appropriate animation
+	EndIf
+	
+	If (FormListCount(PlayerRef, SLSS_STRIPLIST_OTHER) > 0)
+		SingleArrayAnimThenStrip(SLSS_STRIPLIST_OTHER, SLSS_STRIPPEDLIST_OTHER, sOtherAnim, fOtherAnimDuration) ;run the function to play the appropriate animation
+	EndIf
 EndFunction
 
 Event OnStripStageEnd(string eventName, string argString, float argNum, form sender)
@@ -607,7 +505,6 @@ Event OnStripAnimEnd(string eventName, string argString, float argNum, form send
 	EndIf
 	
 EndEvent
-
 
 Function InitDefaultArrays()
 	bSlotOverrideDefauList = New Bool[33]	
