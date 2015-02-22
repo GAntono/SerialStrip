@@ -53,6 +53,7 @@ Float Property fUnderwearAnimDuration = 3.1 Auto ;the duration of the underwear 
 Float Property fOtherAnimDuration = 0.5 AutoReadOnly ;the name of the "other" stripping animation
 Float Property fDurationForFullStrip = 2.0 AutoReadOnly ;2 seconds cut-off point of key press: after this duration, the actor will strip fully
 Int Property iStripKeyCode = 48 AutoReadOnly ;B - the key that will be used to input stripping commands
+Bool Property bFullSerialStripSwitch Auto; switches to full stripping
 
 Event OnInit()
 	InitDefaultArrays()
@@ -256,9 +257,11 @@ Event OnKeyUp(Int KeyCode, Float HoldTime)
 		PrepareForStripping(PlayerRef, bSlotOverrideDefauList)
 		
 		If (HoldTime < fDurationForFullStrip) ;if the key has not been held down long enough
+			bFullSerialStripSwitch = False
 			SingleSerialStrip() ;just strip one group of garments
 		Else ;if the key has been held down long enough
-			FullSerialStrip(PlayerRef) ;do a full strip
+			bFullSerialStripSwitch = True
+			SingleSerialStrip()
 		EndIf
 	EndIf
 EndEvent
@@ -310,14 +313,26 @@ Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, I
 	sCurrentStrippedArray = asStrippedArray ;sets the array currently holding the stripped items to be asStrippedArray
 
 	If (akAnimation && afAnimDuration) ;if the function has been given an animation to play
+		Debug.SendAnimationEvent(PlayerRef, "IdlePlayer")
 		PlayerRef.PlayIdle(akAnimation) ;makes the player play the stripping animation
-		PlayerRef.WaitForAnimationEvent("IdlePlayer") ;waits until the animation ends - it will then strip the array by calling SingleArrayStrip()
-		SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
+		RegisterForAnimationEvent(PlayerRef, "IdlePlayer")
 	Else
 		SingleArrayStrip(PlayerRef, sCurrentStripArray, sCurrentStrippedArray) ;go directly to stripping the array without animation
 	EndIf
 
 EndFunction
+
+Event OnAnimationEvent(ObjectReference akSource, string asEventName)
+	If (akSource == PlayerRef && asEventName == "IdlePlayer")
+		Debug.Messagebox("IdlePlayer event detected!")
+		If (!bFullSerialStripSwitch)
+			SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
+		Else
+			SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
+			SingleSerialStrip()
+		EndIf
+	EndIf
+EndEvent
 
 Function SingleArrayStrip(Actor akActorRef, String asStripArray, String asStrippedArray)
 ;makes the player strip a single group of clothing
