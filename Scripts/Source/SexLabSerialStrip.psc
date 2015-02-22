@@ -37,13 +37,6 @@ String Property SLSS_STRIPPEDLIST_OTHER = "APPS.SerialStrippedList.Other" AutoRe
 
 String Property sCurrentStripArray Auto ;the array that is currently animating i.e. the actor is playing the animation for stripping from this array
 String Property sCurrentStrippedArray Auto ;the array that is currently holding the stripped items
-String Property sWeaponsAndShieldsAnim Auto ;the name of the weapons and shields stripping animation
-String Property sHandsAnim = "StripFArGl" AutoReadOnly ;the name of the hands stripping animation
-String Property sHelmetAnim = "StripFArHe" AutoReadOnly ;the name of the helmet stripping animation
-String Property sFeetAnim = "StripFArBo" AutoReadOnly ;the name of the feet stripping animation
-String Property sBodyAnim = "StripFArChB" AutoReadOnly ;the name of the body stripping animation
-String Property sUnderwearAnim = "StripFULB" AutoReadOnly ;the name of the underwear stripping animation
-String Property sOtherAnim Auto ;the name of the "other" stripping animation
 Float Property fWeaponsAndShieldsAnimDuration = 0.5 AutoReadOnly ;the duration of the weapons and shields stripping animation
 Float Property fHandsAnimDuration = 4.83 Auto ;the duration of the hands stripping animation
 Float Property fHelmetAnimDuration = 4.67 Auto ;the duration of the helmet stripping animation
@@ -302,15 +295,15 @@ Function SingleSerialStrip()
 	Game.SetPlayerAIDriven(False) ;give control back to the player
 EndFunction
 
-Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, String asAnimation = "", Float afAnimDuration = 0.0)
+Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, Idle akAnimation = None, Float afAnimDuration = 0.0)
 ;makes the player animate the stripping animation for a single group of clothing, then strips it
 
 	kCurrentActor = PlayerRef ;sets the currently stripping actor to be the player
 	sCurrentStripArray = asStripArray ;sets the currently stripping array to be asStripArray
 	sCurrentStrippedArray = asStrippedArray ;sets the array currently holding the stripped items to be asStrippedArray
 
-	If (asAnimation && afAnimDuration) ;if the function has been given an animation to play
-		Debug.SendAnimationEvent(PlayerRef, asAnimation) ;makes the player play the stripping animation
+	If (akAnimation && afAnimDuration) ;if the function has been given an animation to play
+		PlayerRef.PlayIdle(akAnimation) ;makes the player play the stripping animation
 		PlayerRef.WaitForAnimationEvent("IdlePlayer") ;waits until the animation ends - it will then strip the array by calling SingleArrayStrip()
 		SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
 	Else
