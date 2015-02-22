@@ -55,13 +55,6 @@ Float Property fDurationForFullStrip = 2.0 AutoReadOnly ;2 seconds cut-off point
 Int Property iStripKeyCode = 48 AutoReadOnly ;B - the key that will be used to input stripping commands
 
 Event OnInit()
-	;add 0.5 seconds to all animation durations (temporary measure)
-	fHandsAnimDuration += 0.5
-	fHelmetAnimDuration += 0.5
-	fFeetAnimDuration += 0.5
-	fBodyAnimDuration += 0.5
-	fUnderwearAnimDuration += 0.5
-	
 	InitDefaultArrays()
 	SerialStripOn()
 EndEvent
@@ -316,9 +309,9 @@ Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, S
 	sCurrentStripArray = asStripArray ;sets the currently stripping array to be asStripArray
 	sCurrentStrippedArray = asStrippedArray ;sets the array currently holding the stripped items to be asStrippedArray
 
-	If (asAnimation != "" && afAnimDuration != 0.0) ;if the function has been given an animation to play
+	If (asAnimation && afAnimDuration) ;if the function has been given an animation to play
 		Debug.SendAnimationEvent(PlayerRef, asAnimation) ;makes the player play the stripping animation
-		Utility.Wait(afAnimDuration) ;waits until the animation ends - it will then strip the array by calling SingleArrayStrip()
+		PlayerRef.WaitForAnimationEvent("IdlePlayer") ;waits until the animation ends - it will then strip the array by calling SingleArrayStrip()
 		SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
 	Else
 		SingleArrayStrip(PlayerRef, sCurrentStripArray, sCurrentStrippedArray) ;go directly to stripping the array without animation
