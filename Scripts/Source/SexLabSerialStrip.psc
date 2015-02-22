@@ -37,6 +37,13 @@ String Property SLSS_STRIPPEDLIST_OTHER = "APPS.SerialStrippedList.Other" AutoRe
 
 String Property sCurrentStripArray Auto ;the array that is currently animating i.e. the actor is playing the animation for stripping from this array
 String Property sCurrentStrippedArray Auto ;the array that is currently holding the stripped items
+Idle Property WeaponsAndShieldsAnim Auto ;the name of the weapons and shields stripping animation
+Idle Property StripFArGl Auto ;the name of the hands stripping animation
+Idle Property StripFArHe Auto ;the name of the helmet stripping animation
+Idle Property StripFArBo Auto ;the name of the feet stripping animation
+Idle Property StripFArChB Auto ;the name of the body stripping animation
+Idle Property StripFULB Auto ;the name of the underwear stripping animation
+Idle Property OtherAnim Auto ;the name of the "other" stripping animation
 Float Property fWeaponsAndShieldsAnimDuration = 0.5 AutoReadOnly ;the duration of the weapons and shields stripping animation
 Float Property fHandsAnimDuration = 4.83 Auto ;the duration of the hands stripping animation
 Float Property fHelmetAnimDuration = 4.67 Auto ;the duration of the helmet stripping animation
@@ -270,26 +277,26 @@ Function SingleSerialStrip()
 		
 		;until we have special weapons stripping animation, this is being deprecated later on in SingleArrayAnimThenStrip()
 		If (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) == 0) ;if the right hand array is empty i.e. the left is not empty
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L, sWeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L, WeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
 		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) == 0) ;if the left hand array is empty i.e. the right is not empty
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, sWeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, WeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
 		Else ;if both right and left hand arrays are not empty
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, sWeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L, "") ;run the function to just strip the left hand without playing an animation
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, WeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L) ;run the function to just strip the left hand without playing an animation
 		EndIf
 
 	ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_HANDS) > 0)
-		SingleArrayAnimThenStrip(SLSS_STRIPLIST_HANDS, SLSS_STRIPPEDLIST_HANDS, sHandsAnim, fHandsAnimDuration) ;run the function to play the appropriate animation
+		SingleArrayAnimThenStrip(SLSS_STRIPLIST_HANDS, SLSS_STRIPPEDLIST_HANDS, StripFArGl, fHandsAnimDuration) ;run the function to play the appropriate animation
 	ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_HELMET) > 0)
-		SingleArrayAnimThenStrip(SLSS_STRIPLIST_HELMET, SLSS_STRIPPEDLIST_HELMET, sHelmetAnim, fHelmetAnimDuration) ;run the function to play the appropriate animation
+		SingleArrayAnimThenStrip(SLSS_STRIPLIST_HELMET, SLSS_STRIPPEDLIST_HELMET, StripFArHe, fHelmetAnimDuration) ;run the function to play the appropriate animation
 	ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_FEET) > 0)
-		SingleArrayAnimThenStrip(SLSS_STRIPLIST_FEET, SLSS_STRIPPEDLIST_FEET, sFeetAnim, fFeetAnimDuration) ;run the function to play the appropriate animation
+		SingleArrayAnimThenStrip(SLSS_STRIPLIST_FEET, SLSS_STRIPPEDLIST_FEET, StripFArBo, fFeetAnimDuration) ;run the function to play the appropriate animation
 	ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_BODY) > 0)
-		SingleArrayAnimThenStrip(SLSS_STRIPLIST_BODY, SLSS_STRIPPEDLIST_BODY, sBodyAnim, fBodyAnimDuration) ;run the function to play the appropriate animation
+		SingleArrayAnimThenStrip(SLSS_STRIPLIST_BODY, SLSS_STRIPPEDLIST_BODY, StripFArChB, fBodyAnimDuration) ;run the function to play the appropriate animation
 	ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_UNDERWEAR) > 0)
-		SingleArrayAnimThenStrip(SLSS_STRIPLIST_UNDERWEAR, SLSS_STRIPPEDLIST_UNDERWEAR, sUnderwearAnim, fUnderwearAnimDuration) ;run the function to play the appropriate animation
+		SingleArrayAnimThenStrip(SLSS_STRIPLIST_UNDERWEAR, SLSS_STRIPPEDLIST_UNDERWEAR, StripFULB, fUnderwearAnimDuration) ;run the function to play the appropriate animation
 	ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_OTHER) > 0)
-		SingleArrayAnimThenStrip(SLSS_STRIPLIST_OTHER, SLSS_STRIPPEDLIST_OTHER, sOtherAnim, fOtherAnimDuration) ;run the function to play the appropriate animation
+		SingleArrayAnimThenStrip(SLSS_STRIPLIST_OTHER, SLSS_STRIPPEDLIST_OTHER, OtherAnim, fOtherAnimDuration) ;run the function to play the appropriate animation
 	EndIf
 	
 	Game.SetPlayerAIDriven(False) ;give control back to the player
@@ -398,37 +405,37 @@ Function FullSerialStrip(Actor akActorRef)
 		
 		;until we have special weapons stripping animation, this is being deprecated later on in SingleArrayAnimThenStrip()
 		If (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) == 0) ;if the right hand array is empty i.e. the left is not empty
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L, sWeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L, WeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
 		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) == 0) ;if the left hand array is empty i.e. the right is not empty
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, sWeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, WeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
 		Else ;if both right and left hand arrays are not empty
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, sWeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L, "") ;run the function to just strip the left hand without playing an animation
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, WeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L) ;run the function to just strip the left hand without playing an animation
 		EndIf
 	EndIf
 
 	If (FormListCount(PlayerRef, SLSS_STRIPLIST_HANDS) > 0)
-		SingleArrayAnimThenStrip(SLSS_STRIPLIST_HANDS, SLSS_STRIPPEDLIST_HANDS, sHandsAnim, fHandsAnimDuration) ;run the function to play the appropriate animation
+		SingleArrayAnimThenStrip(SLSS_STRIPLIST_HANDS, SLSS_STRIPPEDLIST_HANDS, StripFArGl, fHandsAnimDuration) ;run the function to play the appropriate animation
 	EndIf
 	
 	If (FormListCount(PlayerRef, SLSS_STRIPLIST_HELMET) > 0)
-		SingleArrayAnimThenStrip(SLSS_STRIPLIST_HELMET, SLSS_STRIPPEDLIST_HELMET, sHelmetAnim, fHelmetAnimDuration) ;run the function to play the appropriate animation
+		SingleArrayAnimThenStrip(SLSS_STRIPLIST_HELMET, SLSS_STRIPPEDLIST_HELMET, StripFArHe, fHelmetAnimDuration) ;run the function to play the appropriate animation
 	EndIf
 	
 	If (FormListCount(PlayerRef, SLSS_STRIPLIST_FEET) > 0)
-		SingleArrayAnimThenStrip(SLSS_STRIPLIST_FEET, SLSS_STRIPPEDLIST_FEET, sFeetAnim, fFeetAnimDuration) ;run the function to play the appropriate animation
+		SingleArrayAnimThenStrip(SLSS_STRIPLIST_FEET, SLSS_STRIPPEDLIST_FEET, StripFArBo, fFeetAnimDuration) ;run the function to play the appropriate animation
 	EndIf
 	
 	If (FormListCount(PlayerRef, SLSS_STRIPLIST_BODY) > 0)
-		SingleArrayAnimThenStrip(SLSS_STRIPLIST_BODY, SLSS_STRIPPEDLIST_BODY, sBodyAnim, fBodyAnimDuration) ;run the function to play the appropriate animation
+		SingleArrayAnimThenStrip(SLSS_STRIPLIST_BODY, SLSS_STRIPPEDLIST_BODY, StripFArChB, fBodyAnimDuration) ;run the function to play the appropriate animation
 	EndIf
 	
 	If (FormListCount(PlayerRef, SLSS_STRIPLIST_UNDERWEAR) > 0)
-		SingleArrayAnimThenStrip(SLSS_STRIPLIST_UNDERWEAR, SLSS_STRIPPEDLIST_UNDERWEAR, sUnderwearAnim, fUnderwearAnimDuration) ;run the function to play the appropriate animation
+		SingleArrayAnimThenStrip(SLSS_STRIPLIST_UNDERWEAR, SLSS_STRIPPEDLIST_UNDERWEAR, StripFULB, fUnderwearAnimDuration) ;run the function to play the appropriate animation
 	EndIf
 	
 	If (FormListCount(PlayerRef, SLSS_STRIPLIST_OTHER) > 0)
-		SingleArrayAnimThenStrip(SLSS_STRIPLIST_OTHER, SLSS_STRIPPEDLIST_OTHER, sOtherAnim, fOtherAnimDuration) ;run the function to play the appropriate animation
+		SingleArrayAnimThenStrip(SLSS_STRIPLIST_OTHER, SLSS_STRIPPEDLIST_OTHER, OtherAnim, fOtherAnimDuration) ;run the function to play the appropriate animation
 	EndIf
 	
 	Game.SetPlayerAIDriven(False) ;give control back to the player
