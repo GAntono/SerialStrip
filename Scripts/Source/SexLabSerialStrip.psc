@@ -444,6 +444,7 @@ State Stripping
 				SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
 			Else
 				SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
+				Utility.Wait(0.5)
 				SerialStrip()
 			EndIf
 		EndIf
