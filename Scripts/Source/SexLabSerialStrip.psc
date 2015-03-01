@@ -351,7 +351,7 @@ State Stripping
 		If (akAnimation && afAnimDuration) ;if the function has been given an animation to play
 			;Debug.SendAnimationEvent(PlayerRef, "IdlePlayer")
 			PlayerRef.PlayIdle(akAnimation) ;makes the player play the stripping animation
-			RegisterForAnimationEvent(PlayerRef, "PickNewIdle")
+			RegisterForAnimationEvent(PlayerRef, "IdleStop")
 		Else
 			SingleArrayStrip(PlayerRef, sCurrentStripArray, sCurrentStrippedArray) ;go directly to stripping the array without animation
 
@@ -438,8 +438,8 @@ State Stripping
 	EndFunction
 
 	Event OnAnimationEvent(ObjectReference akSource, string asEventName)
-		If (akSource == PlayerRef && asEventName == "PickNewIdle")
-			Debug.Messagebox("PickNewIdle event detected!")
+		If (akSource == PlayerRef && asEventName == "IdleStop")
+			Debug.Messagebox("IdleStop event detected!")
 			If (!bFullSerialStripSwitch)
 				SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
 			Else
