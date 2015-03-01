@@ -61,9 +61,9 @@ Event OnInit()
 EndEvent
 
 Function InitDefaultArrays()
-	bSlotOverrideDefauList = New Bool[33]	
+	bSlotOverrideDefauList = New Bool[33]
 	Int i
-	
+
 	While (i < 33)
 		bSlotOverrideDefauList[i] = False
 		i += 1
@@ -122,15 +122,6 @@ EndFunction
 Event OnAnimationEvent(ObjectReference akSource, string asEventName)
 EndEvent
 
-Function FullSerialStrip(Actor akActorRef)
-EndFunction
-
-Event OnStripStageEnd(string eventName, string argString, float argNum, form sender)
-EndEvent
-
-Event OnStripAnimEnd(string eventName, string argString, float argNum, form sender)
-EndEvent
-
 State Stripping
 
 	Function PrepareForStripping(Actor akActorRef, Bool[] abSlotOverrideList, String asExceptionListKey = "")
@@ -144,7 +135,7 @@ State Stripping
 	/;
 
 		;/ beginValidation /;
-		If (!akActorRef || abSlotOverrideList.Length != 33) 
+		If (!akActorRef || abSlotOverrideList.Length != 33)
 			Return
 		EndIf
 		;/ endValidation /;
@@ -314,13 +305,13 @@ State Stripping
 
 		Game.ForceThirdPerson() ;force third person camera mode
 		Game.SetPlayerAIDriven(True) ;instead of DisablePlayerControls(True)
-		
+
 		If (PlayerRef.IsWeaponDrawn()) ;if the player has their weapon drawn
 			PlayerRef.SheatheWeapon() ;make the player sheath their weapon
 		EndIf
 
 		If (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) > 0 ||  FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) > 0) ;if the weapons or shields arrays (Right and Left) are not empty
-			
+
 			;until we have special weapons stripping animation, this is being deprecated later on in SingleArrayAnimThenStrip()
 			If (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) == 0) ;if the right hand array is empty i.e. the left is not empty
 				SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L, WeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
@@ -363,7 +354,7 @@ State Stripping
 			RegisterForAnimationEvent(PlayerRef, "PickNewIdle")
 		Else
 			SingleArrayStrip(PlayerRef, sCurrentStripArray, sCurrentStrippedArray) ;go directly to stripping the array without animation
-			
+
 			If (bFullSerialStripSwitch)
 				SerialStrip()
 			EndIf
@@ -392,7 +383,7 @@ State Stripping
 					akActorRef.UnequipItemEX(kItemRef, 1) ;unequips this item from the actor's right hand
 					FormListAdd(akActorRef, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, kItemRef) ;adds the item to this array
 				EndIf
-				
+
 				i -= 1 ;go to the next item in the array (backwards)
 			EndWhile
 
@@ -419,13 +410,13 @@ State Stripping
 			FormListClear(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) ;clears the array
 
 		Else
-		
+
 		;ARMOR (non-weapon items are all handled in the same way)
 
 			Int i = FormListCount(akActorRef, asStripArray) - 1 ;sets i equal to the length of the array (-1 because FormListCount's result is 1-based while the array is 0 based)
 
 			While (i >= 0) ;sets the loop to run up to and including position zero in the array (backwards)
-			
+
 				Form kItemRef = FormListGet(akActorRef, asStripArray, i) ;fetches the item stored in i position in the array
 
 				If (kItemRef != None) ;if this is an actual item, i.e. the array has not been cleared
@@ -439,7 +430,7 @@ State Stripping
 			FormListClear(akActorRef, asStripArray) ;clears the array
 
 		EndIf
-		
+
 		If (!bFullSerialStripSwitch)
 			Game.SetPlayerAIDriven(False) ;give control back to the player
 			GoToState("")
@@ -456,120 +447,6 @@ State Stripping
 				SerialStrip()
 			EndIf
 		EndIf
-	EndEvent
-
-	Function FullSerialStrip(Actor akActorRef)
-	;makes the actor strip all groups of clothing (all arrays) that are valid. To be used for prolonged button presses.
-	;same logic as SerialStrip(), only using "IF" instead of "ElseIf".
-
-		Game.ForceThirdPerson() ;force third person camera mode
-		Game.SetPlayerAIDriven(True) ;instead of DisablePlayerControls(True)
-		
-		If (PlayerRef.IsWeaponDrawn()) ;if the player has their weapon drawn
-			PlayerRef.SheatheWeapon() ;make the player sheath their weapon
-		EndIf
-
-		If (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) > 0 ||  FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) > 0) ;if the weapons or shields arrays (Right and Left) are not empty
-			
-			;until we have special weapons stripping animation, this is being deprecated later on in SingleArrayAnimThenStrip()
-			If (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) == 0) ;if the right hand array is empty i.e. the left is not empty
-				SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L, WeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
-			ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) == 0) ;if the left hand array is empty i.e. the right is not empty
-				SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, WeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
-			Else ;if both right and left hand arrays are not empty
-				SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, WeaponsAndShieldsAnim, fWeaponsAndShieldsAnimDuration) ;run the function to play the appropriate animation
-				SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L) ;run the function to just strip the left hand without playing an animation
-			EndIf
-		EndIf
-
-		If (FormListCount(PlayerRef, SLSS_STRIPLIST_HANDS) > 0)
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_HANDS, SLSS_STRIPPEDLIST_HANDS, StripFArGl, fHandsAnimDuration) ;run the function to play the appropriate animation
-		EndIf
-		
-		If (FormListCount(PlayerRef, SLSS_STRIPLIST_HELMET) > 0)
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_HELMET, SLSS_STRIPPEDLIST_HELMET, StripFArHe, fHelmetAnimDuration) ;run the function to play the appropriate animation
-		EndIf
-		
-		If (FormListCount(PlayerRef, SLSS_STRIPLIST_FEET) > 0)
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_FEET, SLSS_STRIPPEDLIST_FEET, StripFArBo, fFeetAnimDuration) ;run the function to play the appropriate animation
-		EndIf
-		
-		If (FormListCount(PlayerRef, SLSS_STRIPLIST_BODY) > 0)
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_BODY, SLSS_STRIPPEDLIST_BODY, StripFArChB, fBodyAnimDuration) ;run the function to play the appropriate animation
-		EndIf
-		
-		If (FormListCount(PlayerRef, SLSS_STRIPLIST_UNDERWEAR) > 0)
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_UNDERWEAR, SLSS_STRIPPEDLIST_UNDERWEAR, StripFULB, fUnderwearAnimDuration) ;run the function to play the appropriate animation
-		EndIf
-		
-		If (FormListCount(PlayerRef, SLSS_STRIPLIST_OTHER) > 0)
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_OTHER, SLSS_STRIPPEDLIST_OTHER, OtherAnim, fOtherAnimDuration) ;run the function to play the appropriate animation
-		EndIf
-		
-		Game.SetPlayerAIDriven(False) ;give control back to the player
-	EndFunction
-
-	Event OnStripStageEnd(string eventName, string argString, float argNum, form sender)
-	;when a stripping animation stage ends
-
-		Actor[] actorList = SexLab.HookActors(argString) ;fetches the list of actors (should be only 1) and stores it into the actorList array
-
-		Actor kActor = actorList[0] ;fetches the first and only entry in the actorList and stores it into kActor
-
-		If (FormListCount(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) > 0 || FormListCount(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) > 0) ;if either the right hand or the left hand weapon array are not empty
-			SingleArrayStrip(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R) ;strips the actor of this group of clothing and stores stripped items into the array
-			SingleArrayStrip(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L) ;strips the actor of this group of clothing and stores stripped items into the array
-		ElseIf (FormListCount(kActor, SLSS_STRIPLIST_HANDS) > 0) ;if the hands array is not empty
-			SingleArrayStrip(kActor, SLSS_STRIPLIST_HANDS, SLSS_STRIPPEDLIST_HANDS);strips the actor of this group of clothing and stores stripped items into the array
-		ElseIf (FormListCount(kActor, SLSS_STRIPLIST_HELMET) > 0) ;if the helmet array is not empty
-			SingleArrayStrip(kActor, SLSS_STRIPLIST_HELMET, SLSS_STRIPPEDLIST_HELMET);strips the actor of this group of clothing and stores stripped items into the array
-		ElseIf (FormListCount(kActor, SLSS_STRIPLIST_FEET) > 0) ;if the feet array is not empty
-			SingleArrayStrip(kActor, SLSS_STRIPLIST_FEET, SLSS_STRIPPEDLIST_FEET) ;strips the actor of this group of clothing and stores stripped items into the array
-		ElseIf (FormListCount(kActor, SLSS_STRIPLIST_BODY) > 0) ;if the body array is not empty
-			SingleArrayStrip(kActor, SLSS_STRIPLIST_BODY, SLSS_STRIPPEDLIST_BODY) ;strips the actor of this group of clothing and stores stripped items into the array
-		ElseIf (FormListCount(kActor, SLSS_STRIPLIST_UNDERWEAR) > 0) ;if the underwear array is not empty
-			SingleArrayStrip(kActor, SLSS_STRIPLIST_UNDERWEAR, SLSS_STRIPPEDLIST_UNDERWEAR) ;strips the actor of this group of clothing and stores stripped items into the array
-		ElseIf (FormListCount(kActor, SLSS_STRIPLIST_OTHER) > 0) ;if the "other items" array is not empty
-			SingleArrayStrip(kActor, SLSS_STRIPLIST_OTHER, SLSS_STRIPPEDLIST_OTHER) ;strips the actor of this group of clothing and stores stripped items into the array
-		EndIf
-	EndEvent
-
-	Event OnStripAnimEnd(string eventName, string argString, float argNum, form sender)
-	;when a stripping animation ends, strip all remaining arrays
-
-		Actor[] actorList = SexLab.HookActors(argString) ;fetches the list of actors (should be only 1) and stores it into the actorList array
-
-		Actor kActor = actorList[0] ;fetches the first and only entry in the actorList and stores it into kActor
-
-		If (FormListCount(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) > 0 || FormListCount(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) > 0) ;if either the right hand or the left hand weapon array are not empty
-			SingleArrayStrip(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R) ;strips the actor of this group of clothing and stores stripped items into the array
-			SingleArrayStrip(kActor, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L) ;strips the actor of this group of clothing and stores stripped items into the array
-		EndIf
-		
-		If (FormListCount(kActor, SLSS_STRIPLIST_HANDS) > 0) ;if the hands array is not empty
-			SingleArrayStrip(kActor, SLSS_STRIPLIST_HANDS, SLSS_STRIPPEDLIST_HANDS);strips the actor of this group of clothing and stores stripped items into the array
-		EndIf
-		
-		If (FormListCount(kActor, SLSS_STRIPLIST_HELMET) > 0) ;if the helmet array is not empty
-			SingleArrayStrip(kActor, SLSS_STRIPLIST_HELMET, SLSS_STRIPPEDLIST_HELMET);strips the actor of this group of clothing and stores stripped items into the array
-		EndIf
-		
-		If (FormListCount(kActor, SLSS_STRIPLIST_FEET) > 0) ;if the feet array is not empty
-			SingleArrayStrip(kActor, SLSS_STRIPLIST_FEET, SLSS_STRIPPEDLIST_FEET) ;strips the actor of this group of clothing and stores stripped items into the array
-		EndIf
-		
-		If (FormListCount(kActor, SLSS_STRIPLIST_BODY) > 0) ;if the body array is not empty
-			SingleArrayStrip(kActor, SLSS_STRIPLIST_BODY, SLSS_STRIPPEDLIST_BODY) ;strips the actor of this group of clothing and stores stripped items into the array
-		EndIf
-		
-		If (FormListCount(kActor, SLSS_STRIPLIST_UNDERWEAR) > 0) ;if the underwear array is not empty
-			SingleArrayStrip(kActor, SLSS_STRIPLIST_UNDERWEAR, SLSS_STRIPPEDLIST_UNDERWEAR) ;strips the actor of this group of clothing and stores stripped items into the array
-		EndIf
-		
-		If (FormListCount(kActor, SLSS_STRIPLIST_OTHER) > 0) ;if the "other items" array is not empty
-			SingleArrayStrip(kActor, SLSS_STRIPLIST_OTHER, SLSS_STRIPPEDLIST_OTHER) ;strips the actor of this group of clothing and stores stripped items into the array
-		EndIf
-		
 	EndEvent
 
 EndState
