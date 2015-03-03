@@ -452,20 +452,20 @@ EndState
 
 ;/ Animation Descriptions & Durations
 
-StripFArGl		Remove Gloves
-StripFArGl		Remove Helmet
-StripFArBo		Remove Boots
-StripFArNoUS	Remove Torso?
-StripFArChB		Remove Torso?
-StripFClGl		Equip Gloves
-StripFClHo		Equip Helmet
-StripFClBo		Equip Boots
-StripFClCi		Equip Circlet
-StripFClChB		Equip Torso
+StripFArGl		Remove Armor Gloves
+StripFArHe		Remove Armor Helmet
+StripFArBo		Remove Armor Boots
+StripFArNoUS	Remove it - Thats an incomplete chest "shy" version
+StripFArChB		Remove Armor chestpiece
+StripFClGl		Remove Cloth Gloves
+StripFClHo		Remove Cloth Hood
+StripFClBo		Remove Cloth Boots
+StripFClCi		Remove Cloth Circlet
+StripFClChB		Remove Cloth Dress
 StripFULB		Remove Panties
 StripFUUB		Remove Bra
-StripFJN		Equip Ring
-StripFJC		Remove Ring
+StripFJN		Remove Necklace
+StripFJR		Remove Ring
 
 FArBo 185 frames - 6.17 sec
 
