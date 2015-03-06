@@ -84,18 +84,37 @@ Event OnKeyUp(Int KeyCode, Float HoldTime)
 ;when the key is released
 
 	If (KeyCode == iStripKeyCode) ;if the key that was released is the key for serial stripping
+		RegisterForModEvent("SerialStripEvent", "OnSerialStripStart")
+
 		If (HoldTime < fDurationForFullStrip) ;if the key has not been held down long enough
-			GoToState("Stripping")
-			bFullSerialStripSwitch = False
-			PrepareForStripping(PlayerRef, bSlotOverrideDefauList)
-			SerialStrip()
-		Else ;if the key has been held down long enough
-			GoToState("Stripping")
-			bFullSerialStripSwitch = True
-			PrepareForStripping(PlayerRef, bSlotOverrideDefauList)
-			SerialStrip()
+			SendSerialStripEvent(Self, False)
+		Else
+			SendSerialStripEvent(Self, True)
 		EndIf
 	EndIf
+EndEvent
+
+Bool Function SendSerialStripEvent(Form akSender, Bool abFullStrip = False)
+	If (!akSender)
+		Return False
+	EndIf
+
+	Int Handle = ModEvent.Create("SerialStripEvent")
+	If (Handle)
+		ModEvent.PushForm(Handle, akSender)
+		ModEvent.PushBool(Handle, abFullStrip)
+		ModEvent.Send(Handle)
+		Return True
+	Else
+		Return False
+	EndIf
+EndFunction
+
+Event OnSerialStripStart(Form akSender, Bool abFullStrip)
+	GoToState("Stripping")
+	bFullSerialStripSwitch = abFullStrip
+	PrepareForStripping(PlayerRef, bSlotOverrideDefauList)
+	SerialStrip()
 EndEvent
 
 Function PrepareForStripping(Actor akActorRef, Bool[] abSlotOverrideList, String asExceptionListKey = "")
