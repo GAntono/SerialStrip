@@ -53,7 +53,8 @@ Float Property fUnderwearAnimDuration = 3.1 Auto ;the duration of the underwear 
 Float Property fOtherAnimDuration = 0.5 AutoReadOnly ;the name of the "other" stripping animation
 Float Property fDurationForFullStrip = 2.0 AutoReadOnly ;2 seconds cut-off point of key press: after this duration, the actor will strip fully
 Int Property iStripKeyCode = 48 AutoReadOnly ;B - the key that will be used to input stripping commands
-Bool Property bFullSerialStripSwitch Auto; switches to full stripping
+Bool Property bFullSerialStripSwitch Auto ;switches to full stripping
+Form Property EventSender Auto ;stores the form that initiated the stripping
 
 Event OnInit()
 	InitDefaultArrays()
@@ -84,26 +85,43 @@ Event OnKeyUp(Int KeyCode, Float HoldTime)
 ;when the key is released
 
 	If (KeyCode == iStripKeyCode) ;if the key that was released is the key for serial stripping
-		RegisterForModEvent("SerialStripEvent", "OnSerialStripStart")
+		RegisterForModEvent("SerialStripStart", "OnSerialStripStart")
 
 		If (HoldTime < fDurationForFullStrip) ;if the key has not been held down long enough
-			SendSerialStripEvent(Self, False)
+			SendSerialStripStartEvent(Self, False)
 		Else
-			SendSerialStripEvent(Self, True)
+			SendSerialStripStartEvent(Self, True)
 		EndIf
 	EndIf
 EndEvent
 
-Bool Function SendSerialStripEvent(Form akSender, Bool abFullStrip = False)
+Bool Function SendSerialStripStartEvent(Form akSender, Bool abFullStrip = False)
 	If (!akSender)
 		Return False
 	EndIf
 
-	Int Handle = ModEvent.Create("SerialStripEvent")
+	Int Handle = ModEvent.Create("SerialStripStart")
 	If (Handle)
+		EventSender = akSender
 		ModEvent.PushForm(Handle, akSender)
 		ModEvent.PushBool(Handle, abFullStrip)
 		ModEvent.Send(Handle)
+		Return True
+	Else
+		Return False
+	EndIf
+EndFunction
+
+Bool Function SendSerialStripStopEvent()
+	If (!EventSender)
+		Return False
+	EndIf
+
+	Int Handle = ModEvent.Create("SerialStripStop")
+	If (Handle)
+		ModEvent.PushForm(Handle, EventSender)
+		ModEvent.Send(Handle)
+		EventSender = None ;clears the property holding the form that initiated the stripping
 		Return True
 	Else
 		Return False
@@ -356,6 +374,7 @@ State Stripping
 			If (bFullSerialStripSwitch)
 				Game.SetPlayerAIDriven(False) ;give control back to the player
 				GoToState("")
+				SendSerialStripStopEvent()
 			EndIf
 		EndIf
 	EndFunction
@@ -452,6 +471,7 @@ State Stripping
 		If (!bFullSerialStripSwitch)
 			Game.SetPlayerAIDriven(False) ;give control back to the player
 			GoToState("")
+			SendSerialStripStopEvent()
 		EndIf
 	EndFunction
 
