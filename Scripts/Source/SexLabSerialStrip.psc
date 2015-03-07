@@ -84,7 +84,7 @@ EndFunction
 Event OnKeyUp(Int KeyCode, Float HoldTime)
 ;when the key is released
 
-	If (KeyCode == iStripKeyCode) ;if the key that was released is the key for serial stripping
+	If (KeyCode == iStripKeyCode && !Utility.IsInMenuMode()) ;if the key that was released is the key for serial stripping and we are not in a menu
 		RegisterForModEvent("SerialStripStart", "OnSerialStripStart")
 
 		If (HoldTime < fDurationForFullStrip) ;if the key has not been held down long enough
