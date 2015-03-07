@@ -373,6 +373,8 @@ State Stripping
 		Else ;if nothing to strip
 			If (bFullSerialStripSwitch)
 				Game.SetPlayerAIDriven(False) ;give control back to the player
+				UnRegisterForModEvent("SerialStripStart")
+				UnRegisterForAnimationEvent(PlayerRef, "IdleStop")
 				GoToState("")
 				SendSerialStripStopEvent()
 			EndIf
@@ -470,6 +472,8 @@ State Stripping
 
 		If (!bFullSerialStripSwitch)
 			Game.SetPlayerAIDriven(False) ;give control back to the player
+			UnRegisterForModEvent("SerialStripStart")
+			UnRegisterForAnimationEvent(PlayerRef, "IdleStop")
 			GoToState("")
 			SendSerialStripStopEvent()
 		EndIf
@@ -481,7 +485,7 @@ State Stripping
 				SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
 			Else
 				SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
-				Utility.Wait(0.5)
+				Utility.Wait(1.0)
 				SerialStrip()
 			EndIf
 		EndIf
