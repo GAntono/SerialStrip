@@ -96,9 +96,11 @@ Event OnKeyUp(Int KeyCode, Float HoldTime)
 EndEvent
 
 Bool Function SendSerialStripStartEvent(Form akSender, Bool abFullStrip = False)
+	;/ beginValidation /;
 	If (!akSender)
 		Return False
 	EndIf
+	;/ endValidation /;
 
 	Int Handle = ModEvent.Create("SerialStripStart")
 	If (Handle)
@@ -113,9 +115,11 @@ Bool Function SendSerialStripStartEvent(Form akSender, Bool abFullStrip = False)
 EndFunction
 
 Bool Function SendSerialStripStopEvent()
+	;/ beginValidation /;
 	If (!EventSender)
 		Return False
 	EndIf
+	;/ endValidation /;
 
 	Int Handle = ModEvent.Create("SerialStripStop")
 	If (Handle)
@@ -176,6 +180,16 @@ State Stripping
 			Return
 		EndIf
 		;/ endValidation /;
+
+		;clear all the arrays before filling them
+		FormListClear(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R)
+		FormListClear(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L)
+		FormListClear(akActorRef, SLSS_STRIPLIST_HANDS)
+		FormListClear(akActorRef, SLSS_STRIPLIST_HELMET)
+		FormListClear(akActorRef, SLSS_STRIPLIST_FEET)
+		FormListClear(akActorRef, SLSS_STRIPLIST_BODY)
+		FormListClear(akActorRef, SLSS_STRIPLIST_UNDERWEAR)
+		FormListClear(akActorRef, SLSS_STRIPLIST_OTHER)
 
 		Bool[] bArrayIsActive = new Bool[8]
 		;/Activates or deactivates (and clears) the stripping arrays
@@ -408,6 +422,8 @@ State Stripping
 			Return
 		EndIf
 		;/ endValidation /;
+
+		FormListClear(akActorRef, asStrippedArray) ;clears the array that will store the stripped items before refilling it
 
 		;WEAPONS, RIGHT HAND (weapons need to be treated differently)
 		If (asStripArray == SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) ;if she is stripping from the right hand
