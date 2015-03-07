@@ -54,6 +54,7 @@ Float Property fOtherAnimDuration = 0.5 AutoReadOnly ;the name of the "other" st
 Float Property fDurationForFullStrip = 2.0 AutoReadOnly ;2 seconds cut-off point of key press: after this duration, the actor will strip fully
 Int Property iStripKeyCode = 48 AutoReadOnly ;B - the key that will be used to input stripping commands
 Bool Property bFullSerialStripSwitch Auto ;switches to full stripping
+Bool Property bIsSheathing Auto ;notifys script that actor is sheathing
 Form Property EventSender Auto ;stores the form that initiated the stripping
 
 Event OnInit()
@@ -358,7 +359,12 @@ State Stripping
 		Game.SetPlayerAIDriven(True) ;instead of DisablePlayerControls(True)
 
 		If (PlayerRef.IsWeaponDrawn()) ;if the player has their weapon drawn
+			bIsSheathing = True
 			PlayerRef.SheatheWeapon() ;make the player sheath their weapon
+			RegisterForAnimationEvent(PlayerRef, "IdleStop") ;listening for when the player stops sheathing to continue
+			Return
+		Else
+			bIsSheathing = False
 		EndIf
 
 		If (FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) > 0 ||  FormListCount(PlayerRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) > 0) ;if the weapons or shields arrays (Right and Left) are not empty
@@ -497,7 +503,7 @@ State Stripping
 
 	Event OnAnimationEvent(ObjectReference akSource, string asEventName)
 		If (akSource == PlayerRef && asEventName == "IdleStop")
-			If (!bFullSerialStripSwitch)
+			If (!bFullSerialStripSwitch && !bIsSheathing)
 				SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
 			Else
 				SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
