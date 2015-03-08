@@ -295,14 +295,14 @@ State Stripping
 		ClearIfInactive(akActorRef, SLSS_STRIPLIST_UNDERWEAR, bArrayIsActive[6])
 		ClearIfInactive(akActorRef, SLSS_STRIPLIST_OTHER, bArrayIsActive[7])
 
+		Debug.Trace("Array " + SLSS_STRIPLIST_WEAPONSANDSHIELDS_R + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) + " elements.")
+		Debug.Trace("Array " + SLSS_STRIPLIST_WEAPONSANDSHIELDS_L + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) + " elements.")
 		Debug.Trace("Array " + SLSS_STRIPLIST_HANDS + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_HANDS) + " elements.")
 		Debug.Trace("Array " + SLSS_STRIPLIST_HELMET + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_HELMET) + " elements.")
 		Debug.Trace("Array " + SLSS_STRIPLIST_FEET + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_FEET) + " elements.")
 		Debug.Trace("Array " + SLSS_STRIPLIST_BODY + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_BODY) + " elements.")
 		Debug.Trace("Array " + SLSS_STRIPLIST_UNDERWEAR + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_UNDERWEAR) + " elements.")
 		Debug.Trace("Array " + SLSS_STRIPLIST_OTHER + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_OTHER) + " elements.")
-		Debug.Trace("Array " + SLSS_STRIPLIST_WEAPONSANDSHIELDS_R + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) + " elements.")
-		Debug.Trace("Array " + SLSS_STRIPLIST_WEAPONSANDSHIELDS_L + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) + " elements.")
 	EndFunction
 
 	Function ClearIfInactive(Actor akActorRef, String asArrayName, Bool abIsArrayActive)
