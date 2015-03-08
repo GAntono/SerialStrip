@@ -218,16 +218,59 @@ State Stripping
 			bUserConfigSlots = SexLabSystemConfig.GetStrip(IsFemale = True) ;fetch the user's MCM stripping configuration for females
 		EndIf
 
+		;WEAPONS AND SHIELDS
+		;In SexLab's StripFemale and StripMale arrays, this is item 32
+		;weapons and shields employ a different logic than the other items
+
+		If (akActorRef.GetEquippedItemType(1) && \
+		akActorRef.GetEquippedItemType(1) != 5 && \
+		akActorRef.GetEquippedItemType(1) != 6 && \
+		akActorRef.GetEquippedItemType(1) != 7 && \
+		akActorRef.GetEquippedItemType(1) != 8 && \
+		akActorRef.GetEquippedItemType(1) != 9 && \
+		akActorRef.GetEquippedItemType(1) != 12) ;if there is a weapon in the right hand but it's not a two-handed one, then we also need to check the left hand
+
+			If (akActorRef.GetEquippedItemType(0) == 10) ;if the left hand is holding a shield
+				Form kItemRef = akActorRef.GetEquippedShield()
+
+				If ((FormListFind(None, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
+					If (SexLab.IsStrippable(kItemRef) == True && IsValidSlot(32, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
+						FormListAdd(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
+						bArrayIsActive[1] = True ;activate the WeaponsAndShieldsL array
+					EndIf
+				EndIf
+			ElseIf (akActorRef.GetEquippedItemType(0) && akActorRef.GetEquippedItemType(0) != 9) ;if there is a weapon in the left hand (i.e. not just fists or a spell)
+				Form kItemRef = akActorRef.GetEquippedWeapon(True) ;fetches left-hand weapon and puts it in kItemRef
+
+				If ((FormListFind(None, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
+					If (SexLab.IsStrippable(kItemRef) == True && IsValidSlot(32, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
+						FormListAdd(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
+						bArrayIsActive[1] = True ;activate the WeaponsAndShieldsL array
+					EndIf
+				EndIf
+			EndIf
+		EndIf
+
+		If (akActorRef.GetEquippedItemType(1) && akActorRef.GetEquippedItemType(1) != 9) ;if there is a weapon in the right hand (i.e. not just fists or a spell)
+			Form kItemRef = akActorRef.GetEquippedWeapon(False) ;fetches right-hand weapon and puts it in kItemRef
+
+			If ((FormListFind(None, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
+				If (SexLab.IsStrippable(kItemRef) == True && IsValidSlot(32, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
+					FormListAdd(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
+					bArrayIsActive[0] = True ;activate the WeaponsAndShieldsR array
+				EndIf
+			EndIf
+		EndIf
+
 		;ARMOR
 
 		;CREATING A LOOP to check all the item slots (forwards)
 		Int i ;sets i to zero
 
-		While (i <= 32) ;run this loop up to and including the slot 32
-
+		While (i <= 31) ;run this loop up to and including the node 61 (http://www.creationkit.com/Biped_Object)
 			Form kItemRef = akActorRef.GetWornForm(Armor.GetMaskForSlot(i + 30)) ;fetch the item worn in this slot and load it in the kItemRef variable
 
-			If ((FormListFind(None, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
+			If (kItemRef && FormListFind(None, asExceptionList, kItemRef) == -1) ;if there is an item in this slot and it is not found in the exception array
 
 				If (i + 30 == 33) || (ItemHasKeyword(kItemRef, HandsKeywords)) ;if this item is in the hands slot OR has any of the hands keywords
 					FormListAdd(akActorRef, SLSS_STRIPLIST_HANDS, kItemRef, allowDuplicate = False);adds this item to the hands undress list
@@ -262,28 +305,6 @@ State Stripping
 			EndIf
 			i += 1 ;moves the loop to check the next slot (forwards)
 		EndWhile
-
-		;WEAPONS AND SHIELDS
-		;In SexLab's StripFemale and StripMale arrays, this is item 32
-		;weapons and shields employ a more economical logic
-
-		Form kItemRef = akActorRef.GetEquippedWeapon(False) ;fetches right-hand weapon and puts it in kItemRef
-
-		If ((FormListFind(None, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
-			If (SexLab.IsStrippable(kItemRef) == True && IsValidSlot(32, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
-				FormListAdd(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
-				bArrayIsActive[0] = True ;activate the WeaponsAndShieldsR array
-			EndIf
-		EndIf
-
-		kItemRef = akActorRef.GetEquippedWeapon(True) ;fetches left-hand weapon and puts it in kItemRef
-
-		If ((FormListFind(None, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
-			If (SexLab.IsStrippable(kItemRef) == True && IsValidSlot(i, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
-				FormListAdd(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
-				bArrayIsActive[1] = True ;activate the WeaponsAndShieldsL array
-			EndIf
-		EndIf
 
 		;clears the arrays if they are not active (i.e. there's nothing strippable in them)
 		ClearIfInactive(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, bArrayIsActive[0])
