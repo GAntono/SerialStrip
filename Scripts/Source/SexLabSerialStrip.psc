@@ -452,66 +452,21 @@ State Stripping
 
 		FormListClear(akActorRef, asStrippedArray) ;clears the array that will store the stripped items before refilling it
 
-		;WEAPONS, RIGHT HAND (weapons need to be treated differently)
-		If (asStripArray == SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) ;if she is stripping from the right hand
+		Int i = FormListCount(akActorRef, asStripArray) - 1 ;sets i equal to the length of the array (-1 because FormListCount's result is 1-based while the array is 0 based)
 
-			Int i = FormListCount(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) - 1 ;sets i equal to the length of the array (-1 because FormListCount's result is 1-based while the array is 0 based). this also validates the function i.e. if the array is empty, it will not check the loop.
+		While (i >= 0) ;sets the loop to run up to and including position zero in the array (backwards)
 
-			While (i >= 0) ;sets the loop to run up to and including position zero in the array (backwards)
+			Form kItemRef = FormListGet(akActorRef, asStripArray, i) ;fetches the item stored in i position in the array
 
-				Form kItemRef = FormListGet(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, i) ;fetches the item stored in i position in the array
+			If (kItemRef) ;if this is an actual item, i.e. the array has not been cleared
+				akActorRef.UnequipItem(kItemRef) ;unequips this item
+				FormListAdd(akActorRef, asStrippedArray, kItemRef) ;adds the item to this array
+			EndIf
 
-				If (kItemRef != None) ;if this is an actual item, i.e. the array has not been cleared
-					akActorRef.UnequipItemEX(kItemRef, 1) ;unequips this item from the actor's right hand
-					FormListAdd(akActorRef, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, kItemRef) ;adds the item to this array
-				EndIf
+			i -= 1 ;go to the next item in the array (backwards)
+		EndWhile
 
-				i -= 1 ;go to the next item in the array (backwards)
-			EndWhile
-
-			FormListClear(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) ;clears the array
-
-		;LEFT HAND
-		ElseIf (asStripArray == SLSS_STRIPLIST_WEAPONSANDSHIELDS_L)
-		;if she is stripping from the left hand
-
-			Int i = FormListCount(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) - 1 ;sets i equal to the length of the array (-1 because FormListCount's result is 1-based while the array is 0 based)
-
-			While (i >= 0) ;sets the loop to run up to and including position zero in the array (backwards)
-
-				Form kItemRef = FormListGet(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, i) ;fetches the item stored in i position in the array
-
-				If (kItemRef != None) ;if this is an actual item, i.e. the array has not been cleared
-					akActorRef.UnequipItemEX(kItemRef, 2) ;unequips this item from the actor's right hand
-					FormListAdd(akActorRef, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L, kItemRef) ;adds the item to this array
-				EndIf
-
-				i -= 1 ;go to the next item in the array (backwards)
-			EndWhile
-
-			FormListClear(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) ;clears the array
-
-		Else
-
-		;ARMOR (non-weapon items are all handled in the same way)
-
-			Int i = FormListCount(akActorRef, asStripArray) - 1 ;sets i equal to the length of the array (-1 because FormListCount's result is 1-based while the array is 0 based)
-
-			While (i >= 0) ;sets the loop to run up to and including position zero in the array (backwards)
-
-				Form kItemRef = FormListGet(akActorRef, asStripArray, i) ;fetches the item stored in i position in the array
-
-				If (kItemRef != None) ;if this is an actual item, i.e. the array has not been cleared
-					akActorRef.UnequipItem(kItemRef) ;unequips this item
-					FormListAdd(akActorRef, asStrippedArray, kItemRef) ;adds the item to this array
-				EndIf
-
-				i -= 1 ;go to the next item in the array (backwards)
-			EndWhile
-
-			FormListClear(akActorRef, asStripArray) ;clears the array
-
-		EndIf
+		FormListClear(akActorRef, asStripArray) ;clears the array
 
 		If (!bFullSerialStripSwitch)
 			Game.SetPlayerAIDriven(False) ;give control back to the player
