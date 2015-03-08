@@ -229,28 +229,28 @@ State Stripping
 
 			If ((FormListFind(None, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
 
-				If (i + 30 == 31) || (ItemHasKeyword(kItemRef, HelmetKeywords)) ;if this item is in the hair slot OR has any of the helmet keywords
-					FormListAdd(akActorRef, SLSS_STRIPLIST_HELMET, kItemRef, allowDuplicate = False) ;adds this item to the helmet undress list
-				ElseIf (i + 30 == 32) || (ItemHasKeyword(kItemRef, BodyKeywords)) ;if this item is in the body slot OR has any of the body keywords
-					FormListAdd(akActorRef, SLSS_STRIPLIST_BODY, kItemRef, allowDuplicate = False) ;adds this item to the body undress list
-				ElseIf (i + 30 == 33) || (ItemHasKeyword(kItemRef, HandsKeywords)) ;if this item is in the hands slot OR has any of the hands keywords
+				If (i + 30 == 33) || (ItemHasKeyword(kItemRef, HandsKeywords)) ;if this item is in the hands slot OR has any of the hands keywords
 					FormListAdd(akActorRef, SLSS_STRIPLIST_HANDS, kItemRef, allowDuplicate = False);adds this item to the hands undress list
+				ElseIf (i + 30 == 31) || (ItemHasKeyword(kItemRef, HelmetKeywords)) ;if this item is in the hair slot OR has any of the helmet keywords
+					FormListAdd(akActorRef, SLSS_STRIPLIST_HELMET, kItemRef, allowDuplicate = False) ;adds this item to the helmet undress list
 				ElseIf (i + 30 == 37) || (ItemHasKeyword(kItemRef, FeetKeywords)) ;if this item is in the feet slot OR has any of the feet keywords
 					FormListAdd(akActorRef, SLSS_STRIPLIST_FEET, kItemRef, allowDuplicate = False) ;adds this item to the feet undress list
+				ElseIf (i + 30 == 32) || (ItemHasKeyword(kItemRef, BodyKeywords)) ;if this item is in the body slot OR has any of the body keywords
+					FormListAdd(akActorRef, SLSS_STRIPLIST_BODY, kItemRef, allowDuplicate = False) ;adds this item to the body undress list
 				ElseIf (i + 30 == 52) || (ItemHasKeyword(kItemRef, UnderwearKeywords)) ;if this item is in the underwear slot OR has any of the underwear keywords
 					FormListAdd(akActorRef, SLSS_STRIPLIST_UNDERWEAR, kItemRef, allowDuplicate = False) ;adds this item to the underwear undress list
 				EndIf
 
 				If (SexLab.IsStrippable(kItemRef) == True) ;if this item is strippable according to SexLab
 					If (IsValidSlot(i, bUserConfigSlots, abSlotOverrideList)) ;if either the modder or the user have configured this slot to be strippable
-						If ((i + 30 == 31) || FormListFind(akActorRef, SLSS_STRIPLIST_HELMET, kItemRef) != -1) ;if this is the hair slot (checking for helmets) OR we already know the item has one of the helmet keywords
-							bArrayIsActive[3] = True ;activate the helmet stripping array
-						ElseIf ((i + 30 == 32) || FormListFind(akActorRef, SLSS_STRIPLIST_BODY, kItemRef) != -1) ;if this is the body slot OR we already know the item has one of the body keywords
-							bArrayIsActive[5] = True ;activate the body stripping array
-						ElseIf ((i + 30 == 33) || FormListFind(akActorRef, SLSS_STRIPLIST_HANDS, kItemRef) != -1) ;if this is the hands slot OR we already know the item has one of the hands keywords
+						If ((i + 30 == 33) || FormListFind(akActorRef, SLSS_STRIPLIST_HANDS, kItemRef) != -1) ;if this is the hands slot OR we already know the item has one of the hands keywords
 							bArrayIsActive[2] = True ;activate the hands stripping array
+						ElseIf ((i + 30 == 31) || FormListFind(akActorRef, SLSS_STRIPLIST_HELMET, kItemRef) != -1) ;if this is the hair slot (checking for helmets) OR we already know the item has one of the helmet keywords
+							bArrayIsActive[3] = True ;activate the helmet stripping array
 						ElseIf ((i + 30 == 37) || FormListFind(akActorRef, SLSS_STRIPLIST_FEET, kItemRef) != -1) ;if this is the feet slot OR we already know the item has one of the feet keywords
 							bArrayIsActive[4] = True ;activate the feet stripping array
+						ElseIf ((i + 30 == 32) || FormListFind(akActorRef, SLSS_STRIPLIST_BODY, kItemRef) != -1) ;if this is the body slot OR we already know the item has one of the body keywords
+							bArrayIsActive[5] = True ;activate the body stripping array
 						ElseIf ((i + 30 == 52) || FormListFind(akActorRef, SLSS_STRIPLIST_UNDERWEAR, kItemRef) != -1) ;if this is the underwear slot OR we already know the item has one of the underwear keywords
 							bArrayIsActive[6] = True ;activate the underwear stripping array
 						Else
@@ -295,10 +295,10 @@ State Stripping
 		ClearIfInactive(akActorRef, SLSS_STRIPLIST_UNDERWEAR, bArrayIsActive[6])
 		ClearIfInactive(akActorRef, SLSS_STRIPLIST_OTHER, bArrayIsActive[7])
 
-		Debug.Trace("Array " + SLSS_STRIPLIST_HELMET + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_HELMET) + " elements.")
-		Debug.Trace("Array " + SLSS_STRIPLIST_BODY + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_BODY) + " elements.")
 		Debug.Trace("Array " + SLSS_STRIPLIST_HANDS + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_HANDS) + " elements.")
+		Debug.Trace("Array " + SLSS_STRIPLIST_HELMET + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_HELMET) + " elements.")
 		Debug.Trace("Array " + SLSS_STRIPLIST_FEET + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_FEET) + " elements.")
+		Debug.Trace("Array " + SLSS_STRIPLIST_BODY + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_BODY) + " elements.")
 		Debug.Trace("Array " + SLSS_STRIPLIST_UNDERWEAR + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_UNDERWEAR) + " elements.")
 		Debug.Trace("Array " + SLSS_STRIPLIST_OTHER + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_OTHER) + " elements.")
 		Debug.Trace("Array " + SLSS_STRIPLIST_WEAPONSANDSHIELDS_R + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) + " elements.")
