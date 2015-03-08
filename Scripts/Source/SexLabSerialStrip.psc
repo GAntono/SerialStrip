@@ -140,7 +140,7 @@ Event OnSerialStripStart(Form akSender, Bool abFullStrip)
 	SerialStrip()
 EndEvent
 
-Function PrepareForStripping(Actor akActorRef, Bool[] abSlotOverrideList, String asExceptionListKey = "")
+Function PrepareForStripping(Actor akActorRef, Bool[] abSlotOverrideList, String asExceptionList = "")
 EndFunction
 
 Function ClearIfInactive(Actor akActorRef, String asArrayName, Bool abIsArrayActive)
@@ -166,11 +166,11 @@ EndEvent
 
 State Stripping
 
-	Function PrepareForStripping(Actor akActorRef, Bool[] abSlotOverrideList, String asExceptionListKey = "")
+	Function PrepareForStripping(Actor akActorRef, Bool[] abSlotOverrideList, String asExceptionList = "")
 	;/analyses items worn by akActorRef and puts them into 7 arrays for the actual
 		stripping function to use.
 	akActorRef: actor to prepare
-	asExceptionListKey: name of the StorageUtil array holding items that will NOT be stripped
+	asExceptionList: name of the StorageUtil array holding items that will NOT be stripped
 	abSlotOverrideList: a 33-item-long array which defaults to False. Set any item [i] to True to override the user configuration
 		for slot i+30 and force-strip it.
 	Returns a bool array whose 7 items indicate whether to strip from the 7 arrays or not
@@ -227,7 +227,7 @@ State Stripping
 
 			Form kItemRef = akActorRef.GetWornForm(Armor.GetMaskForSlot(i + 30)) ;fetch the item worn in this slot and load it in the kItemRef variable
 
-			If ((FormListFind(None, asExceptionListKey, kItemRef) == -1)) ;if the item is not found in the exception array
+			If ((FormListFind(None, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
 
 				If (i + 30 == 31) || (ItemHasKeyword(kItemRef, HelmetKeywords)) ;if this item is in the hair slot OR has any of the helmet keywords
 					FormListAdd(akActorRef, SLSS_STRIPLIST_HELMET, kItemRef, allowDuplicate = False) ;adds this item to the helmet undress list
@@ -269,7 +269,7 @@ State Stripping
 
 		Form kItemRef = akActorRef.GetEquippedWeapon(False) ;fetches right-hand weapon and puts it in kItemRef
 
-		If ((FormListFind(None, asExceptionListKey, kItemRef) == -1)) ;if the item is not found in the exception array
+		If ((FormListFind(None, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
 			If (SexLab.IsStrippable(kItemRef) == True && IsValidSlot(32, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 				FormListAdd(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
 				bArrayIsActive[0] = True ;activate the WeaponsAndShieldsR array
@@ -278,7 +278,7 @@ State Stripping
 
 		kItemRef = akActorRef.GetEquippedWeapon(True) ;fetches left-hand weapon and puts it in kItemRef
 
-		If ((FormListFind(None, asExceptionListKey, kItemRef) == -1)) ;if the item is not found in the exception array
+		If ((FormListFind(None, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
 			If (SexLab.IsStrippable(kItemRef) == True && IsValidSlot(i, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 				FormListAdd(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
 				bArrayIsActive[1] = True ;activate the WeaponsAndShieldsL array
