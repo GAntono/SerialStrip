@@ -11,44 +11,44 @@ sslSystemConfig Property SexLabSystemConfig Auto ;points to the SexLab's sslSyst
 Actor Property PlayerRef Auto ;points to the player
 Actor Property kCurrentActor Auto ;the actor that is currently animating
 String[] Property HelmetKeywords Auto
-String[] Property BodyKeywords Auto
-String[] Property HandsKeywords Auto
-String[] Property FeetKeywords Auto
-String[] Property UnderwearKeywords Auto
+String[] Property ChestpieceKeywords Auto
+String[] Property GlovesKeywords Auto
+String[] Property BootsKeywords Auto
+String[] Property PantiesKeywords Auto
 Bool[] Property bSlotOverrideDefauList Auto
 
 String Property SLSS_STRIPLIST_WEAPONSANDSHIELDS_R = "APPS.SerialStripList.WeaponsAndShieldsR" AutoReadOnly
 String Property SLSS_STRIPLIST_WEAPONSANDSHIELDS_L = "APPS.SerialStripList.WeaponsAndShieldsL" AutoReadOnly
-String Property SLSS_STRIPLIST_HANDS = "APPS.SerialStripList.Hands" AutoReadOnly
+String Property SLSS_STRIPLIST_GLOVES = "APPS.SerialStripList.Gloves" AutoReadOnly
 String Property SLSS_STRIPLIST_HELMET = "APPS.SerialStripList.Helmet" AutoReadOnly
-String Property SLSS_STRIPLIST_FEET = "APPS.SerialStripList.Feet" AutoReadOnly
-String Property SLSS_STRIPLIST_BODY = "APPS.SerialStripList.Body" AutoReadOnly
-String Property SLSS_STRIPLIST_UNDERWEAR = "APPS.SerialStripList.Underwear" AutoReadOnly
+String Property SLSS_STRIPLIST_BOOTS = "APPS.SerialStripList.Boots" AutoReadOnly
+String Property SLSS_STRIPLIST_CHESTPIECE = "APPS.SerialStripList.Chestpiece" AutoReadOnly
+String Property SLSS_STRIPLIST_PANTIES = "APPS.SerialStripList.Panties" AutoReadOnly
 String Property SLSS_STRIPLIST_OTHER = "APPS.SerialStripList.Other" AutoReadOnly
 
 String Property SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R = "APPS.SerialStrippedList.WeaponsAndShieldsR" AutoReadOnly
 String Property SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L = "APPS.SerialStrippedList.WeaponsAndShieldsL" AutoReadOnly
-String Property SLSS_STRIPPEDLIST_HANDS = "APPS.SerialStrippedList.Hands" AutoReadOnly
+String Property SLSS_STRIPPEDLIST_GLOVES = "APPS.SerialStrippedList.Gloves" AutoReadOnly
 String Property SLSS_STRIPPEDLIST_HELMET = "APPS.SerialStrippedList.Helmet" AutoReadOnly
-String Property SLSS_STRIPPEDLIST_FEET = "APPS.SerialStrippedList.Feet" AutoReadOnly
-String Property SLSS_STRIPPEDLIST_BODY = "APPS.SerialStrippedList.Body" AutoReadOnly
-String Property SLSS_STRIPPEDLIST_UNDERWEAR = "APPS.SerialStrippedList.Underwear" AutoReadOnly
+String Property SLSS_STRIPPEDLIST_BOOTS = "APPS.SerialStrippedList.Boots" AutoReadOnly
+String Property SLSS_STRIPPEDLIST_CHESTPIECE = "APPS.SerialStrippedList.Chestpiece" AutoReadOnly
+String Property SLSS_STRIPPEDLIST_PANTIES = "APPS.SerialStrippedList.Panties" AutoReadOnly
 String Property SLSS_STRIPPEDLIST_OTHER = "APPS.SerialStrippedList.Other" AutoReadOnly
 
 String Property sCurrentStripArray Auto ;the array that is currently animating i.e. the actor is playing the animation for stripping from this array
 String Property sCurrentStrippedArray Auto ;the array that is currently holding the stripped items
 Idle Property WeaponsAndShieldsAnim Auto ;the name of the weapons and shields stripping animation
-Idle Property StripFArGl Auto ;the name of the hands stripping animation
+Idle Property StripFArGl Auto ;the name of the gloves stripping animation
 Idle Property StripFArHe Auto ;the name of the helmet stripping animation
-Idle Property StripFArBo Auto ;the name of the feet stripping animation
-Idle Property StripFArChB Auto ;the name of the body stripping animation
-Idle Property StripFULB Auto ;the name of the underwear stripping animation
+Idle Property StripFArBo Auto ;the name of the boots stripping animation
+Idle Property StripFArChB Auto ;the name of the chestpiece stripping animation
+Idle Property StripFULB Auto ;the name of the panties stripping animation
 Idle Property OtherAnim Auto ;the name of the "other" stripping animation
-Float Property fDurationForFullStrip = 2.0 AutoReadOnly ;2 seconds cut-off point of key press: after this duration, the actor will strip fully
-Int Property iStripKeyCode = 48 AutoReadOnly ;B - the key that will be used to input stripping commands
 Bool Property bFullSerialStripSwitch Auto ;switches to full stripping
 Bool Property bIsSheathing Auto ;notifys script that actor is sheathing
 Form Property EventSender Auto ;stores the form that initiated the stripping
+Float Property fDurationForFullStrip = 2.0 AutoReadOnly ;2 seconds cut-off point of key press: after this duration, the actor will strip fully
+Int Property iStripKeyCode = 48 AutoReadOnly ;B - the key that will be used to input stripping commands
 
 Event OnInit()
 	InitDefaultArrays()
@@ -178,22 +178,22 @@ State Stripping
 		;clear all the arrays before filling them
 		FormListClear(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R)
 		FormListClear(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L)
-		FormListClear(akActorRef, SLSS_STRIPLIST_HANDS)
+		FormListClear(akActorRef, SLSS_STRIPLIST_GLOVES)
 		FormListClear(akActorRef, SLSS_STRIPLIST_HELMET)
-		FormListClear(akActorRef, SLSS_STRIPLIST_FEET)
-		FormListClear(akActorRef, SLSS_STRIPLIST_BODY)
-		FormListClear(akActorRef, SLSS_STRIPLIST_UNDERWEAR)
+		FormListClear(akActorRef, SLSS_STRIPLIST_BOOTS)
+		FormListClear(akActorRef, SLSS_STRIPLIST_CHESTPIECE)
+		FormListClear(akActorRef, SLSS_STRIPLIST_PANTIES)
 		FormListClear(akActorRef, SLSS_STRIPLIST_OTHER)
 
 		Bool[] bArrayIsActive = new Bool[8]
 		;/Activates or deactivates (and clears) the stripping arrays
 		bArrayIsActive[0] WeaponsAndShieldsR
 		bArrayIsActive[1] WeaponsAndShieldsL
-		bArrayIsActive[2] Hands
+		bArrayIsActive[2] Gloves
 		bArrayIsActive[3] Helmet
-		bArrayIsActive[4] Feet
-		bArrayIsActive[5] Body
-		bArrayIsActive[6] Underwear
+		bArrayIsActive[4] Boots
+		bArrayIsActive[5] Chestpiece
+		bArrayIsActive[6] Panties
 		;bras
 		bArrayIsActive[7] Other
 		;circlets
@@ -265,30 +265,30 @@ State Stripping
 
 			If (kItemRef && FormListFind(None, asExceptionList, kItemRef) == -1) ;if there is an item in this slot and it is not found in the exception array
 
-				If (i + 30 == 33) || (ItemHasKeyword(kItemRef, HandsKeywords)) ;if this item is in the hands slot OR has any of the hands keywords
-					FormListAdd(akActorRef, SLSS_STRIPLIST_HANDS, kItemRef, allowDuplicate = False);adds this item to the hands undress list
+				If (i + 30 == 33) || (ItemHasKeyword(kItemRef, GlovesKeywords)) ;if this item is in the gloves slot OR has any of the gloves keywords
+					FormListAdd(akActorRef, SLSS_STRIPLIST_GLOVES, kItemRef, allowDuplicate = False);adds this item to the gloves undress list
 				ElseIf (i + 30 == 31) || (ItemHasKeyword(kItemRef, HelmetKeywords)) ;if this item is in the hair slot OR has any of the helmet keywords
 					FormListAdd(akActorRef, SLSS_STRIPLIST_HELMET, kItemRef, allowDuplicate = False) ;adds this item to the helmet undress list
-				ElseIf (i + 30 == 37) || (ItemHasKeyword(kItemRef, FeetKeywords)) ;if this item is in the feet slot OR has any of the feet keywords
-					FormListAdd(akActorRef, SLSS_STRIPLIST_FEET, kItemRef, allowDuplicate = False) ;adds this item to the feet undress list
-				ElseIf (i + 30 == 32) || (ItemHasKeyword(kItemRef, BodyKeywords)) ;if this item is in the body slot OR has any of the body keywords
-					FormListAdd(akActorRef, SLSS_STRIPLIST_BODY, kItemRef, allowDuplicate = False) ;adds this item to the body undress list
-				ElseIf (i + 30 == 52) || (ItemHasKeyword(kItemRef, UnderwearKeywords)) ;if this item is in the underwear slot OR has any of the underwear keywords
-					FormListAdd(akActorRef, SLSS_STRIPLIST_UNDERWEAR, kItemRef, allowDuplicate = False) ;adds this item to the underwear undress list
+				ElseIf (i + 30 == 37) || (ItemHasKeyword(kItemRef, BootsKeywords)) ;if this item is in the boots slot OR has any of the boots keywords
+					FormListAdd(akActorRef, SLSS_STRIPLIST_BOOTS, kItemRef, allowDuplicate = False) ;adds this item to the boots undress list
+				ElseIf (i + 30 == 32) || (ItemHasKeyword(kItemRef, ChestpieceKeywords)) ;if this item is in the chestpiece slot OR has any of the chestpiece keywords
+					FormListAdd(akActorRef, SLSS_STRIPLIST_CHESTPIECE, kItemRef, allowDuplicate = False) ;adds this item to the chestpiece undress list
+				ElseIf (i + 30 == 52) || (ItemHasKeyword(kItemRef, PantiesKeywords)) ;if this item is in the panties slot OR has any of the panties keywords
+					FormListAdd(akActorRef, SLSS_STRIPLIST_PANTIES, kItemRef, allowDuplicate = False) ;adds this item to the panties undress list
 				EndIf
 
 				If (SexLab.IsStrippable(kItemRef) == True) ;if this item is strippable according to SexLab
 					If (IsValidSlot(i, bUserConfigSlots, abSlotOverrideList)) ;if either the modder or the user have configured this slot to be strippable
-						If ((i + 30 == 33) || FormListFind(akActorRef, SLSS_STRIPLIST_HANDS, kItemRef) != -1) ;if this is the hands slot OR we already know the item has one of the hands keywords
-							bArrayIsActive[2] = True ;activate the hands stripping array
+						If ((i + 30 == 33) || FormListFind(akActorRef, SLSS_STRIPLIST_GLOVES, kItemRef) != -1) ;if this is the gloves slot OR we already know the item has one of the gloves keywords
+							bArrayIsActive[2] = True ;activate the gloves stripping array
 						ElseIf ((i + 30 == 31) || FormListFind(akActorRef, SLSS_STRIPLIST_HELMET, kItemRef) != -1) ;if this is the hair slot (checking for helmets) OR we already know the item has one of the helmet keywords
 							bArrayIsActive[3] = True ;activate the helmet stripping array
-						ElseIf ((i + 30 == 37) || FormListFind(akActorRef, SLSS_STRIPLIST_FEET, kItemRef) != -1) ;if this is the feet slot OR we already know the item has one of the feet keywords
-							bArrayIsActive[4] = True ;activate the feet stripping array
-						ElseIf ((i + 30 == 32) || FormListFind(akActorRef, SLSS_STRIPLIST_BODY, kItemRef) != -1) ;if this is the body slot OR we already know the item has one of the body keywords
-							bArrayIsActive[5] = True ;activate the body stripping array
-						ElseIf ((i + 30 == 52) || FormListFind(akActorRef, SLSS_STRIPLIST_UNDERWEAR, kItemRef) != -1) ;if this is the underwear slot OR we already know the item has one of the underwear keywords
-							bArrayIsActive[6] = True ;activate the underwear stripping array
+						ElseIf ((i + 30 == 37) || FormListFind(akActorRef, SLSS_STRIPLIST_BOOTS, kItemRef) != -1) ;if this is the boots slot OR we already know the item has one of the boots keywords
+							bArrayIsActive[4] = True ;activate the boots stripping array
+						ElseIf ((i + 30 == 32) || FormListFind(akActorRef, SLSS_STRIPLIST_CHESTPIECE, kItemRef) != -1) ;if this is the chestpiece slot OR we already know the item has one of the chestpiece keywords
+							bArrayIsActive[5] = True ;activate the chestpiece stripping array
+						ElseIf ((i + 30 == 52) || FormListFind(akActorRef, SLSS_STRIPLIST_PANTIES, kItemRef) != -1) ;if this is the panties slot OR we already know the item has one of the panties keywords
+							bArrayIsActive[6] = True ;activate the panties stripping array
 						Else
 							FormListAdd(akActorRef, SLSS_STRIPLIST_OTHER, kItemRef, allowDuplicate = False) ;adds this item to the "other" undress list
 							bArrayIsActive[7] = True ;activate the "other" stripping array
@@ -302,20 +302,20 @@ State Stripping
 		;clears the arrays if they are not active (i.e. there's nothing strippable in them)
 		ClearIfInactive(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, bArrayIsActive[0])
 		ClearIfInactive(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, bArrayIsActive[1])
-		ClearIfInactive(akActorRef, SLSS_STRIPLIST_HANDS, bArrayIsActive[2])
+		ClearIfInactive(akActorRef, SLSS_STRIPLIST_GLOVES, bArrayIsActive[2])
 		ClearIfInactive(akActorRef, SLSS_STRIPLIST_HELMET, bArrayIsActive[3])
-		ClearIfInactive(akActorRef, SLSS_STRIPLIST_FEET, bArrayIsActive[4])
-		ClearIfInactive(akActorRef, SLSS_STRIPLIST_BODY, bArrayIsActive[5])
-		ClearIfInactive(akActorRef, SLSS_STRIPLIST_UNDERWEAR, bArrayIsActive[6])
+		ClearIfInactive(akActorRef, SLSS_STRIPLIST_BOOTS, bArrayIsActive[4])
+		ClearIfInactive(akActorRef, SLSS_STRIPLIST_CHESTPIECE, bArrayIsActive[5])
+		ClearIfInactive(akActorRef, SLSS_STRIPLIST_PANTIES, bArrayIsActive[6])
 		ClearIfInactive(akActorRef, SLSS_STRIPLIST_OTHER, bArrayIsActive[7])
 
 		Debug.Trace("Array " + SLSS_STRIPLIST_WEAPONSANDSHIELDS_R + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_R) + " elements.")
 		Debug.Trace("Array " + SLSS_STRIPLIST_WEAPONSANDSHIELDS_L + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_WEAPONSANDSHIELDS_L) + " elements.")
-		Debug.Trace("Array " + SLSS_STRIPLIST_HANDS + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_HANDS) + " elements.")
+		Debug.Trace("Array " + SLSS_STRIPLIST_GLOVES + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_GLOVES) + " elements.")
 		Debug.Trace("Array " + SLSS_STRIPLIST_HELMET + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_HELMET) + " elements.")
-		Debug.Trace("Array " + SLSS_STRIPLIST_FEET + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_FEET) + " elements.")
-		Debug.Trace("Array " + SLSS_STRIPLIST_BODY + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_BODY) + " elements.")
-		Debug.Trace("Array " + SLSS_STRIPLIST_UNDERWEAR + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_UNDERWEAR) + " elements.")
+		Debug.Trace("Array " + SLSS_STRIPLIST_BOOTS + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_BOOTS) + " elements.")
+		Debug.Trace("Array " + SLSS_STRIPLIST_CHESTPIECE + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_CHESTPIECE) + " elements.")
+		Debug.Trace("Array " + SLSS_STRIPLIST_PANTIES + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_PANTIES) + " elements.")
 		Debug.Trace("Array " + SLSS_STRIPLIST_OTHER + " contains " + FormListCount(akActorRef, SLSS_STRIPLIST_OTHER) + " elements.")
 	EndFunction
 
@@ -392,16 +392,16 @@ State Stripping
 				SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_R, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, WeaponsAndShieldsAnim, abDontStop = True) ;run the function to play the appropriate animation and continue to strip the left hand too
 				SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L) ;run the function to just strip the left hand without playing an animation
 			EndIf
-		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_HANDS) > 0)
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_HANDS, SLSS_STRIPPEDLIST_HANDS, StripFArGl) ;run the function to play the appropriate animation
+		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_GLOVES) > 0)
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_GLOVES, SLSS_STRIPPEDLIST_GLOVES, StripFArGl) ;run the function to play the appropriate animation
 		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_HELMET) > 0)
 			SingleArrayAnimThenStrip(SLSS_STRIPLIST_HELMET, SLSS_STRIPPEDLIST_HELMET, StripFArHe) ;run the function to play the appropriate animation
-		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_FEET) > 0)
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_FEET, SLSS_STRIPPEDLIST_FEET, StripFArBo) ;run the function to play the appropriate animation
-		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_BODY) > 0)
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_BODY, SLSS_STRIPPEDLIST_BODY, StripFArChB) ;run the function to play the appropriate animation
-		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_UNDERWEAR) > 0)
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_UNDERWEAR, SLSS_STRIPPEDLIST_UNDERWEAR, StripFULB) ;run the function to play the appropriate animation
+		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_BOOTS) > 0)
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_BOOTS, SLSS_STRIPPEDLIST_BOOTS, StripFArBo) ;run the function to play the appropriate animation
+		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_CHESTPIECE) > 0)
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_CHESTPIECE, SLSS_STRIPPEDLIST_CHESTPIECE, StripFArChB) ;run the function to play the appropriate animation
+		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_PANTIES) > 0)
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_PANTIES, SLSS_STRIPPEDLIST_PANTIES, StripFULB) ;run the function to play the appropriate animation
 		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_OTHER) > 0)
 			SingleArrayAnimThenStrip(SLSS_STRIPLIST_OTHER, SLSS_STRIPPEDLIST_OTHER, OtherAnim) ;run the function to play the appropriate animation
 		Else ;if nothing to strip
