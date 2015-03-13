@@ -1,11 +1,9 @@
-ScriptName SexLabSerialStrip Extends Quest
+ScriptName SerialStrip Extends Quest
 {serial undressing: press a button once to remove one garment, keep it depressed to remove all}
 
 Import StorageUtil
 
 SexLabFramework Property SexLab Auto ;points to the SexLab Framework script so we can use its functions
-sslAnimationFactory Property sslAnimFactory Auto ;points to the SexLab sslAnimationFactory script so we can use its functions and properties
-sslAnimationSlots Property sslAnimSlots Auto ;points to the SexLab sslAnimationSlots script so we can use its functions
 sslSystemConfig Property SexLabSystemConfig Auto ;points to the SexLab's sslSystemConfig.psc script so we can use its functions
 
 Actor Property PlayerRef Auto ;points to the player
@@ -15,7 +13,8 @@ String[] Property ChestpieceKeywords Auto
 String[] Property GlovesKeywords Auto
 String[] Property BootsKeywords Auto
 String[] Property PantiesKeywords Auto
-Bool[] Property bSlotOverrideDefauList Auto
+Bool[] Property bAllTrueList Auto
+Bool[] Property bAllFalseList Auto
 
 String Property SLSS_STRIPLIST_WEAPONSANDSHIELDS_R = "APPS.SerialStripList.WeaponsAndShieldsR" AutoReadOnly
 String Property SLSS_STRIPLIST_WEAPONSANDSHIELDS_L = "APPS.SerialStripList.WeaponsAndShieldsL" AutoReadOnly
@@ -38,11 +37,11 @@ String Property SLSS_STRIPPEDLIST_OTHER = "APPS.SerialStrippedList.Other" AutoRe
 String Property sCurrentStripArray Auto ;the array that is currently animating i.e. the actor is playing the animation for stripping from this array
 String Property sCurrentStrippedArray Auto ;the array that is currently holding the stripped items
 Idle Property WeaponsAndShieldsAnim Auto ;the name of the weapons and shields stripping animation
-Idle Property StripFArGl Auto ;the name of the gloves stripping animation
-Idle Property StripFArHe Auto ;the name of the helmet stripping animation
-Idle Property StripFArBo Auto ;the name of the boots stripping animation
-Idle Property StripFArChB Auto ;the name of the chestpiece stripping animation
-Idle Property StripFULB Auto ;the name of the panties stripping animation
+Idle Property ssFArGl Auto ;the name of the gloves stripping animation
+Idle Property ssFArHe Auto ;the name of the helmet stripping animation
+Idle Property ssFArBo Auto ;the name of the boots stripping animation
+Idle Property ssFArChB Auto ;the name of the chestpiece stripping animation
+Idle Property ssFULB Auto ;the name of the panties stripping animation
 Idle Property OtherAnim Auto ;the name of the "other" stripping animation
 Bool Property bFullSerialStripSwitch Auto ;switches to full stripping
 Bool Property bIsSheathing Auto ;notifys script that actor is sheathing
@@ -51,16 +50,20 @@ Float Property fDurationForFullStrip = 2.0 AutoReadOnly ;2 seconds cut-off point
 Int Property iStripKeyCode = 48 AutoReadOnly ;B - the key that will be used to input stripping commands
 
 Event OnInit()
+	SexLab = Game.GetFormFromFile(0xD62, "SexLab.esm") as SexLabFramework
+	SexLabSystemConfig = Game.GetFormFromFile(0xD62, "SexLab.esm") as sslSystemConfig
 	InitDefaultArrays()
 	SerialStripOn()
 EndEvent
 
 Function InitDefaultArrays()
-	bSlotOverrideDefauList = New Bool[33]
+	bAllTrueList = New Bool[33]
+	bAllFalseList = New Bool[33]
 	Int i
 
 	While (i < 33)
-		bSlotOverrideDefauList[i] = False
+		bAllTrueList[i] = True
+		bAllFalseList[i] = False
 		i += 1
 	EndWhile
 EndFunction
@@ -129,7 +132,7 @@ EndFunction
 Event OnSerialStripStart(Form akSender, Bool abFullStrip)
 	GoToState("Stripping")
 	bFullSerialStripSwitch = abFullStrip
-	PrepareForStripping(PlayerRef, bSlotOverrideDefauList)
+	PrepareForStripping(PlayerRef, bAllFalseList)
 	SerialStrip()
 EndEvent
 
@@ -201,14 +204,18 @@ State Stripping
 		;necklaces
 		/;
 
-		Int iGender = SexLab.GetGender(akActorRef) ;fetches the gender of the actor
-
 		Bool[] bUserConfigSlots = new Bool[33] ;declares an array to hold the user's configuration
 
-		If (iGender == 0) ;if the actor is male
-			bUserConfigSlots = SexLabSystemConfig.GetStrip(IsFemale = False) ;fetch the user's MCM stripping configuration for males
-		ElseIf (iGender == 1) ;if the actor is female
-			bUserConfigSlots = SexLabSystemConfig.GetStrip(IsFemale = True) ;fetch the user's MCM stripping configuration for females
+		If (SexLab)
+			Int iGender = SexLab.GetGender(akActorRef) ;fetches the gender of the actor
+
+			If (iGender == 0) ;if the actor is male
+				bUserConfigSlots = SexLabSystemConfig.GetStrip(IsFemale = False) ;fetch the user's MCM stripping configuration for males
+			ElseIf (iGender == 1) ;if the actor is female
+				bUserConfigSlots = SexLabSystemConfig.GetStrip(IsFemale = True) ;fetch the user's MCM stripping configuration for females
+			EndIf
+		Else
+			bUserConfigSlots = bAllTrueList
 		EndIf
 
 		;WEAPONS AND SHIELDS
@@ -393,15 +400,15 @@ State Stripping
 				SingleArrayAnimThenStrip(SLSS_STRIPLIST_WEAPONSANDSHIELDS_L, SLSS_STRIPPEDLIST_WEAPONSANDSHIELDS_L) ;run the function to just strip the left hand without playing an animation
 			EndIf
 		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_GLOVES) > 0)
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_GLOVES, SLSS_STRIPPEDLIST_GLOVES, StripFArGl) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_GLOVES, SLSS_STRIPPEDLIST_GLOVES, ssFArGl) ;run the function to play the appropriate animation
 		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_HELMET) > 0)
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_HELMET, SLSS_STRIPPEDLIST_HELMET, StripFArHe) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_HELMET, SLSS_STRIPPEDLIST_HELMET, ssFArHe) ;run the function to play the appropriate animation
 		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_BOOTS) > 0)
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_BOOTS, SLSS_STRIPPEDLIST_BOOTS, StripFArBo) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_BOOTS, SLSS_STRIPPEDLIST_BOOTS, ssFArBo) ;run the function to play the appropriate animation
 		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_CHESTPIECE) > 0)
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_CHESTPIECE, SLSS_STRIPPEDLIST_CHESTPIECE, StripFArChB) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_CHESTPIECE, SLSS_STRIPPEDLIST_CHESTPIECE, ssFArChB) ;run the function to play the appropriate animation
 		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_PANTIES) > 0)
-			SingleArrayAnimThenStrip(SLSS_STRIPLIST_PANTIES, SLSS_STRIPPEDLIST_PANTIES, StripFULB) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SLSS_STRIPLIST_PANTIES, SLSS_STRIPPEDLIST_PANTIES, ssFULB) ;run the function to play the appropriate animation
 		ElseIf (FormListCount(PlayerRef, SLSS_STRIPLIST_OTHER) > 0)
 			SingleArrayAnimThenStrip(SLSS_STRIPLIST_OTHER, SLSS_STRIPPEDLIST_OTHER, OtherAnim) ;run the function to play the appropriate animation
 		Else ;if nothing to strip
@@ -486,20 +493,20 @@ EndState
 
 ;/ Animation Descriptions & Durations
 
-StripFArGl		Remove Armor Gloves
-StripFArHe		Remove Armor Helmet
-StripFArBo		Remove Armor Boots
-StripFArNoUS	Remove it - Thats an incomplete chest "shy" version
-StripFArChB		Remove Armor chestpiece
-StripFClGl		Remove Cloth Gloves
-StripFClHo		Remove Cloth Hood
-StripFClBo		Remove Cloth Boots
-StripFClCi		Remove Cloth Circlet
-StripFClChB		Remove Cloth Dress
-StripFULB		Remove Panties
-StripFUUB		Remove Bra
-StripFJN		Remove Necklace
-StripFJR		Remove Ring
+FArGl		Remove Armor Gloves
+FArHe		Remove Armor Helmet
+FArBo		Remove Armor Boots
+FArNoUS	Remove it - Thats an incomplete chest "shy" version
+FArChB		Remove Armor chestpiece
+FClGl		Remove Cloth Gloves
+FClHo		Remove Cloth Hood
+FClBo		Remove Cloth Boots
+FClCi		Remove Cloth Circlet
+FClChB		Remove Cloth Dress
+FULB		Remove Panties
+FUUB		Remove Bra
+FJN		Remove Necklace
+FJR		Remove Ring
 
 FArBo 185 frames - 6.17 sec
 
@@ -589,17 +596,17 @@ Function SlotsToStrip(Actor ActorRef, Form[] akExceptionList)
 /;
 ;/
 STRIP ANIMATIONS DESCRIPTIONS
-StripFArGl		Remove Gloves 4.83 sec
-StripFArHe		Remove Helmet 4.67 sec
-StripFArBo		Remove Boots 6.17 sec
+ssFArGl		Remove Gloves 4.83 sec
+ssFArHe		Remove Helmet 4.67 sec
+ssFArBo		Remove Boots 6.17 sec
 StripFArNoUS	Remove Torso (no underwear shy)
-StripFArChB		Remove Torso 4.67 sec
+ssFArChB		Remove Torso 4.67 sec
 StripFClGl		Equip Gloves 2.83 sec
 StripFClHo		Equip Helmet 2.83 sec
 StripFClBo		Equip Boots 6.17 sec
 StripFClCi		Equip Circlet 2.83 sec
 StripFClChB		Equip Torso 6.03 sec
-StripFULB		Remove Panties 3.1 sec
+ssFULB		Remove Panties 3.1 sec
 StripFUUB		Remove Bra 3.5 sec
 StripFJN		Equip Ring 2.5 sec
 StripFJC		Remove Ring 2.5 sec

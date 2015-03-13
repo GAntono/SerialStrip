@@ -16,20 +16,20 @@
 				<hkcstring>FNISreserve1</hkcstring>				<!-- 8 -->
 				<hkcstring>FNISreserve2</hkcstring>				<!-- 9 -->
 				<hkcstring>FNISreserve3</hkcstring>				<!-- 10 -->
-				<hkcstring>StripFArGl</hkcstring>			<!-- 11 -->
-				<hkcstring>StripFArHe</hkcstring>			<!-- 12 -->
-				<hkcstring>StripFArBo</hkcstring>			<!-- 13 -->
-				<hkcstring>StripFArNoUS</hkcstring>			<!-- 14 -->
-				<hkcstring>StripFArChB</hkcstring>			<!-- 15 -->
-				<hkcstring>StripFClGl</hkcstring>			<!-- 16 -->
-				<hkcstring>StripFClHo</hkcstring>			<!-- 17 -->
-				<hkcstring>StripFClBo</hkcstring>			<!-- 18 -->
-				<hkcstring>StripFClCi</hkcstring>			<!-- 19 -->
-				<hkcstring>StripFClChB</hkcstring>			<!-- 20 -->
-				<hkcstring>StripFULB</hkcstring>			<!-- 21 -->
-				<hkcstring>StripFUUB</hkcstring>			<!-- 22 -->
-				<hkcstring>StripFJN</hkcstring>			<!-- 23 -->
-				<hkcstring>StripFJC</hkcstring>			<!-- 24 -->
+				<hkcstring>ssFArGl</hkcstring>			<!-- 11 -->
+				<hkcstring>ssFArHe</hkcstring>			<!-- 12 -->
+				<hkcstring>ssFArBo</hkcstring>			<!-- 13 -->
+				<hkcstring>ssFArNoUS</hkcstring>			<!-- 14 -->
+				<hkcstring>ssFArChB</hkcstring>			<!-- 15 -->
+				<hkcstring>ssFClGl</hkcstring>			<!-- 16 -->
+				<hkcstring>ssFClHo</hkcstring>			<!-- 17 -->
+				<hkcstring>ssFClBo</hkcstring>			<!-- 18 -->
+				<hkcstring>ssFClCi</hkcstring>			<!-- 19 -->
+				<hkcstring>ssFClChB</hkcstring>			<!-- 20 -->
+				<hkcstring>ssFULB</hkcstring>			<!-- 21 -->
+				<hkcstring>ssFUUB</hkcstring>			<!-- 22 -->
+				<hkcstring>ssFJN</hkcstring>			<!-- 23 -->
+				<hkcstring>ssFJC</hkcstring>			<!-- 24 -->
 			</hkparam>
 			<hkparam name="attributeNames" numelements="1">
 				<hkcstring>AttrWM</hkcstring>
@@ -221,7 +221,7 @@
 			<hkparam name="exitNotifyEvents">#0208</hkparam>
 			<hkparam name="transitions">null</hkparam>
  			<hkparam name="generator">#1001</hkparam>
-			<hkparam name="name">StripFArGl</hkparam>
+			<hkparam name="name">ssFArGl</hkparam>
 			<hkparam name="stateId">1</hkparam>
 			<hkparam name="probability">1.000000</hkparam>
 			<hkparam name="enable">true</hkparam>
@@ -231,7 +231,7 @@
 			<hkparam name="variableBindingSet">null</hkparam>
 			<hkparam name="userData">0</hkparam>
 			<hkparam name="name">FNISb1</hkparam>
-			<hkparam name="animationName">Animations\SexLabSerialStrip\FArGl.hkx</hkparam>
+			<hkparam name="animationName">Animations\SerialStrip\FArGl.hkx</hkparam>
 			<hkparam name="triggers">#0201</hkparam>
 			<hkparam name="cropStartAmountLocalTime">0.000000</hkparam>
 			<hkparam name="cropEndAmountLocalTime">0.000000</hkparam>
@@ -251,7 +251,7 @@
 			<hkparam name="exitNotifyEvents">#0208</hkparam>
 			<hkparam name="transitions">null</hkparam>
  			<hkparam name="generator">#1005</hkparam>
-			<hkparam name="name">StripFArHe</hkparam>
+			<hkparam name="name">ssFArHe</hkparam>
 			<hkparam name="stateId">2</hkparam>
 			<hkparam name="probability">1.000000</hkparam>
 			<hkparam name="enable">true</hkparam>
@@ -261,7 +261,7 @@
 			<hkparam name="variableBindingSet">null</hkparam>
 			<hkparam name="userData">0</hkparam>
 			<hkparam name="name">FNISb2</hkparam>
-			<hkparam name="animationName">Animations\SexLabSerialStrip\FArHe.hkx</hkparam>
+			<hkparam name="animationName">Animations\SerialStrip\FArHe.hkx</hkparam>
 			<hkparam name="triggers">#0201</hkparam>
 			<hkparam name="cropStartAmountLocalTime">0.000000</hkparam>
 			<hkparam name="cropEndAmountLocalTime">0.000000</hkparam>
@@ -281,7 +281,7 @@
 			<hkparam name="exitNotifyEvents">#0208</hkparam>
 			<hkparam name="transitions">null</hkparam>
  			<hkparam name="generator">#1009</hkparam>
-			<hkparam name="name">StripFArBo</hkparam>
+			<hkparam name="name">ssFArBo</hkparam>
 			<hkparam name="stateId">3</hkparam>
 			<hkparam name="probability">1.000000</hkparam>
 			<hkparam name="enable">true</hkparam>
@@ -291,7 +291,7 @@
 			<hkparam name="variableBindingSet">null</hkparam>
 			<hkparam name="userData">0</hkparam>
 			<hkparam name="name">FNISb3</hkparam>
-			<hkparam name="animationName">Animations\SexLabSerialStrip\FArBo.hkx</hkparam>
+			<hkparam name="animationName">Animations\SerialStrip\FArBo.hkx</hkparam>
 			<hkparam name="triggers">#0201</hkparam>
 			<hkparam name="cropStartAmountLocalTime">0.000000</hkparam>
 			<hkparam name="cropEndAmountLocalTime">0.000000</hkparam>
@@ -311,7 +311,7 @@
 			<hkparam name="exitNotifyEvents">#0208</hkparam>
 			<hkparam name="transitions">null</hkparam>
  			<hkparam name="generator">#1013</hkparam>
-			<hkparam name="name">StripFArNoUS</hkparam>
+			<hkparam name="name">ssFArNoUS</hkparam>
 			<hkparam name="stateId">4</hkparam>
 			<hkparam name="probability">1.000000</hkparam>
 			<hkparam name="enable">true</hkparam>
@@ -321,7 +321,7 @@
 			<hkparam name="variableBindingSet">null</hkparam>
 			<hkparam name="userData">0</hkparam>
 			<hkparam name="name">FNISb4</hkparam>
-			<hkparam name="animationName">Animations\SexLabSerialStrip\FArChNoUS.hkx</hkparam>
+			<hkparam name="animationName">Animations\SerialStrip\FArChNoUS.hkx</hkparam>
 			<hkparam name="triggers">#0201</hkparam>
 			<hkparam name="cropStartAmountLocalTime">0.000000</hkparam>
 			<hkparam name="cropEndAmountLocalTime">0.000000</hkparam>
@@ -341,7 +341,7 @@
 			<hkparam name="exitNotifyEvents">#0208</hkparam>
 			<hkparam name="transitions">null</hkparam>
  			<hkparam name="generator">#1017</hkparam>
-			<hkparam name="name">StripFArChB</hkparam>
+			<hkparam name="name">ssFArChB</hkparam>
 			<hkparam name="stateId">5</hkparam>
 			<hkparam name="probability">1.000000</hkparam>
 			<hkparam name="enable">true</hkparam>
@@ -351,7 +351,7 @@
 			<hkparam name="variableBindingSet">null</hkparam>
 			<hkparam name="userData">0</hkparam>
 			<hkparam name="name">FNISb5</hkparam>
-			<hkparam name="animationName">Animations\SexLabSerialStrip\FArChB.hkx</hkparam>
+			<hkparam name="animationName">Animations\SerialStrip\FArChB.hkx</hkparam>
 			<hkparam name="triggers">#0201</hkparam>
 			<hkparam name="cropStartAmountLocalTime">0.000000</hkparam>
 			<hkparam name="cropEndAmountLocalTime">0.000000</hkparam>
@@ -371,7 +371,7 @@
 			<hkparam name="exitNotifyEvents">#0208</hkparam>
 			<hkparam name="transitions">null</hkparam>
  			<hkparam name="generator">#1021</hkparam>
-			<hkparam name="name">StripFClGl</hkparam>
+			<hkparam name="name">ssFClGl</hkparam>
 			<hkparam name="stateId">6</hkparam>
 			<hkparam name="probability">1.000000</hkparam>
 			<hkparam name="enable">true</hkparam>
@@ -381,7 +381,7 @@
 			<hkparam name="variableBindingSet">null</hkparam>
 			<hkparam name="userData">0</hkparam>
 			<hkparam name="name">FNISb6</hkparam>
-			<hkparam name="animationName">Animations\SexLabSerialStrip\FClGl.hkx</hkparam>
+			<hkparam name="animationName">Animations\SerialStrip\FClGl.hkx</hkparam>
 			<hkparam name="triggers">#0201</hkparam>
 			<hkparam name="cropStartAmountLocalTime">0.000000</hkparam>
 			<hkparam name="cropEndAmountLocalTime">0.000000</hkparam>
@@ -401,7 +401,7 @@
 			<hkparam name="exitNotifyEvents">#0208</hkparam>
 			<hkparam name="transitions">null</hkparam>
  			<hkparam name="generator">#1025</hkparam>
-			<hkparam name="name">StripFClHo</hkparam>
+			<hkparam name="name">ssFClHo</hkparam>
 			<hkparam name="stateId">7</hkparam>
 			<hkparam name="probability">1.000000</hkparam>
 			<hkparam name="enable">true</hkparam>
@@ -411,7 +411,7 @@
 			<hkparam name="variableBindingSet">null</hkparam>
 			<hkparam name="userData">0</hkparam>
 			<hkparam name="name">FNISb7</hkparam>
-			<hkparam name="animationName">Animations\SexLabSerialStrip\FClHo.hkx</hkparam>
+			<hkparam name="animationName">Animations\SerialStrip\FClHo.hkx</hkparam>
 			<hkparam name="triggers">#0201</hkparam>
 			<hkparam name="cropStartAmountLocalTime">0.000000</hkparam>
 			<hkparam name="cropEndAmountLocalTime">0.000000</hkparam>
@@ -431,7 +431,7 @@
 			<hkparam name="exitNotifyEvents">#0208</hkparam>
 			<hkparam name="transitions">null</hkparam>
  			<hkparam name="generator">#1029</hkparam>
-			<hkparam name="name">StripFClBo</hkparam>
+			<hkparam name="name">ssFClBo</hkparam>
 			<hkparam name="stateId">8</hkparam>
 			<hkparam name="probability">1.000000</hkparam>
 			<hkparam name="enable">true</hkparam>
@@ -441,7 +441,7 @@
 			<hkparam name="variableBindingSet">null</hkparam>
 			<hkparam name="userData">0</hkparam>
 			<hkparam name="name">FNISb8</hkparam>
-			<hkparam name="animationName">Animations\SexLabSerialStrip\FClBo.hkx</hkparam>
+			<hkparam name="animationName">Animations\SerialStrip\FClBo.hkx</hkparam>
 			<hkparam name="triggers">#0201</hkparam>
 			<hkparam name="cropStartAmountLocalTime">0.000000</hkparam>
 			<hkparam name="cropEndAmountLocalTime">0.000000</hkparam>
@@ -461,7 +461,7 @@
 			<hkparam name="exitNotifyEvents">#0208</hkparam>
 			<hkparam name="transitions">null</hkparam>
  			<hkparam name="generator">#1033</hkparam>
-			<hkparam name="name">StripFClCi</hkparam>
+			<hkparam name="name">ssFClCi</hkparam>
 			<hkparam name="stateId">9</hkparam>
 			<hkparam name="probability">1.000000</hkparam>
 			<hkparam name="enable">true</hkparam>
@@ -471,7 +471,7 @@
 			<hkparam name="variableBindingSet">null</hkparam>
 			<hkparam name="userData">0</hkparam>
 			<hkparam name="name">FNISb9</hkparam>
-			<hkparam name="animationName">Animations\SexLabSerialStrip\FClCi.hkx</hkparam>
+			<hkparam name="animationName">Animations\SerialStrip\FClCi.hkx</hkparam>
 			<hkparam name="triggers">#0201</hkparam>
 			<hkparam name="cropStartAmountLocalTime">0.000000</hkparam>
 			<hkparam name="cropEndAmountLocalTime">0.000000</hkparam>
@@ -491,7 +491,7 @@
 			<hkparam name="exitNotifyEvents">#0208</hkparam>
 			<hkparam name="transitions">null</hkparam>
  			<hkparam name="generator">#1037</hkparam>
-			<hkparam name="name">StripFClChB</hkparam>
+			<hkparam name="name">ssFClChB</hkparam>
 			<hkparam name="stateId">10</hkparam>
 			<hkparam name="probability">1.000000</hkparam>
 			<hkparam name="enable">true</hkparam>
@@ -501,7 +501,7 @@
 			<hkparam name="variableBindingSet">null</hkparam>
 			<hkparam name="userData">0</hkparam>
 			<hkparam name="name">FNISb10</hkparam>
-			<hkparam name="animationName">Animations\SexLabSerialStrip\FClChB.hkx</hkparam>
+			<hkparam name="animationName">Animations\SerialStrip\FClChB.hkx</hkparam>
 			<hkparam name="triggers">#0201</hkparam>
 			<hkparam name="cropStartAmountLocalTime">0.000000</hkparam>
 			<hkparam name="cropEndAmountLocalTime">0.000000</hkparam>
@@ -521,7 +521,7 @@
 			<hkparam name="exitNotifyEvents">#0208</hkparam>
 			<hkparam name="transitions">null</hkparam>
  			<hkparam name="generator">#1041</hkparam>
-			<hkparam name="name">StripFULB</hkparam>
+			<hkparam name="name">ssFULB</hkparam>
 			<hkparam name="stateId">11</hkparam>
 			<hkparam name="probability">1.000000</hkparam>
 			<hkparam name="enable">true</hkparam>
@@ -531,7 +531,7 @@
 			<hkparam name="variableBindingSet">null</hkparam>
 			<hkparam name="userData">0</hkparam>
 			<hkparam name="name">FNISb11</hkparam>
-			<hkparam name="animationName">Animations\SexLabSerialStrip\FULB.hkx</hkparam>
+			<hkparam name="animationName">Animations\SerialStrip\FULB.hkx</hkparam>
 			<hkparam name="triggers">#0201</hkparam>
 			<hkparam name="cropStartAmountLocalTime">0.000000</hkparam>
 			<hkparam name="cropEndAmountLocalTime">0.000000</hkparam>
@@ -551,7 +551,7 @@
 			<hkparam name="exitNotifyEvents">#0208</hkparam>
 			<hkparam name="transitions">null</hkparam>
  			<hkparam name="generator">#1045</hkparam>
-			<hkparam name="name">StripFUUB</hkparam>
+			<hkparam name="name">ssFUUB</hkparam>
 			<hkparam name="stateId">12</hkparam>
 			<hkparam name="probability">1.000000</hkparam>
 			<hkparam name="enable">true</hkparam>
@@ -561,7 +561,7 @@
 			<hkparam name="variableBindingSet">null</hkparam>
 			<hkparam name="userData">0</hkparam>
 			<hkparam name="name">FNISb12</hkparam>
-			<hkparam name="animationName">Animations\SexLabSerialStrip\FUUB.hkx</hkparam>
+			<hkparam name="animationName">Animations\SerialStrip\FUUB.hkx</hkparam>
 			<hkparam name="triggers">#0201</hkparam>
 			<hkparam name="cropStartAmountLocalTime">0.000000</hkparam>
 			<hkparam name="cropEndAmountLocalTime">0.000000</hkparam>
@@ -581,7 +581,7 @@
 			<hkparam name="exitNotifyEvents">#0208</hkparam>
 			<hkparam name="transitions">null</hkparam>
  			<hkparam name="generator">#1049</hkparam>
-			<hkparam name="name">StripFJN</hkparam>
+			<hkparam name="name">ssFJN</hkparam>
 			<hkparam name="stateId">13</hkparam>
 			<hkparam name="probability">1.000000</hkparam>
 			<hkparam name="enable">true</hkparam>
@@ -591,7 +591,7 @@
 			<hkparam name="variableBindingSet">null</hkparam>
 			<hkparam name="userData">0</hkparam>
 			<hkparam name="name">FNISb13</hkparam>
-			<hkparam name="animationName">Animations\SexLabSerialStrip\FJN.hkx</hkparam>
+			<hkparam name="animationName">Animations\SerialStrip\FJN.hkx</hkparam>
 			<hkparam name="triggers">#0201</hkparam>
 			<hkparam name="cropStartAmountLocalTime">0.000000</hkparam>
 			<hkparam name="cropEndAmountLocalTime">0.000000</hkparam>
@@ -611,7 +611,7 @@
 			<hkparam name="exitNotifyEvents">#0208</hkparam>
 			<hkparam name="transitions">null</hkparam>
  			<hkparam name="generator">#1053</hkparam>
-			<hkparam name="name">StripFJC</hkparam>
+			<hkparam name="name">ssFJC</hkparam>
 			<hkparam name="stateId">14</hkparam>
 			<hkparam name="probability">1.000000</hkparam>
 			<hkparam name="enable">true</hkparam>
@@ -621,7 +621,7 @@
 			<hkparam name="variableBindingSet">null</hkparam>
 			<hkparam name="userData">0</hkparam>
 			<hkparam name="name">FNISb14</hkparam>
-			<hkparam name="animationName">Animations\SexLabSerialStrip\FJR.hkx</hkparam>
+			<hkparam name="animationName">Animations\SerialStrip\FJR.hkx</hkparam>
 			<hkparam name="triggers">#0201</hkparam>
 			<hkparam name="cropStartAmountLocalTime">0.000000</hkparam>
 			<hkparam name="cropEndAmountLocalTime">0.000000</hkparam>
