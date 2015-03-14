@@ -8,15 +8,15 @@ sslSystemConfig Property SexLabSystemConfig Auto ;points to the SexLab's sslSyst
 
 Actor Property PlayerRef Auto ;points to the player
 Actor Property kCurrentActor Auto ;the actor that is currently animating
-String[] Property HelmetKeywords Auto
-String[] Property GlovesKeywords Auto
-String[] Property BootsKeywords Auto
-String[] Property ChestpieceKeywords Auto
-String[] Property NecklaceKeywords Auto
-String[] Property CircletKeywords Auto
-String[] Property RingKeywords Auto
-String[] Property BraKeywords Auto
-String[] Property PantiesKeywords Auto
+String[] Property HelmetKeywords Auto ;helmet, hood, armorhelmet, clothinghead
+String[] Property GlovesKeywords Auto ;gloves, gauntlets, armorgauntlets, clothinghands
+String[] Property BootsKeywords Auto ;boots, armorboots, clothingfeet
+String[] Property ChestpieceKeywords Auto ;armor, chestpiece, armorcuirass, clothingbody
+String[] Property NecklaceKeywords Auto ;necklace, amulet, clothingnecklace
+String[] Property CircletKeywords Auto ;circlet, clothingcirclet
+String[] Property RingKeywords Auto ;ring, clothingring
+String[] Property BraKeywords Auto ;bra
+String[] Property PantiesKeywords Auto ;panties
 
 String Property SS_STRIPLIST_WEAPONSANDSHIELDS_R = "APPS.SerialStripList.WeaponsAndShieldsR" AutoReadOnly
 String Property SS_STRIPLIST_WEAPONSANDSHIELDS_L = "APPS.SerialStripList.WeaponsAndShieldsL" AutoReadOnly
@@ -173,7 +173,7 @@ EndFunction
 Function SerialStrip()
 EndFunction
 
-Bool Function HasClothItems(Actor akActorRef, String asArrayName)
+Bool Function HasClothingItems(Actor akActorRef, String asArrayName)
 EndFunction
 
 Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, Idle akAnimation = None, Bool abDontStop = False)
@@ -488,25 +488,25 @@ State Stripping
 			EndIf
 		;ARMOR
 		ElseIf (GlovesCount > 0)
-			If (HasClothItems(PlayerRef, SS_STRIPLIST_GLOVES))
+			If (HasClothingItems(PlayerRef, SS_STRIPLIST_GLOVES))
 				SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, ssFClGl)
 			Else
 				SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, ssFArGl) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_HELMET) > 0)
-			If (HasClothItems(PlayerRef, SS_STRIPLIST_HELMET))
+			If (HasClothingItems(PlayerRef, SS_STRIPLIST_HELMET))
 				SingleArrayAnimThenStrip(SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, ssFClHo)
 			Else
 				SingleArrayAnimThenStrip(SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, ssFArHe) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (BootsCount > 0)
-			If (HasClothItems(PlayerRef, SS_STRIPLIST_BOOTS))
+			If (HasClothingItems(PlayerRef, SS_STRIPLIST_BOOTS))
 				SingleArrayAnimThenStrip(SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, ssFClBo)
 			Else
 				SingleArrayAnimThenStrip(SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, ssFArBo) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (ChestpieceCount > 0)
-			If (HasClothItems(PlayerRef, SS_STRIPLIST_CHESTPIECE))
+			If (HasClothingItems(PlayerRef, SS_STRIPLIST_CHESTPIECE))
 				SingleArrayAnimThenStrip(SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, ssFClChB)
 			Else
 				SingleArrayAnimThenStrip(SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, ssFArChB) ;run the function to play the appropriate animation
@@ -526,13 +526,13 @@ State Stripping
 		EndIf
 	EndFunction
 
-	Bool Function HasClothItems(Actor akActorRef, String asArrayName)
+	Bool Function HasClothingItems(Actor akActorRef, String asArrayName)
 		Int itemCount = FormListCount(akActorRef, asArrayName)
 		Int i
 
 		While (i < itemCount)
 			Armor kItemRef = FormListGet(akActorRef, asArrayName, i) as Armor
-			If (kItemRef.IsLightArmor())
+			If (kItemRef.IsClothing())
 				Return True
 			Else
 				i += 1
