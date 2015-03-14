@@ -427,6 +427,40 @@ State Stripping
 
 	Function SerialStrip()
 	;makes the actor strip one item/group of clothing (one array) and then strip the next one and so on. To be used for button taps.
+	
+		;fetching all item counts once and storing them so we don't do this over and over again
+		Int WeaponsAndShieldsRCount = FormListCount(PlayerRef, SS_STRIPLIST_WEAPONSANDSHIELDS_R)
+		Int WeaponsAndShieldsLCount = FormListCount(PlayerRef, SS_STRIPLIST_WEAPONSANDSHIELDS_L)
+		Int GlovesCount = FormListCount(PlayerRef, SS_STRIPLIST_GLOVES)
+		Int BootsCount = FormListCount(PlayerRef, SS_STRIPLIST_BOOTS)
+		Int ChestpieceCount = FormListCount(PlayerRef, SS_STRIPLIST_CHESTPIECE)
+		Int NecklaceCount =  FormListCount(PlayerRef, SS_STRIPLIST_NECKLACE)
+		Int CircletCount = FormListCount(PlayerRef, SS_STRIPLIST_CIRCLET)
+		Int RingCount = FormListCount(PlayerRef, SS_STRIPLIST_RING)
+		Int BraCount = FormListCount(PlayerRef, SS_STRIPLIST_BRA)
+		Int PantiesCount = FormListCount(PlayerRef, SS_STRIPLIST_PANTIES)
+		Int OtherCount = FormListCount(PlayerRef, SS_STRIPLIST_OTHER)
+		
+		;if nothing to strip, return now
+		If (WeaponsAndShieldsRCount + \
+			WeaponsAndShieldsLCount + \
+			GlovesCount + \
+			BootsCount + \
+			ChestpieceCount + \
+			NecklaceCount + \
+			CircletCount + \
+			RingCount + \
+			BraCount + \
+			PantiesCount + \
+			OtherCount == 0)
+			
+			Game.SetPlayerAIDriven(False) ;give control back to the player
+			UnRegisterForModEvent("SerialStripStart")
+			UnRegisterForAnimationEvent(PlayerRef, "IdleStop")
+			GoToState("")
+			SendSerialStripStopEvent()
+			Return
+		EndIf
 
 		Game.ForceThirdPerson() ;force third person camera mode
 		Game.SetPlayerAIDriven(True) ;instead of DisablePlayerControls(True)
@@ -441,19 +475,19 @@ State Stripping
 		EndIf
 
 		;WEAPONS
-		If (FormListCount(PlayerRef, SS_STRIPLIST_WEAPONSANDSHIELDS_R) > 0 ||  FormListCount(PlayerRef, SS_STRIPLIST_WEAPONSANDSHIELDS_L) > 0) ;if the weapons or shields arrays (Right and Left) are not empty
+		If (WeaponsAndShieldsRCount > 0 ||  WeaponsAndShieldsLCount > 0) ;if the weapons or shields arrays (Right and Left) are not empty
 
 			;until we have special weapons stripping animation, this is being deprecated later on in SingleArrayAnimThenStrip()
-			If (FormListCount(PlayerRef, SS_STRIPLIST_WEAPONSANDSHIELDS_R) == 0) ;if the right hand array is empty i.e. the left is not empty
+			If (WeaponsAndShieldsRCount == 0) ;if the right hand array is empty i.e. the left is not empty
 				SingleArrayAnimThenStrip(SS_STRIPLIST_WEAPONSANDSHIELDS_L, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_L, WeaponsAndShieldsAnim) ;run the function to play the appropriate animation
-			ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_WEAPONSANDSHIELDS_L) == 0) ;if the left hand array is empty i.e. the right is not empty
+			ElseIf (WeaponsAndShieldsLCount == 0) ;if the left hand array is empty i.e. the right is not empty
 				SingleArrayAnimThenStrip(SS_STRIPLIST_WEAPONSANDSHIELDS_R, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, WeaponsAndShieldsAnim) ;run the function to play the appropriate animation
 			Else ;if both right and left hand arrays are not empty
 				SingleArrayAnimThenStrip(SS_STRIPLIST_WEAPONSANDSHIELDS_R, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, WeaponsAndShieldsAnim, abDontStop = True) ;run the function to play the appropriate animation and continue to strip the left hand too
 				SingleArrayAnimThenStrip(SS_STRIPLIST_WEAPONSANDSHIELDS_L, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_L) ;run the function to just strip the left hand without playing an animation
 			EndIf
 		;ARMOR
-		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_GLOVES) > 0)
+		ElseIf (GlovesCount > 0)
 			If (HasClothItems(PlayerRef, SS_STRIPLIST_GLOVES))
 				SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, ssFClGl)
 			Else
@@ -465,38 +499,30 @@ State Stripping
 			Else
 				SingleArrayAnimThenStrip(SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, ssFArHe) ;run the function to play the appropriate animation
 			EndIf
-		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_BOOTS) > 0)
+		ElseIf (BootsCount > 0)
 			If (HasClothItems(PlayerRef, SS_STRIPLIST_BOOTS))
 				SingleArrayAnimThenStrip(SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, ssFClBo)
 			Else
 				SingleArrayAnimThenStrip(SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, ssFArBo) ;run the function to play the appropriate animation
 			EndIf
-		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_CHESTPIECE) > 0)
+		ElseIf (ChestpieceCount > 0)
 			If (HasClothItems(PlayerRef, SS_STRIPLIST_CHESTPIECE))
 				SingleArrayAnimThenStrip(SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, ssFClChB)
 			Else
 				SingleArrayAnimThenStrip(SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, ssFArChB) ;run the function to play the appropriate animation
 			EndIf
-		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_NECKLACE) > 0)
+		ElseIf (NecklaceCount > 0)
 			SingleArrayAnimThenStrip(SS_STRIPLIST_NECKLACE, SS_STRIPPEDLIST_NECKLACE, ssFJN) ;run the function to play the appropriate animation
-		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_CIRCLET) > 0)
+		ElseIf (CircletCount > 0)
 			SingleArrayAnimThenStrip(SS_STRIPLIST_CIRCLET, SS_STRIPPEDLIST_CIRCLET, ssFClCi) ;run the function to play the appropriate animation
-		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_RING) > 0)
+		ElseIf (RingCount > 0)
 			SingleArrayAnimThenStrip(SS_STRIPLIST_RING, SS_STRIPPEDLIST_RING, ssFJR) ;run the function to play the appropriate animation
-		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_BRA) > 0)
+		ElseIf (BraCount > 0)
 			SingleArrayAnimThenStrip(SS_STRIPLIST_BRA, SS_STRIPPEDLIST_BRA, ssFUUB) ;run the function to play the appropriate animation
-		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_PANTIES) > 0)
+		ElseIf (PantiesCount > 0)
 			SingleArrayAnimThenStrip(SS_STRIPLIST_PANTIES, SS_STRIPPEDLIST_PANTIES, ssFULB) ;run the function to play the appropriate animation
-		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_OTHER) > 0)
+		ElseIf (OtherCount > 0)
 			SingleArrayAnimThenStrip(SS_STRIPLIST_OTHER, SS_STRIPPEDLIST_OTHER, OtherAnim) ;run the function to play the appropriate animation
-		Else ;if nothing to strip
-			If (bFullSerialStripSwitch)
-				Game.SetPlayerAIDriven(False) ;give control back to the player
-				UnRegisterForModEvent("SerialStripStart")
-				UnRegisterForAnimationEvent(PlayerRef, "IdleStop")
-				GoToState("")
-				SendSerialStripStopEvent()
-			EndIf
 		EndIf
 	EndFunction
 
