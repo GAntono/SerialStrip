@@ -7,7 +7,7 @@ SexLabFramework Property SexLab Auto ;points to the SexLab Framework script so w
 sslSystemConfig Property SexLabSystemConfig Auto ;points to the SexLab's sslSystemConfig.psc script so we can use its functions
 
 Actor Property PlayerRef Auto ;points to the player
-Actor Property kCurrentActor Auto ;the actor that is currently animating
+Actor Property kCurrentActor Auto Hidden ;the actor that is currently animating
 String[] Property HelmetKeywords Auto ;helmet, hood, armorhelmet, clothinghead
 String[] Property GlovesKeywords Auto ;gloves, gauntlets, armorgauntlets, clothinghands
 String[] Property BootsKeywords Auto ;boots, armorboots, clothingfeet
@@ -18,66 +18,85 @@ String[] Property RingKeywords Auto ;ring, clothingring
 String[] Property BraKeywords Auto ;bra
 String[] Property PantiesKeywords Auto ;panties
 
-String Property SS_STRIPLIST_WEAPONSANDSHIELDS_R = "APPS.SerialStripList.WeaponsAndShieldsR" AutoReadOnly
-String Property SS_STRIPLIST_WEAPONSANDSHIELDS_L = "APPS.SerialStripList.WeaponsAndShieldsL" AutoReadOnly
-String Property SS_STRIPLIST_GLOVES = "APPS.SerialStripList.Gloves" AutoReadOnly
-String Property SS_STRIPLIST_HELMET = "APPS.SerialStripList.Helmet" AutoReadOnly
-String Property SS_STRIPLIST_BOOTS = "APPS.SerialStripList.Boots" AutoReadOnly
-String Property SS_STRIPLIST_CHESTPIECE = "APPS.SerialStripList.Chestpiece" AutoReadOnly
-String Property SS_STRIPLIST_NECKLACE = "APPS.SerialStripList.Necklace" AutoReadOnly
-String Property SS_STRIPLIST_CIRCLET = "APPS.SerialStripList.Circlet" AutoReadOnly
-String Property SS_STRIPLIST_RING = "APPS.SerialStripList.Ring" AutoReadOnly
-String Property SS_STRIPLIST_BRA = "APPS.SerialStripList.Bra" AutoReadOnly
-String Property SS_STRIPLIST_PANTIES = "APPS.SerialStripList.Panties" AutoReadOnly
-String Property SS_STRIPLIST_OTHER = "APPS.SerialStripList.Other" AutoReadOnly
+String Property SS_STRIPLIST_WEAPONSANDSHIELDS_R = "APPS.SerialStripList.WeaponsAndShieldsR" AutoReadOnly  Hidden
+String Property SS_STRIPLIST_WEAPONSANDSHIELDS_L = "APPS.SerialStripList.WeaponsAndShieldsL" AutoReadOnly  Hidden
+String Property SS_STRIPLIST_GLOVES = "APPS.SerialStripList.Gloves" AutoReadOnly  Hidden
+String Property SS_STRIPLIST_HELMET = "APPS.SerialStripList.Helmet" AutoReadOnly  Hidden
+String Property SS_STRIPLIST_BOOTS = "APPS.SerialStripList.Boots" AutoReadOnly  Hidden
+String Property SS_STRIPLIST_CHESTPIECE = "APPS.SerialStripList.Chestpiece" AutoReadOnly  Hidden
+String Property SS_STRIPLIST_NECKLACE = "APPS.SerialStripList.Necklace" AutoReadOnly  Hidden
+String Property SS_STRIPLIST_CIRCLET = "APPS.SerialStripList.Circlet" AutoReadOnly  Hidden
+String Property SS_STRIPLIST_RING = "APPS.SerialStripList.Ring" AutoReadOnly  Hidden
+String Property SS_STRIPLIST_BRA = "APPS.SerialStripList.Bra" AutoReadOnly  Hidden
+String Property SS_STRIPLIST_PANTIES = "APPS.SerialStripList.Panties" AutoReadOnly  Hidden
+String Property SS_STRIPLIST_OTHER = "APPS.SerialStripList.Other" AutoReadOnly  Hidden
 
-String Property SS_STRIPPEDLIST_WEAPONSANDSHIELDS_R = "APPS.SerialStrippedList.WeaponsAndShieldsR" AutoReadOnly
-String Property SS_STRIPPEDLIST_WEAPONSANDSHIELDS_L = "APPS.SerialStrippedList.WeaponsAndShieldsL" AutoReadOnly
-String Property SS_STRIPPEDLIST_GLOVES = "APPS.SerialStrippedList.Gloves" AutoReadOnly
-String Property SS_STRIPPEDLIST_HELMET = "APPS.SerialStrippedList.Helmet" AutoReadOnly
-String Property SS_STRIPPEDLIST_BOOTS = "APPS.SerialStrippedList.Boots" AutoReadOnly
-String Property SS_STRIPPEDLIST_CHESTPIECE = "APPS.SerialStrippedList.Chestpiece" AutoReadOnly
-String Property SS_STRIPPEDLIST_NECKLACE = "APPS.SerialStrippedList.Necklace" AutoReadOnly
-String Property SS_STRIPPEDLIST_CIRCLET = "APPS.SerialStrippedList.Circlet" AutoReadOnly
-String Property SS_STRIPPEDLIST_RING = "APPS.SerialStrippedList.Ring" AutoReadOnly
-String Property SS_STRIPPEDLIST_BRA = "APPS.SerialStrippedList.Bra" AutoReadOnly
-String Property SS_STRIPPEDLIST_PANTIES = "APPS.SerialStrippedList.Panties" AutoReadOnly
-String Property SS_STRIPPEDLIST_OTHER = "APPS.SerialStrippedList.Other" AutoReadOnly
+String Property SS_STRIPPEDLIST_WEAPONSANDSHIELDS_R = "APPS.SerialStrippedList.WeaponsAndShieldsR" AutoReadOnly  Hidden
+String Property SS_STRIPPEDLIST_WEAPONSANDSHIELDS_L = "APPS.SerialStrippedList.WeaponsAndShieldsL" AutoReadOnly  Hidden
+String Property SS_STRIPPEDLIST_GLOVES = "APPS.SerialStrippedList.Gloves" AutoReadOnly  Hidden
+String Property SS_STRIPPEDLIST_HELMET = "APPS.SerialStrippedList.Helmet" AutoReadOnly  Hidden
+String Property SS_STRIPPEDLIST_BOOTS = "APPS.SerialStrippedList.Boots" AutoReadOnly  Hidden
+String Property SS_STRIPPEDLIST_CHESTPIECE = "APPS.SerialStrippedList.Chestpiece" AutoReadOnly  Hidden
+String Property SS_STRIPPEDLIST_NECKLACE = "APPS.SerialStrippedList.Necklace" AutoReadOnly  Hidden
+String Property SS_STRIPPEDLIST_CIRCLET = "APPS.SerialStrippedList.Circlet" AutoReadOnly  Hidden
+String Property SS_STRIPPEDLIST_RING = "APPS.SerialStrippedList.Ring" AutoReadOnly  Hidden
+String Property SS_STRIPPEDLIST_BRA = "APPS.SerialStrippedList.Bra" AutoReadOnly  Hidden
+String Property SS_STRIPPEDLIST_PANTIES = "APPS.SerialStrippedList.Panties" AutoReadOnly  Hidden
+String Property SS_STRIPPEDLIST_OTHER = "APPS.SerialStrippedList.Other" AutoReadOnly  Hidden
 
-String Property sCurrentStripArray Auto ;the array that is currently animating i.e. the actor is playing the animation for stripping from this array
-String Property sCurrentStrippedArray Auto ;the array that is currently holding the stripped items
+String Property SS_ANIM_ARMORGLOVES = "APPS.SerialStripAnim.ArmorHands" AutoReadOnly Hidden
+String Property SS_ANIM_CLOTHGLOVES = "APPS.SerialStripAnim.ClothHands" AutoReadOnly Hidden
+String Property SS_ANIM_ARMORHELMET = "APPS.SerialStripAnim.ArmorHelmet" AutoReadOnly Hidden
+String Property SS_ANIM_CLOTHHOOD = "APPS.SerialStripAnim.ClothHood" AutoReadOnly Hidden
+String Property SS_ANIM_ARMORBOOTS = "APPS.SerialStripAnim.ArmorBoots" AutoReadOnly Hidden
+String Property SS_ANIM_CLOTHBOOTS = "APPS.SerialStripAnim.ClothBoots" AutoReadOnly Hidden
+String Property SS_ANIM_ARMORCHESTPIECE = "APPS.SerialStripAnim.ArmorChestPiece" AutoReadOnly Hidden
+String Property SS_ANIM_CLOTHCHESTPIECE = "APPS.SerialStripAnim.ClothChestPiece" AutoReadOnly Hidden
+String Property SS_ANIM_NECKLACE = "APPS.SerialStripAnim.Necklace" AutoReadOnly Hidden
+String Property SS_ANIM_CLOTHCIRCLET = "APPS.SerialStripAnim.ClothCirclet" AutoReadOnly Hidden
+String Property SS_ANIM_RING = "APPS.SerialStripAnim.Ring" AutoReadOnly Hidden
+String Property SS_ANIM_BRA = "APPS.SerialStripAnim.Bra" AutoReadOnly Hidden
+String Property SS_ANIM_PANTIES = "APPS.SerialStripAnim.Panties" AutoReadOnly Hidden
+
+String Property sCurrentStripArray Auto Hidden ;the array that is currently animating i.e. the actor is playing the animation for stripping from this array
+String Property sCurrentStrippedArray Auto Hidden ;the array that is currently holding the stripped items
 
 Idle Property WeaponsAndShieldsAnim Auto ;the name of the weapons and shields stripping animation
-Idle Property ssFArGl Auto ;the name of the armor gloves stripping animation
-Idle Property ssFClGl Auto ;the name of the cloth gloves stripping animation
-Idle Property ssFArHe Auto ;the name of the armor helmet stripping animation
-Idle Property ssFClHo Auto ;the name of the cloth hood stripping animation
-Idle Property ssFArBo Auto ;the name of the armor boots stripping animation
-Idle Property ssFClBo Auto ;the name of the cloth boots stripping animation
-Idle Property ssFArChB Auto ;the name of the armor chestpiece stripping animation
-Idle Property ssFClChB Auto ;the name of the cloth chestpiece stripping animation
-Idle Property ssFJN Auto ;the name of the necklace stripping animation
-Idle Property ssFClCi Auto ;the name of the circlet stripping animation
-Idle Property ssFJR Auto ;the name of the ring stripping animation
-Idle Property ssFUUB Auto ;the name of the bra stripping animation
-Idle Property ssFULB Auto ;the name of the panties stripping animation
 Idle Property OtherAnim Auto ;the name of the "other" stripping animation
 
-Bool[] Property bAllTrueList Auto
-Bool[] Property bAllFalseList Auto
-Bool Property bFullSerialStripSwitch Auto ;switches to full stripping
-Bool Property bIsSheathing Auto ;notifys script that actor is sheathing
-Form Property EventSender Auto ;stores the form that initiated the stripping
-Float Property fDurationForFullStrip = 2.0 AutoReadOnly ;2 seconds cut-off point of key press: after this duration, the actor will strip fully
-Int Property iStripKeyCode = 48 AutoReadOnly ;B - the key that will be used to input stripping commands
+Bool[] Property bAllTrueList Auto Hidden
+Bool[] Property bAllFalseList Auto Hidden
+Bool Property bFullSerialStripSwitch Auto Hidden ;switches to full stripping
+Bool Property bIsSheathing Auto Hidden ;notifys script that actor is sheathing
+Form Property EventSender Auto Hidden ;stores the form that initiated the stripping
+Float Property fDurationForFullStrip = 2.0 AutoReadOnly Hidden ;2 seconds cut-off point of key press: after this duration, the actor will strip fully
+Int Property iStripKeyCode = 48 AutoReadOnly Hidden ;B - the key that will be used to input stripping commands
 
 Event OnInit()
-	SexLab = Game.GetFormFromFile(0xD62, "SexLab.esm") as SexLabFramework
-	SexLabSystemConfig = Game.GetFormFromFile(0xD62, "SexLab.esm") as sslSystemConfig
-	InitDefaultArrays()
-	SerialStripOn()
+	If (Self.IsRunning())
+		SexLab = Game.GetFormFromFile(0xD62, "SexLab.esm") as SexLabFramework
+		SexLabSystemConfig = Game.GetFormFromFile(0xD62, "SexLab.esm") as sslSystemConfig
+		
+		;get our animations and store them in StorageUtil
+		SetFormValue(None, SS_ANIM_ARMORGLOVES, Game.GetFormFromFile(0x4347, "SerialStrip.esp") as Idle)
+		SetFormValue(None, SS_ANIM_CLOTHGLOVES, Game.GetFormFromFile(0x434D, "SerialStrip.esp") as Idle)
+		SetFormValue(None, SS_ANIM_ARMORHELMET, Game.GetFormFromFile(0x4348, "SerialStrip.esp") as Idle)
+		SetFormValue(None, SS_ANIM_CLOTHHOOD, Game.GetFormFromFile(0x434E, "SerialStrip.esp") as Idle)
+		SetFormValue(None, SS_ANIM_ARMORBOOTS, Game.GetFormFromFile(0x4345, "SerialStrip.esp") as Idle)
+		SetFormValue(None, SS_ANIM_CLOTHBOOTS, Game.GetFormFromFile(0x434A, "SerialStrip.esp") as Idle)
+		SetFormValue(None, SS_ANIM_ARMORCHESTPIECE, Game.GetFormFromFile(0x4346, "SerialStrip.esp") as Idle)
+		SetFormValue(None, SS_ANIM_CLOTHCHESTPIECE, Game.GetFormFromFile(0x434B, "SerialStrip.esp") as Idle)
+		SetFormValue(None, SS_ANIM_NECKLACE, Game.GetFormFromFile(0x4350, "SerialStrip.esp") as Idle)
+		SetFormValue(None, SS_ANIM_CLOTHCIRCLET, Game.GetFormFromFile(0x434C, "SerialStrip.esp") as Idle)
+		SetFormValue(None, SS_ANIM_RING, Game.GetFormFromFile(0x434F, "SerialStrip.esp") as Idle)
+		SetFormValue(None, SS_ANIM_BRA, Game.GetFormFromFile(0x4351, "SerialStrip.esp") as Idle)
+		SetFormValue(None, SS_ANIM_PANTIES, Game.GetFormFromFile(0x4352, "SerialStrip.esp") as Idle)
+		
+		InitDefaultArrays()
+		SerialStripOn()
+	EndIf
 EndEvent
-
+	
 Function InitDefaultArrays()
 	bAllTrueList = New Bool[33]
 	bAllFalseList = New Bool[33]
@@ -489,38 +508,38 @@ State Stripping
 		;ARMOR
 		ElseIf (GlovesCount > 0)
 			If (HasClothingItems(PlayerRef, SS_STRIPLIST_GLOVES))
-				SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, ssFClGl)
+				SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, GetFormValue(None, SS_ANIM_CLOTHGLOVES) as Idle)
 			Else
-				SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, ssFArGl) ;run the function to play the appropriate animation
+				SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, GetFormValue(None, SS_ANIM_ARMORGLOVES) as Idle) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_HELMET) > 0)
 			If (HasClothingItems(PlayerRef, SS_STRIPLIST_HELMET))
-				SingleArrayAnimThenStrip(SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, ssFClHo)
+				SingleArrayAnimThenStrip(SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, GetFormValue(None, SS_ANIM_CLOTHHOOD) as Idle)
 			Else
-				SingleArrayAnimThenStrip(SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, ssFArHe) ;run the function to play the appropriate animation
+				SingleArrayAnimThenStrip(SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, GetFormValue(None, SS_ANIM_ARMORHELMET) as Idle) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (BootsCount > 0)
 			If (HasClothingItems(PlayerRef, SS_STRIPLIST_BOOTS))
-				SingleArrayAnimThenStrip(SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, ssFClBo)
+				SingleArrayAnimThenStrip(SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, GetFormValue(None, SS_ANIM_CLOTHBOOTS) as Idle)
 			Else
-				SingleArrayAnimThenStrip(SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, ssFArBo) ;run the function to play the appropriate animation
+				SingleArrayAnimThenStrip(SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, GetFormValue(None, SS_ANIM_ARMORBOOTS) as Idle) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (ChestpieceCount > 0)
 			If (HasClothingItems(PlayerRef, SS_STRIPLIST_CHESTPIECE))
-				SingleArrayAnimThenStrip(SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, ssFClChB)
+				SingleArrayAnimThenStrip(SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, GetFormValue(None, SS_ANIM_CLOTHCHESTPIECE) as Idle)
 			Else
-				SingleArrayAnimThenStrip(SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, ssFArChB) ;run the function to play the appropriate animation
+				SingleArrayAnimThenStrip(SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, GetFormValue(None, SS_ANIM_ARMORCHESTPIECE) as Idle) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (NecklaceCount > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_NECKLACE, SS_STRIPPEDLIST_NECKLACE, ssFJN) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SS_STRIPLIST_NECKLACE, SS_STRIPPEDLIST_NECKLACE, GetFormValue(None, SS_ANIM_NECKLACE) as Idle) ;run the function to play the appropriate animation
 		ElseIf (CircletCount > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_CIRCLET, SS_STRIPPEDLIST_CIRCLET, ssFClCi) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SS_STRIPLIST_CIRCLET, SS_STRIPPEDLIST_CIRCLET, GetFormValue(None, SS_ANIM_CLOTHCIRCLET) as Idle) ;run the function to play the appropriate animation
 		ElseIf (RingCount > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_RING, SS_STRIPPEDLIST_RING, ssFJR) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SS_STRIPLIST_RING, SS_STRIPPEDLIST_RING, GetFormValue(None, SS_ANIM_RING) as Idle) ;run the function to play the appropriate animation
 		ElseIf (BraCount > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_BRA, SS_STRIPPEDLIST_BRA, ssFUUB) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SS_STRIPLIST_BRA, SS_STRIPPEDLIST_BRA, GetFormValue(None, SS_ANIM_BRA) as Idle) ;run the function to play the appropriate animation
 		ElseIf (PantiesCount > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_PANTIES, SS_STRIPPEDLIST_PANTIES, ssFULB) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SS_STRIPLIST_PANTIES, SS_STRIPPEDLIST_PANTIES, GetFormValue(None, SS_ANIM_PANTIES) as Idle) ;run the function to play the appropriate animation
 		ElseIf (OtherCount > 0)
 			SingleArrayAnimThenStrip(SS_STRIPLIST_OTHER, SS_STRIPPEDLIST_OTHER, OtherAnim) ;run the function to play the appropriate animation
 		EndIf
@@ -716,17 +735,17 @@ Function SlotsToStrip(Actor ActorRef, Form[] akExceptionList)
 /;
 ;/
 STRIP ANIMATIONS DESCRIPTIONS
-ssFArGl		Remove Gloves 4.83 sec
-ssFArHe		Remove Helmet 4.67 sec
-ssFArBo		Remove Boots 6.17 sec
+GetFormValue(None, SS_ANIM_ARMORGLOVES) as Idle		Remove Gloves 4.83 sec
+GetFormValue(None, SS_ANIM_ARMORHELMET) as Idle		Remove Helmet 4.67 sec
+GetFormValue(None, SS_ANIM_ARMORBOOTS) as Idle		Remove Boots 6.17 sec
 StripFArNoUS	Remove Torso (no underwear shy)
-ssFArChB		Remove Torso 4.67 sec
+GetFormValue(None, SS_ANIM_ARMORCHESTPIECE) as Idle		Remove Torso 4.67 sec
 StripFClGl		Equip Gloves 2.83 sec
 StripFClHo		Equip Helmet 2.83 sec
 StripFClBo		Equip Boots 6.17 sec
 StripFClCi		Equip Circlet 2.83 sec
 StripFClChB		Equip Torso 6.03 sec
-ssFULB		Remove Panties 3.1 sec
+GetFormValue(None, SS_ANIM_PANTIES) as Idle		Remove Panties 3.1 sec
 StripFUUB		Remove Bra 3.5 sec
 StripFJN		Equip Ring 2.5 sec
 StripFJC		Remove Ring 2.5 sec
