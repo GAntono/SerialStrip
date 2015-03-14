@@ -11,4 +11,4 @@ b -a ssFClChB FClChB.hkx
 b -a ssFULB FULB.hkx
 b -a ssFUUB FUUB.hkx
 b -a ssFJN FJN.hkx
-b -a ssFJC FJR.hkx
+b -a ssFJR FJR.hkx
