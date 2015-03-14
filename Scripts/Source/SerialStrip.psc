@@ -48,10 +48,14 @@ String Property sCurrentStripArray Auto ;the array that is currently animating i
 String Property sCurrentStrippedArray Auto ;the array that is currently holding the stripped items
 
 Idle Property WeaponsAndShieldsAnim Auto ;the name of the weapons and shields stripping animation
-Idle Property ssFArGl Auto ;the name of the gloves stripping animation
-Idle Property ssFArHe Auto ;the name of the helmet stripping animation
-Idle Property ssFArBo Auto ;the name of the boots stripping animation
-Idle Property ssFArChB Auto ;the name of the chestpiece stripping animation
+Idle Property ssFArGl Auto ;the name of the armor gloves stripping animation
+Idle Property ssFClGl Auto ;the name of the cloth gloves stripping animation
+Idle Property ssFArHe Auto ;the name of the armor helmet stripping animation
+Idle Property ssFClHo Auto ;the name of the cloth hood stripping animation
+Idle Property ssFArBo Auto ;the name of the armor boots stripping animation
+Idle Property ssFClBo Auto ;the name of the cloth boots stripping animation
+Idle Property ssFArChB Auto ;the name of the armor chestpiece stripping animation
+Idle Property ssFClChB Auto ;the name of the cloth chestpiece stripping animation
 Idle Property ssFJN Auto ;the name of the necklace stripping animation
 Idle Property ssFClCi Auto ;the name of the circlet stripping animation
 Idle Property ssFJR Auto ;the name of the ring stripping animation
@@ -167,6 +171,9 @@ Bool Function IsValidSlot(Int aiSlot, Bool[] abIsUserConfigStrippable, Bool[] ab
 EndFunction
 
 Function SerialStrip()
+EndFunction
+
+Bool Function HasClothItems(Actor akActorRef, String asArrayName)
 EndFunction
 
 Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, Idle akAnimation = None, Bool abDontStop = False)
@@ -432,7 +439,7 @@ State Stripping
 		Else
 			bIsSheathing = False
 		EndIf
-		
+
 		;WEAPONS
 		If (FormListCount(PlayerRef, SS_STRIPLIST_WEAPONSANDSHIELDS_R) > 0 ||  FormListCount(PlayerRef, SS_STRIPLIST_WEAPONSANDSHIELDS_L) > 0) ;if the weapons or shields arrays (Right and Left) are not empty
 
@@ -447,13 +454,29 @@ State Stripping
 			EndIf
 		;ARMOR
 		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_GLOVES) > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, ssFArGl) ;run the function to play the appropriate animation
+			If (HasClothItems(PlayerRef, SS_STRIPLIST_GLOVES))
+				SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, ssFClGl)
+			Else
+				SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, ssFArGl) ;run the function to play the appropriate animation
+			EndIf
 		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_HELMET) > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, ssFArHe) ;run the function to play the appropriate animation
+			If (HasClothItems(PlayerRef, SS_STRIPLIST_HELMET))
+				SingleArrayAnimThenStrip(SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, ssFClHo)
+			Else
+				SingleArrayAnimThenStrip(SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, ssFArHe) ;run the function to play the appropriate animation
+			EndIf
 		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_BOOTS) > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, ssFArBo) ;run the function to play the appropriate animation
+			If (HasClothItems(PlayerRef, SS_STRIPLIST_BOOTS))
+				SingleArrayAnimThenStrip(SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, ssFClBo)
+			Else
+				SingleArrayAnimThenStrip(SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, ssFArBo) ;run the function to play the appropriate animation
+			EndIf
 		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_CHESTPIECE) > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, ssFArChB) ;run the function to play the appropriate animation
+			If (HasClothItems(PlayerRef, SS_STRIPLIST_CHESTPIECE))
+				SingleArrayAnimThenStrip(SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, ssFClChB)
+			Else
+				SingleArrayAnimThenStrip(SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, ssFArChB) ;run the function to play the appropriate animation
+			EndIf
 		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_NECKLACE) > 0)
 			SingleArrayAnimThenStrip(SS_STRIPLIST_NECKLACE, SS_STRIPPEDLIST_NECKLACE, ssFJN) ;run the function to play the appropriate animation
 		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_CIRCLET) > 0)
@@ -475,6 +498,22 @@ State Stripping
 				SendSerialStripStopEvent()
 			EndIf
 		EndIf
+	EndFunction
+
+	Bool Function HasClothItems(Actor akActorRef, String asArrayName)
+		Int itemCount = FormListCount(akActorRef, asArrayName)
+		Int i
+
+		While (i < itemCount)
+			Armor kItemRef = FormListGet(akActorRef, asArrayName, i) as Armor
+			If (kItemRef.IsLightArmor())
+				Return True
+			Else
+				i += 1
+			EndIf
+		EndWhile
+
+		Return False
 	EndFunction
 
 	Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, Idle akAnimation = None, Bool abDontStop = False)
