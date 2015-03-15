@@ -8,15 +8,6 @@ sslSystemConfig Property SexLabSystemConfig Auto ;points to the SexLab's sslSyst
 
 Actor Property PlayerRef Auto ;points to the player
 Actor Property kCurrentActor Auto Hidden ;the actor that is currently animating
-String[] Property HelmetKeywords Auto ;helmet, hood, armorhelmet, clothinghead
-String[] Property GlovesKeywords Auto ;gloves, gauntlets, armorgauntlets, clothinghands
-String[] Property BootsKeywords Auto ;boots, armorboots, clothingfeet
-String[] Property ChestpieceKeywords Auto ;armor, chestpiece, armorcuirass, clothingbody
-String[] Property NecklaceKeywords Auto ;necklace, amulet, clothingnecklace
-String[] Property CircletKeywords Auto ;circlet, clothingcirclet
-String[] Property RingKeywords Auto ;ring, clothingring
-String[] Property BraKeywords Auto ;bra
-String[] Property PantiesKeywords Auto ;panties
 
 String Property SS_STRIPLIST_WEAPONSANDSHIELDS_R = "APPS.SerialStripList.WeaponsAndShieldsR" AutoReadOnly  Hidden
 String Property SS_STRIPLIST_WEAPONSANDSHIELDS_L = "APPS.SerialStripList.WeaponsAndShieldsL" AutoReadOnly  Hidden
@@ -434,35 +425,36 @@ State Stripping
 		Return False
 	EndFunction
 
-	Bool Function ItemHasKeywords(Form akItemRef, String[] asKeywords)
-	;checks whether akItemRef has any of the keywords stored in the Keywords array
+	Bool Function ItemHasKeywords(Form akItemRef, String asListName)
+	;checks whether akItemRef has any of the keywords stored in the StorageUtil array
 		;/ beginValidation /;
-		If (!akItemRef || !asKeywords)
+		If (!akItemRef || !asListName)
 			Return False
 		EndIf
 		;/ endValidation /;
-
-		Int i = asKeywords.Length - 1 ;sets i to the length of the asKeywords array (-1 because arrays are zero based while length's result is 1-based)
+		
+		Int KeywordCount = StringListCount(Self, asListName)
+		Int i
 
 		If (SexLab) ;if SexLab is installed, use its advanced SKSE keyword searching function
-			While (i >= 0) ;runs this loop up to and including the first item (backwards)
-				String sKeywordRef = asKeywords[i] ;fetch the keyword in this position in the array
+			While (i < KeywordCount)
+				String sKeywordRef = StringListGet(Self, asListName, i) ;fetch the keyword in this position in the array
 
 				If (SexLabUtil.HasKeywordSub(akItemRef, sKeywordRef)) ;if the item has this keyword (more advanced than vanilla HasKeyword)
 					Return True
 				EndIf
 
-				i -= 1 ;go to the next item in the loop (backwards)
+				i += 1 ;go to the next item in the loop
 			EndWhile
 		Else
-			While (i >= 0) ;runs this loop up to and including the first item (backwards)
-				String sKeywordRef = asKeywords[i] ;fetch the keyword in this position in the array
+			While (i < KeywordCount)
+				String sKeywordRef = StringListGet(Self, asListName, i) ;fetch the keyword in this position in the array
 
 				If (akItemRef.HasKeyword(Keyword.GetKeyword(sKeywordRef))) ;if the item has this keyword (first it gets the keyword that matches our sKeywordRef)
 					Return True
 				EndIf
 
-				i -= 1 ;go to the next item in the loop (backwards)
+				i += 1 ;go to the next item in the loop (backwards)
 			EndWhile
 		EndIf
 
