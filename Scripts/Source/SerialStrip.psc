@@ -9,6 +9,7 @@ sslSystemConfig Property SexLabSystemConfig Auto ;points to the SexLab's sslSyst
 Actor Property PlayerRef Auto ;points to the player
 Actor Property kCurrentActor Auto Hidden ;the actor that is currently animating
 
+
 String Property SS_STRIPLIST_WEAPONSANDSHIELDS_R = "APPS.SerialStripList.WeaponsAndShieldsR" AutoReadOnly  Hidden
 String Property SS_STRIPLIST_WEAPONSANDSHIELDS_L = "APPS.SerialStripList.WeaponsAndShieldsL" AutoReadOnly  Hidden
 String Property SS_STRIPLIST_GLOVES = "APPS.SerialStripList.Gloves" AutoReadOnly  Hidden
@@ -34,6 +35,16 @@ String Property SS_STRIPPEDLIST_RING = "APPS.SerialStrippedList.Ring" AutoReadOn
 String Property SS_STRIPPEDLIST_BRA = "APPS.SerialStrippedList.Bra" AutoReadOnly  Hidden
 String Property SS_STRIPPEDLIST_PANTIES = "APPS.SerialStrippedList.Panties" AutoReadOnly  Hidden
 String Property SS_STRIPPEDLIST_OTHER = "APPS.SerialStrippedList.Other" AutoReadOnly  Hidden
+
+String Property SS_KW_GLOVES = "APPS.SerialStripKeyword.Gloves" AutoReadOnly Hidden
+String Property SS_KW_HELMET = "APPS.SerialStripKeyword.Helmet" AutoReadOnly Hidden
+String Property SS_KW_BOOTS = "APPS.SerialStripKeyword.Boots" AutoReadOnly Hidden
+String Property SS_KW_CHESTPIECE = "APPS.SerialStripKeyword.Chestpiece" AutoReadOnly Hidden
+String Property SS_KW_NECKLACE = "APPS.SerialStripKeyword.Necklace" AutoReadOnly Hidden
+String Property SS_KW_CIRCLET = "APPS.SerialStripKeyword.Circlet" AutoReadOnly Hidden
+String Property SS_KW_RING = "APPS.SerialStripKeyword.Ring" AutoReadOnly Hidden
+String Property SS_KW_BRA = "APPS.SerialStripKeyword.Bra" AutoReadOnly Hidden
+String Property SS_KW_PANTIES = "APPS.SerialStripKeyword.Panties" AutoReadOnly Hidden
 
 String Property SS_ANIM_ARMORGLOVES = "APPS.SerialStripAnim.ArmorHands" AutoReadOnly Hidden
 String Property SS_ANIM_CLOTHGLOVES = "APPS.SerialStripAnim.ClothHands" AutoReadOnly Hidden
@@ -68,20 +79,7 @@ Event OnInit()
 		SexLab = Game.GetFormFromFile(0xD62, "SexLab.esm") as SexLabFramework
 		SexLabSystemConfig = Game.GetFormFromFile(0xD62, "SexLab.esm") as sslSystemConfig
 
-		;get our animations and store them in StorageUtil
-		SetFormValue(None, SS_ANIM_ARMORGLOVES, Game.GetFormFromFile(0x4347, "SerialStrip.esp") as Idle)
-		SetFormValue(None, SS_ANIM_CLOTHGLOVES, Game.GetFormFromFile(0x434D, "SerialStrip.esp") as Idle)
-		SetFormValue(None, SS_ANIM_ARMORHELMET, Game.GetFormFromFile(0x4348, "SerialStrip.esp") as Idle)
-		SetFormValue(None, SS_ANIM_CLOTHHOOD, Game.GetFormFromFile(0x434E, "SerialStrip.esp") as Idle)
-		SetFormValue(None, SS_ANIM_ARMORBOOTS, Game.GetFormFromFile(0x4345, "SerialStrip.esp") as Idle)
-		SetFormValue(None, SS_ANIM_CLOTHBOOTS, Game.GetFormFromFile(0x434A, "SerialStrip.esp") as Idle)
-		SetFormValue(None, SS_ANIM_ARMORCHESTPIECE, Game.GetFormFromFile(0x4346, "SerialStrip.esp") as Idle)
-		SetFormValue(None, SS_ANIM_CLOTHCHESTPIECE, Game.GetFormFromFile(0x434B, "SerialStrip.esp") as Idle)
-		SetFormValue(None, SS_ANIM_NECKLACE, Game.GetFormFromFile(0x4350, "SerialStrip.esp") as Idle)
-		SetFormValue(None, SS_ANIM_CLOTHCIRCLET, Game.GetFormFromFile(0x434C, "SerialStrip.esp") as Idle)
-		SetFormValue(None, SS_ANIM_RING, Game.GetFormFromFile(0x434F, "SerialStrip.esp") as Idle)
-		SetFormValue(None, SS_ANIM_BRA, Game.GetFormFromFile(0x4351, "SerialStrip.esp") as Idle)
-		SetFormValue(None, SS_ANIM_PANTIES, Game.GetFormFromFile(0x4352, "SerialStrip.esp") as Idle)
+
 
 		InitDefaultArrays()
 		SerialStripOn()
@@ -98,6 +96,57 @@ Function InitDefaultArrays()
 		bAllFalseList[i] = False
 		i += 1
 	EndWhile
+
+	;/ fetch our animations via GetFormFromFile() and store them in StorageUtil openFold /;
+	SetFormValue(Self, SS_ANIM_ARMORGLOVES, Game.GetFormFromFile(0x4347, "SerialStrip.esp") as Idle)
+	SetFormValue(Self, SS_ANIM_CLOTHGLOVES, Game.GetFormFromFile(0x434D, "SerialStrip.esp") as Idle)
+	SetFormValue(Self, SS_ANIM_ARMORHELMET, Game.GetFormFromFile(0x4348, "SerialStrip.esp") as Idle)
+	SetFormValue(Self, SS_ANIM_CLOTHHOOD, Game.GetFormFromFile(0x434E, "SerialStrip.esp") as Idle)
+	SetFormValue(Self, SS_ANIM_ARMORBOOTS, Game.GetFormFromFile(0x4345, "SerialStrip.esp") as Idle)
+	SetFormValue(Self, SS_ANIM_CLOTHBOOTS, Game.GetFormFromFile(0x434A, "SerialStrip.esp") as Idle)
+	SetFormValue(Self, SS_ANIM_ARMORCHESTPIECE, Game.GetFormFromFile(0x4346, "SerialStrip.esp") as Idle)
+	SetFormValue(Self, SS_ANIM_CLOTHCHESTPIECE, Game.GetFormFromFile(0x434B, "SerialStrip.esp") as Idle)
+	SetFormValue(Self, SS_ANIM_NECKLACE, Game.GetFormFromFile(0x4350, "SerialStrip.esp") as Idle)
+	SetFormValue(Self, SS_ANIM_CLOTHCIRCLET, Game.GetFormFromFile(0x434C, "SerialStrip.esp") as Idle)
+	SetFormValue(Self, SS_ANIM_RING, Game.GetFormFromFile(0x434F, "SerialStrip.esp") as Idle)
+	SetFormValue(Self, SS_ANIM_BRA, Game.GetFormFromFile(0x4351, "SerialStrip.esp") as Idle)
+	SetFormValue(Self, SS_ANIM_PANTIES, Game.GetFormFromFile(0x4352, "SerialStrip.esp") as Idle)
+	;/ closeFold /;
+
+	;/ fill our StorageUtil arrays with item keywords openFold /;
+	StringListAdd(Self, SS_KW_HELMET, "Helmet")
+	StringListAdd(Self, SS_KW_HELMET, "Hood")
+	StringListAdd(Self, SS_KW_HELMET, "ArmorHelmet")
+	StringListAdd(Self, SS_KW_HELMET, "ClothingHead")
+
+	StringListAdd(Self, SS_KW_GLOVES, "Gloves")
+	StringListAdd(Self, SS_KW_GLOVES, "Gauntlets")
+	StringListAdd(Self, SS_KW_GLOVES, "ArmorGauntlets")
+	StringListAdd(Self, SS_KW_GLOVES, "ClothingHands")
+
+	StringListAdd(Self, SS_KW_BOOTS, "Boots")
+	StringListAdd(Self, SS_KW_BOOTS, "ArmorBoots")
+	StringListAdd(Self, SS_KW_BOOTS, "ClothingFeet")
+
+	StringListAdd(Self, SS_KW_CHESTPIECE, "Armor")
+	StringListAdd(Self, SS_KW_CHESTPIECE, "Chestpiece")
+	StringListAdd(Self, SS_KW_CHESTPIECE, "ArmorCuirass")
+	StringListAdd(Self, SS_KW_CHESTPIECE, "ClothingBody")
+
+	StringListAdd(Self, SS_KW_NECKLACE, "Necklace")
+	StringListAdd(Self, SS_KW_NECKLACE, "Amulet")
+	StringListAdd(Self, SS_KW_NECKLACE, "ClothingNecklace")
+
+	StringListAdd(Self, SS_KW_CIRCLET, "Circlet")
+	StringListAdd(Self, SS_KW_CIRCLET, "ClothingCirclet")
+
+	StringListAdd(Self, SS_KW_RING, "Ring")
+	StringListAdd(Self, SS_KW_RING, "ClothingRing")
+
+	StringListAdd(Self, SS_KW_BRA, "Bra")
+
+	StringListAdd(Self, SS_KW_PANTIES, "Panties")
+	;/ closeFold /;
 EndFunction
 
 Function SerialStripOn(Bool abActivateSerialStrip = True)
@@ -274,7 +323,7 @@ State Stripping
 			If (akActorRef.GetEquippedItemType(0) == 10) ;if the left hand is holding a shield
 				Form kItemRef = akActorRef.GetEquippedShield()
 
-				If ((FormListFind(None, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
+				If ((FormListFind(Self, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
 					If (IsStrippableItem(kItemRef) == True && IsValidSlot(32, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 						FormListAdd(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
 						bArrayIsActive[1] = True ;activate the WeaponsAndShieldsL array
@@ -283,7 +332,7 @@ State Stripping
 			ElseIf (akActorRef.GetEquippedItemType(0) && akActorRef.GetEquippedItemType(0) != 9) ;if there is a weapon in the left hand (i.e. not just fists or a spell)
 				Form kItemRef = akActorRef.GetEquippedWeapon(True) ;fetches left-hand weapon and puts it in kItemRef
 
-				If ((FormListFind(None, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
+				If ((FormListFind(Self, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
 					If (IsStrippableItem(kItemRef) == True && IsValidSlot(32, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 						FormListAdd(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
 						bArrayIsActive[1] = True ;activate the WeaponsAndShieldsL array
@@ -295,7 +344,7 @@ State Stripping
 		If (akActorRef.GetEquippedItemType(1) && akActorRef.GetEquippedItemType(1) != 9) ;if there is a weapon in the right hand (i.e. not just fists or a spell)
 			Form kItemRef = akActorRef.GetEquippedWeapon(False) ;fetches right-hand weapon and puts it in kItemRef
 
-			If ((FormListFind(None, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
+			If ((FormListFind(Self, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
 				If (IsStrippableItem(kItemRef) == True && IsValidSlot(32, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 					FormListAdd(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_R, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
 					bArrayIsActive[0] = True ;activate the WeaponsAndShieldsR array
@@ -311,7 +360,7 @@ State Stripping
 		While (i <= 31) ;run this loop up to and including node 61 (http://www.creationkit.com/Biped_Object)
 			Form kItemRef = akActorRef.GetWornForm(Armor.GetMaskForSlot(i + 30)) ;fetch the item worn in this slot and load it in the kItemRef variable
 
-			If (kItemRef && FormListFind(None, asExceptionList, kItemRef) == -1) ;if there is an item in this slot and it is not found in the exception array
+			If (kItemRef && FormListFind(Self, asExceptionList, kItemRef) == -1) ;if there is an item in this slot and it is not found in the exception array
 
 				If (i + 30 == 33) || (ItemHasKeywords(kItemRef, GlovesKeywords)) ;if this item is in the gloves slot OR has any of the gloves keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_GLOVES, kItemRef, allowDuplicate = False);adds this item to the gloves undress list
@@ -536,38 +585,38 @@ State Stripping
 		;ARMOR
 		ElseIf (GlovesCount > 0)
 			If (HasClothingItems(PlayerRef, SS_STRIPLIST_GLOVES))
-				SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, GetFormValue(None, SS_ANIM_CLOTHGLOVES) as Idle)
+				SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, GetFormValue(Self, SS_ANIM_CLOTHGLOVES) as Idle)
 			Else
-				SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, GetFormValue(None, SS_ANIM_ARMORGLOVES) as Idle) ;run the function to play the appropriate animation
+				SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, GetFormValue(Self, SS_ANIM_ARMORGLOVES) as Idle) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_HELMET) > 0)
 			If (HasClothingItems(PlayerRef, SS_STRIPLIST_HELMET))
-				SingleArrayAnimThenStrip(SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, GetFormValue(None, SS_ANIM_CLOTHHOOD) as Idle)
+				SingleArrayAnimThenStrip(SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, GetFormValue(Self, SS_ANIM_CLOTHHOOD) as Idle)
 			Else
-				SingleArrayAnimThenStrip(SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, GetFormValue(None, SS_ANIM_ARMORHELMET) as Idle) ;run the function to play the appropriate animation
+				SingleArrayAnimThenStrip(SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, GetFormValue(Self, SS_ANIM_ARMORHELMET) as Idle) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (BootsCount > 0)
 			If (HasClothingItems(PlayerRef, SS_STRIPLIST_BOOTS))
-				SingleArrayAnimThenStrip(SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, GetFormValue(None, SS_ANIM_CLOTHBOOTS) as Idle)
+				SingleArrayAnimThenStrip(SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, GetFormValue(Self, SS_ANIM_CLOTHBOOTS) as Idle)
 			Else
-				SingleArrayAnimThenStrip(SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, GetFormValue(None, SS_ANIM_ARMORBOOTS) as Idle) ;run the function to play the appropriate animation
+				SingleArrayAnimThenStrip(SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, GetFormValue(Self, SS_ANIM_ARMORBOOTS) as Idle) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (ChestpieceCount > 0)
 			If (HasClothingItems(PlayerRef, SS_STRIPLIST_CHESTPIECE))
-				SingleArrayAnimThenStrip(SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, GetFormValue(None, SS_ANIM_CLOTHCHESTPIECE) as Idle)
+				SingleArrayAnimThenStrip(SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, GetFormValue(Self, SS_ANIM_CLOTHCHESTPIECE) as Idle)
 			Else
-				SingleArrayAnimThenStrip(SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, GetFormValue(None, SS_ANIM_ARMORCHESTPIECE) as Idle) ;run the function to play the appropriate animation
+				SingleArrayAnimThenStrip(SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, GetFormValue(Self, SS_ANIM_ARMORCHESTPIECE) as Idle) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (NecklaceCount > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_NECKLACE, SS_STRIPPEDLIST_NECKLACE, GetFormValue(None, SS_ANIM_NECKLACE) as Idle) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SS_STRIPLIST_NECKLACE, SS_STRIPPEDLIST_NECKLACE, GetFormValue(Self, SS_ANIM_NECKLACE) as Idle) ;run the function to play the appropriate animation
 		ElseIf (CircletCount > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_CIRCLET, SS_STRIPPEDLIST_CIRCLET, GetFormValue(None, SS_ANIM_CLOTHCIRCLET) as Idle) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SS_STRIPLIST_CIRCLET, SS_STRIPPEDLIST_CIRCLET, GetFormValue(Self, SS_ANIM_CLOTHCIRCLET) as Idle) ;run the function to play the appropriate animation
 		ElseIf (RingCount > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_RING, SS_STRIPPEDLIST_RING, GetFormValue(None, SS_ANIM_RING) as Idle) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SS_STRIPLIST_RING, SS_STRIPPEDLIST_RING, GetFormValue(Self, SS_ANIM_RING) as Idle) ;run the function to play the appropriate animation
 		ElseIf (BraCount > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_BRA, SS_STRIPPEDLIST_BRA, GetFormValue(None, SS_ANIM_BRA) as Idle) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SS_STRIPLIST_BRA, SS_STRIPPEDLIST_BRA, GetFormValue(Self, SS_ANIM_BRA) as Idle) ;run the function to play the appropriate animation
 		ElseIf (PantiesCount > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_PANTIES, SS_STRIPPEDLIST_PANTIES, GetFormValue(None, SS_ANIM_PANTIES) as Idle) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(SS_STRIPLIST_PANTIES, SS_STRIPPEDLIST_PANTIES, GetFormValue(Self, SS_ANIM_PANTIES) as Idle) ;run the function to play the appropriate animation
 		ElseIf (OtherCount > 0)
 			SingleArrayAnimThenStrip(SS_STRIPLIST_OTHER, SS_STRIPPEDLIST_OTHER, OtherAnim) ;run the function to play the appropriate animation
 		EndIf
@@ -701,80 +750,4 @@ FJR 74 frames - 2.5 sec
 
 FJN 74 frames - 2.5 sec
 
-/;
-
-;/DUMMY SCRIPT
-Int ActiveSlot
-Int[] Function GetUsedSlots(Bool UndressAccessoirs)
-    Get EquippedSlots
-;31 and 42 = Helmet
-;42 = Circlet
-;33 = Gloves
-;37 = Boots
-;32 = Chest
-;52 = Panties (no undress animation yet)
-#1: Head
-#2: Hands
-#3: Feet
-#4: Body
-#5: Wait 1 second -> Do again in case of underwear, recognizing SL keywords (for DD f.e.)
-OR #5: Wait 1 second -> call alternative (old) SexLab undress
-EndFunction
-
-Function UnDressSlot(Int SlotNr)
-    ;Undress specified slot
-EndFunction
-
-Event UnDressKey()
-    ;if key is pressed, play first animation and on it’s end undress the part
-    ;if the key is hold, fill the temporary animations with all appropriate animations
-;and on StageEnd remove the clothing part
-EndEvent
-;/
-
-0. SexLab.Strip.Undress.WeaponsAndShields[]
-1. SexLab.Strip.UndressList.Gloves[]
-2. SexLab.Strip.UndressList.Helmet[]
-3. SexLab.Strip.UndressList.Boots[]
-4. SexLab.Strip.UndressList.Armor[]
-5. SexLab.Strip.UndressList.Pants[]
-
-Summary:    First build a complete new array of slots which can be undressed
-        Second loop through
-
-A. if weapon drawn, holster
-B. unequip shields and weapons
-C. Clear all SexLab.Strip arrays
-
-Function SlotsToStrip(Actor ActorRef, Form[] akExceptionList)
-
-0. Int i = 1
-1. Loop through all possible slots (Int AmountOfSlots = 31)
-2. Check for NoStrip (inStr)
-2.1 if NoStrip = True goto 1
-2.2 Check for optional array if it should be unstripped or not
-2.2.1 if no modder selection → Check MCM User Configuration
-3. i + until i = AmountOfSlots ;we know which slot we’re at
-3.1 Check if directly supported Slot (hardcoded if)
-3.1.1 if known slot → save in appropriate array (armor to Strip.Armor)
-3.1.2 if not known slot → check for supported Keywords (array with KeyW f.e., hardcoded)
-3.1.3 if Keyword known (armor f.e.) → save in appropriate array (armor to Strip.Armor)
-4. call strip function
-/;
-;/
-STRIP ANIMATIONS DESCRIPTIONS
-GetFormValue(None, SS_ANIM_ARMORGLOVES) as Idle		Remove Gloves 4.83 sec
-GetFormValue(None, SS_ANIM_ARMORHELMET) as Idle		Remove Helmet 4.67 sec
-GetFormValue(None, SS_ANIM_ARMORBOOTS) as Idle		Remove Boots 6.17 sec
-StripFArNoUS	Remove Torso (no underwear shy)
-GetFormValue(None, SS_ANIM_ARMORCHESTPIECE) as Idle		Remove Torso 4.67 sec
-StripFClGl		Equip Gloves 2.83 sec
-StripFClHo		Equip Helmet 2.83 sec
-StripFClBo		Equip Boots 6.17 sec
-StripFClCi		Equip Circlet 2.83 sec
-StripFClChB		Equip Torso 6.03 sec
-GetFormValue(None, SS_ANIM_PANTIES) as Idle		Remove Panties 3.1 sec
-StripFUUB		Remove Bra 3.5 sec
-StripFJN		Equip Ring 2.5 sec
-StripFJC		Remove Ring 2.5 sec
 /;
