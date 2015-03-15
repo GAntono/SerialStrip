@@ -76,7 +76,7 @@ Event OnInit()
 	If (Self.IsRunning())
 		SexLab = Game.GetFormFromFile(0xD62, "SexLab.esm") as SexLabFramework
 		SexLabSystemConfig = Game.GetFormFromFile(0xD62, "SexLab.esm") as sslSystemConfig
-		
+
 		;get our animations and store them in StorageUtil
 		SetFormValue(None, SS_ANIM_ARMORGLOVES, Game.GetFormFromFile(0x4347, "SerialStrip.esp") as Idle)
 		SetFormValue(None, SS_ANIM_CLOTHGLOVES, Game.GetFormFromFile(0x434D, "SerialStrip.esp") as Idle)
@@ -91,12 +91,12 @@ Event OnInit()
 		SetFormValue(None, SS_ANIM_RING, Game.GetFormFromFile(0x434F, "SerialStrip.esp") as Idle)
 		SetFormValue(None, SS_ANIM_BRA, Game.GetFormFromFile(0x4351, "SerialStrip.esp") as Idle)
 		SetFormValue(None, SS_ANIM_PANTIES, Game.GetFormFromFile(0x4352, "SerialStrip.esp") as Idle)
-		
+
 		InitDefaultArrays()
 		SerialStripOn()
 	EndIf
 EndEvent
-	
+
 Function InitDefaultArrays()
 	bAllTrueList = New Bool[33]
 	bAllFalseList = New Bool[33]
@@ -183,7 +183,10 @@ EndFunction
 Function ClearIfInactive(Actor akActorRef, String asArrayName, Bool abIsArrayActive)
 EndFunction
 
-Bool Function ItemHasKeyword(Form akItemRef, String[] asKeywords)
+Bool Function IsStrippableItem(Form akItemRef)
+EndFunction
+
+Bool Function ItemHasKeywords(Form akItemRef, String[] asKeywords)
 EndFunction
 
 Bool Function IsValidSlot(Int aiSlot, Bool[] abIsUserConfigStrippable, Bool[] abIsSlotOverride)
@@ -281,7 +284,7 @@ State Stripping
 				Form kItemRef = akActorRef.GetEquippedShield()
 
 				If ((FormListFind(None, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
-					If (SexLab.IsStrippable(kItemRef) == True && IsValidSlot(32, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
+					If (IsStrippableItem(kItemRef) == True && IsValidSlot(32, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 						FormListAdd(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
 						bArrayIsActive[1] = True ;activate the WeaponsAndShieldsL array
 					EndIf
@@ -290,7 +293,7 @@ State Stripping
 				Form kItemRef = akActorRef.GetEquippedWeapon(True) ;fetches left-hand weapon and puts it in kItemRef
 
 				If ((FormListFind(None, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
-					If (SexLab.IsStrippable(kItemRef) == True && IsValidSlot(32, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
+					If (IsStrippableItem(kItemRef) == True && IsValidSlot(32, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 						FormListAdd(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
 						bArrayIsActive[1] = True ;activate the WeaponsAndShieldsL array
 					EndIf
@@ -302,7 +305,7 @@ State Stripping
 			Form kItemRef = akActorRef.GetEquippedWeapon(False) ;fetches right-hand weapon and puts it in kItemRef
 
 			If ((FormListFind(None, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
-				If (SexLab.IsStrippable(kItemRef) == True && IsValidSlot(32, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
+				If (IsStrippableItem(kItemRef) == True && IsValidSlot(32, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 					FormListAdd(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_R, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
 					bArrayIsActive[0] = True ;activate the WeaponsAndShieldsR array
 				EndIf
@@ -319,27 +322,27 @@ State Stripping
 
 			If (kItemRef && FormListFind(None, asExceptionList, kItemRef) == -1) ;if there is an item in this slot and it is not found in the exception array
 
-				If (i + 30 == 33) || (ItemHasKeyword(kItemRef, GlovesKeywords)) ;if this item is in the gloves slot OR has any of the gloves keywords
+				If (i + 30 == 33) || (ItemHasKeywords(kItemRef, GlovesKeywords)) ;if this item is in the gloves slot OR has any of the gloves keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_GLOVES, kItemRef, allowDuplicate = False);adds this item to the gloves undress list
-				ElseIf (i + 30 == 31) || (ItemHasKeyword(kItemRef, HelmetKeywords)) ;if this item is in the hair slot OR has any of the helmet keywords
+				ElseIf (i + 30 == 31) || (ItemHasKeywords(kItemRef, HelmetKeywords)) ;if this item is in the hair slot OR has any of the helmet keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_HELMET, kItemRef, allowDuplicate = False) ;adds this item to the helmet undress list
-				ElseIf (i + 30 == 37) || (ItemHasKeyword(kItemRef, BootsKeywords)) ;if this item is in the boots slot OR has any of the boots keywords
+				ElseIf (i + 30 == 37) || (ItemHasKeywords(kItemRef, BootsKeywords)) ;if this item is in the boots slot OR has any of the boots keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_BOOTS, kItemRef, allowDuplicate = False) ;adds this item to the boots undress list
-				ElseIf (i + 30 == 32) || (ItemHasKeyword(kItemRef, ChestpieceKeywords)) ;if this item is in the chestpiece slot OR has any of the chestpiece keywords
+				ElseIf (i + 30 == 32) || (ItemHasKeywords(kItemRef, ChestpieceKeywords)) ;if this item is in the chestpiece slot OR has any of the chestpiece keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_CHESTPIECE, kItemRef, allowDuplicate = False) ;adds this item to the chestpiece undress list
-				ElseIf (i + 30 == 35) || (ItemHasKeyword(kItemRef, NecklaceKeywords)) ;if this item is in the necklace slot OR has any of the necklace keywords
+				ElseIf (i + 30 == 35) || (ItemHasKeywords(kItemRef, NecklaceKeywords)) ;if this item is in the necklace slot OR has any of the necklace keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_NECKLACE, kItemRef, allowDuplicate = False) ;adds this item to the necklace undress list
-				ElseIf (i + 30 == 42) || (ItemHasKeyword(kItemRef, CircletKeywords)) ;if this item is in the circlet slot OR has any of the circlet keywords
+				ElseIf (i + 30 == 42) || (ItemHasKeywords(kItemRef, CircletKeywords)) ;if this item is in the circlet slot OR has any of the circlet keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_CIRCLET, kItemRef, allowDuplicate = False) ;adds this item to the circlet undress list
-				ElseIf (i + 30 == 36) || (ItemHasKeyword(kItemRef, RingKeywords)) ;if this item is in the ring slot OR has any of the ring keywords
+				ElseIf (i + 30 == 36) || (ItemHasKeywords(kItemRef, RingKeywords)) ;if this item is in the ring slot OR has any of the ring keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_RING, kItemRef, allowDuplicate = False) ;adds this item to the ring undress list
-				ElseIf (i + 30 == 56) || (ItemHasKeyword(kItemRef, BraKeywords)) ;if this item is in the bra slot OR has any of the bra keywords
+				ElseIf (i + 30 == 56) || (ItemHasKeywords(kItemRef, BraKeywords)) ;if this item is in the bra slot OR has any of the bra keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_BRA, kItemRef, allowDuplicate = False) ;adds this item to the bra undress list
-				ElseIf (i + 30 == 52) || (ItemHasKeyword(kItemRef, PantiesKeywords)) ;if this item is in the panties slot OR has any of the panties keywords
+				ElseIf (i + 30 == 52) || (ItemHasKeywords(kItemRef, PantiesKeywords)) ;if this item is in the panties slot OR has any of the panties keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_PANTIES, kItemRef, allowDuplicate = False) ;adds this item to the panties undress list
 				EndIf
 
-				If (SexLab.IsStrippable(kItemRef) == True) ;if this item is strippable according to SexLab
+				If (IsStrippableItem(kItemRef) == True) ;if this item is strippable according to SexLab
 					If (IsValidSlot(i, bUserConfigSlots, abSlotOverrideList)) ;if either the modder or the user have configured this slot to be strippable
 						If ((i + 30 == 33) || FormListFind(akActorRef, SS_STRIPLIST_GLOVES, kItemRef) != -1) ;if this is the gloves slot OR we already know the item has one of the gloves keywords
 							bArrayIsActive[2] = True ;activate the gloves stripping array
@@ -410,7 +413,28 @@ State Stripping
 		EndIf
 	EndFunction
 
-	Bool Function ItemHasKeyword(Form akItemRef, String[] asKeywords)
+	Bool Function IsStrippableItem(Form akItemRef)
+	;checks whether akItemRef has the "NoStrip" keyword
+		;/ beginValidation /;
+		If (!akItemRef)
+			Return False
+		EndIf
+		;/ endValidation /;
+
+		If (SexLab)
+			If (SexLab.IsStrippable(akItemRef))
+				Return True
+			EndIf
+		Else
+			If (!akItemRef.HasKeyword(Keyword.GetKeyword("NoStrip")))
+				Return True
+			EndIf
+		EndIf
+
+		Return False
+	EndFunction
+
+	Bool Function ItemHasKeywords(Form akItemRef, String[] asKeywords)
 	;checks whether akItemRef has any of the keywords stored in the Keywords array
 		;/ beginValidation /;
 		If (!akItemRef || !asKeywords)
@@ -420,15 +444,27 @@ State Stripping
 
 		Int i = asKeywords.Length - 1 ;sets i to the length of the asKeywords array (-1 because arrays are zero based while length's result is 1-based)
 
-		While (i >= 0) ;runs this loop up to and including the first item (backwards)
-			String sKeywordRef = asKeywords[i] ;fetch the keyword in this position in the array
+		If (SexLab) ;if SexLab is installed, use its advanced SKSE keyword searching function
+			While (i >= 0) ;runs this loop up to and including the first item (backwards)
+				String sKeywordRef = asKeywords[i] ;fetch the keyword in this position in the array
 
-			If (SexLabUtil.HasKeywordSub(akItemRef, sKeywordRef)) ;if the item has this keyword
-				Return True
-			EndIf
+				If (SexLabUtil.HasKeywordSub(akItemRef, sKeywordRef)) ;if the item has this keyword (more advanced than vanilla HasKeyword)
+					Return True
+				EndIf
 
-		i -= 1 ;go to the next item in the loop (backwards)
-		EndWhile
+				i -= 1 ;go to the next item in the loop (backwards)
+			EndWhile
+		Else
+			While (i >= 0) ;runs this loop up to and including the first item (backwards)
+				String sKeywordRef = asKeywords[i] ;fetch the keyword in this position in the array
+
+				If (akItemRef.HasKeyword(Keyword.GetKeyword(sKeywordRef))) ;if the item has this keyword (first it gets the keyword that matches our sKeywordRef)
+					Return True
+				EndIf
+
+				i -= 1 ;go to the next item in the loop (backwards)
+			EndWhile
+		EndIf
 
 		Return False
 	EndFunction
@@ -446,7 +482,7 @@ State Stripping
 
 	Function SerialStrip()
 	;makes the actor strip one item/group of clothing (one array) and then strip the next one and so on. To be used for button taps.
-	
+
 		;fetching all item counts once and storing them so we don't do this over and over again
 		Int WeaponsAndShieldsRCount = FormListCount(PlayerRef, SS_STRIPLIST_WEAPONSANDSHIELDS_R)
 		Int WeaponsAndShieldsLCount = FormListCount(PlayerRef, SS_STRIPLIST_WEAPONSANDSHIELDS_L)
@@ -459,7 +495,7 @@ State Stripping
 		Int BraCount = FormListCount(PlayerRef, SS_STRIPLIST_BRA)
 		Int PantiesCount = FormListCount(PlayerRef, SS_STRIPLIST_PANTIES)
 		Int OtherCount = FormListCount(PlayerRef, SS_STRIPLIST_OTHER)
-		
+
 		;if nothing to strip, return now
 		If (WeaponsAndShieldsRCount + \
 			WeaponsAndShieldsLCount + \
@@ -472,7 +508,7 @@ State Stripping
 			BraCount + \
 			PantiesCount + \
 			OtherCount == 0)
-			
+
 			Game.SetPlayerAIDriven(False) ;give control back to the player
 			UnRegisterForModEvent("SerialStripStart")
 			UnRegisterForAnimationEvent(PlayerRef, "IdleStop")
