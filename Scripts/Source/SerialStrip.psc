@@ -226,7 +226,7 @@ EndFunction
 Bool Function IsStrippableItem(Form akItemRef)
 EndFunction
 
-Bool Function ItemHasKeywords(Form akItemRef, String[] asKeywords)
+Bool Function ItemHasKeywords(Form akItemRef, String asListName)
 EndFunction
 
 Bool Function IsValidSlot(Int aiSlot, Bool[] abIsUserConfigStrippable, Bool[] abIsSlotOverride)
@@ -362,23 +362,23 @@ State Stripping
 
 			If (kItemRef && FormListFind(Self, asExceptionList, kItemRef) == -1) ;if there is an item in this slot and it is not found in the exception array
 
-				If (i + 30 == 33) || (ItemHasKeywords(kItemRef, GlovesKeywords)) ;if this item is in the gloves slot OR has any of the gloves keywords
+				If (i + 30 == 33) || (ItemHasKeywords(kItemRef, SS_KW_GLOVES)) ;if this item is in the gloves slot OR has any of the gloves keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_GLOVES, kItemRef, allowDuplicate = False);adds this item to the gloves undress list
-				ElseIf (i + 30 == 31) || (ItemHasKeywords(kItemRef, HelmetKeywords)) ;if this item is in the hair slot OR has any of the helmet keywords
+				ElseIf (i + 30 == 31) || (ItemHasKeywords(kItemRef, SS_KW_HELMET)) ;if this item is in the hair slot OR has any of the helmet keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_HELMET, kItemRef, allowDuplicate = False) ;adds this item to the helmet undress list
-				ElseIf (i + 30 == 37) || (ItemHasKeywords(kItemRef, BootsKeywords)) ;if this item is in the boots slot OR has any of the boots keywords
+				ElseIf (i + 30 == 37) || (ItemHasKeywords(kItemRef, SS_KW_BOOTS)) ;if this item is in the boots slot OR has any of the boots keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_BOOTS, kItemRef, allowDuplicate = False) ;adds this item to the boots undress list
-				ElseIf (i + 30 == 32) || (ItemHasKeywords(kItemRef, ChestpieceKeywords)) ;if this item is in the chestpiece slot OR has any of the chestpiece keywords
+				ElseIf (i + 30 == 32) || (ItemHasKeywords(kItemRef, SS_KW_CHESTPIECE)) ;if this item is in the chestpiece slot OR has any of the chestpiece keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_CHESTPIECE, kItemRef, allowDuplicate = False) ;adds this item to the chestpiece undress list
-				ElseIf (i + 30 == 35) || (ItemHasKeywords(kItemRef, NecklaceKeywords)) ;if this item is in the necklace slot OR has any of the necklace keywords
+				ElseIf (i + 30 == 35) || (ItemHasKeywords(kItemRef, SS_KW_NECKLACE)) ;if this item is in the necklace slot OR has any of the necklace keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_NECKLACE, kItemRef, allowDuplicate = False) ;adds this item to the necklace undress list
-				ElseIf (i + 30 == 42) || (ItemHasKeywords(kItemRef, CircletKeywords)) ;if this item is in the circlet slot OR has any of the circlet keywords
+				ElseIf (i + 30 == 42) || (ItemHasKeywords(kItemRef, SS_KW_CIRCLET)) ;if this item is in the circlet slot OR has any of the circlet keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_CIRCLET, kItemRef, allowDuplicate = False) ;adds this item to the circlet undress list
-				ElseIf (i + 30 == 36) || (ItemHasKeywords(kItemRef, RingKeywords)) ;if this item is in the ring slot OR has any of the ring keywords
+				ElseIf (i + 30 == 36) || (ItemHasKeywords(kItemRef, SS_KW_RING)) ;if this item is in the ring slot OR has any of the ring keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_RING, kItemRef, allowDuplicate = False) ;adds this item to the ring undress list
-				ElseIf (i + 30 == 56) || (ItemHasKeywords(kItemRef, BraKeywords)) ;if this item is in the bra slot OR has any of the bra keywords
+				ElseIf (i + 30 == 56) || (ItemHasKeywords(kItemRef, SS_KW_BRA)) ;if this item is in the bra slot OR has any of the bra keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_BRA, kItemRef, allowDuplicate = False) ;adds this item to the bra undress list
-				ElseIf (i + 30 == 52) || (ItemHasKeywords(kItemRef, PantiesKeywords)) ;if this item is in the panties slot OR has any of the panties keywords
+				ElseIf (i + 30 == 52) || (ItemHasKeywords(kItemRef, SS_KW_PANTIES)) ;if this item is in the panties slot OR has any of the panties keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_PANTIES, kItemRef, allowDuplicate = False) ;adds this item to the panties undress list
 				EndIf
 
