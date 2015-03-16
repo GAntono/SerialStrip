@@ -1,5 +1,5 @@
 ScriptName SerialStrip Extends Quest
-{serial undressing: press a button once to remove one garment, keep it depressed to remove all}
+{serial undressing: remove one garment at a time, with animations}
 
 Import StorageUtil
 
@@ -8,7 +8,6 @@ sslSystemConfig Property SexLabSystemConfig Auto ;points to the SexLab's sslSyst
 
 Actor Property PlayerRef Auto ;points to the player
 Actor Property kCurrentActor Auto Hidden ;the actor that is currently animating
-
 
 String Property SS_STRIPLIST_WEAPONSANDSHIELDS_R = "APPS.SerialStripList.WeaponsAndShieldsR" AutoReadOnly  Hidden
 String Property SS_STRIPLIST_WEAPONSANDSHIELDS_L = "APPS.SerialStripList.WeaponsAndShieldsL" AutoReadOnly  Hidden
@@ -72,17 +71,12 @@ Bool Property bFullSerialStripSwitch Auto Hidden ;switches to full stripping
 Bool Property bIsSheathing Auto Hidden ;notifys script that actor is sheathing
 Form Property EventSender Auto Hidden ;stores the form that initiated the stripping
 Float Property fDurationForFullStrip = 2.0 AutoReadOnly Hidden ;2 seconds cut-off point of key press: after this duration, the actor will strip fully
-Int Property iStripKeyCode = 48 AutoReadOnly Hidden ;B - the key that will be used to input stripping commands
 
 Event OnInit()
 	If (Self.IsRunning())
 		SexLab = Game.GetFormFromFile(0xD62, "SexLab.esm") as SexLabFramework
 		SexLabSystemConfig = Game.GetFormFromFile(0xD62, "SexLab.esm") as sslSystemConfig
-
-
-
 		InitDefaultArrays()
-		SerialStripOn()
 	EndIf
 EndEvent
 
@@ -149,30 +143,6 @@ Function InitDefaultArrays()
 	;/ closeFold /;
 EndFunction
 
-Function SerialStripOn(Bool abActivateSerialStrip = True)
-;turns on serial stripping. Pass True to run on, off to turn off.
-
-	If (abActivateSerialStrip) ;if serial stripping is set to activate
-		RegisterForKey(iStripKeyCode) ;registers to listen for the iStripKeyCode
-	Else ;if serial stripping is set to deactivate
-		UnRegisterForKey(iStripKeyCode) ;stops listening for the iStripKeyCode
-	EndIf
-EndFunction
-
-Event OnKeyUp(Int KeyCode, Float HoldTime)
-;when the key is released
-
-	If (KeyCode == iStripKeyCode && !Utility.IsInMenuMode()) ;if the key that was released is the key for serial stripping and we are not in a menu
-		RegisterForModEvent("SerialStripStart", "OnSerialStripStart")
-
-		If (HoldTime < fDurationForFullStrip) ;if the key has not been held down long enough
-			SendSerialStripStartEvent(Self, False)
-		Else
-			SendSerialStripStartEvent(Self, True)
-		EndIf
-	EndIf
-EndEvent
-
 Bool Function SendSerialStripStartEvent(Form akSender, Bool abFullStrip = False)
 	;/ beginValidation /;
 	If (!akSender)
@@ -182,7 +152,6 @@ Bool Function SendSerialStripStartEvent(Form akSender, Bool abFullStrip = False)
 
 	Int Handle = ModEvent.Create("SerialStripStart")
 	If (Handle)
-		EventSender = akSender
 		ModEvent.PushForm(Handle, akSender)
 		ModEvent.PushBool(Handle, abFullStrip)
 		ModEvent.Send(Handle)
@@ -212,6 +181,7 @@ EndFunction
 
 Event OnSerialStripStart(Form akSender, Bool abFullStrip)
 	GoToState("Stripping")
+	EventSender = akSender
 	bFullSerialStripSwitch = abFullStrip
 	PrepareForStripping(PlayerRef, bAllFalseList)
 	SerialStrip()
