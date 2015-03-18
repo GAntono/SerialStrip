@@ -671,7 +671,7 @@ State Stripping
 				SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
 			Else
 				SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
-				Utility.Wait(1.0)
+				Utility.Wait(GetFloatValue(None, "APPS.SerialStripper.WaitingTimeAfterAnim"))
 				SerialStrip()
 			EndIf
 		EndIf
