@@ -71,6 +71,41 @@ Bool Property IsSexLabInstalled Auto Hidden
 Bool Property bIsSheathing Auto Hidden ;notifys script that actor is sheathing
 Form Property EventSender Auto Hidden ;stores the form that initiated the stripping
 
+; -------------------------------------------------------
+; ---             Functions for modders               ---
+; -------------------------------------------------------
+
+Bool Function SendSerialStripStartEvent(Form akSender, Bool abFullStrip = False)
+;/
+Sends a SerialStripStart event that will tell SerialStrip to begin stripping the player.
+SerialStrip is always listening for this event.
+You can copy this function in your mod, write a similar or call this one from inside SerialStrip
+akSender:	 the object that sent the event (your mod).
+abFullStrip: True  = will do a full strip i.e. remove all strippable items.
+			 False = will do a single strip i.e. remove one group of items.
+/;
+
+	;/ beginValidation /;
+	If (!akSender)
+		Return False
+	EndIf
+	;/ endValidation /;
+
+	Int Handle = ModEvent.Create("SerialStripStart")
+	If (Handle)
+		ModEvent.PushForm(Handle, akSender)
+		ModEvent.PushBool(Handle, abFullStrip)
+		ModEvent.Send(Handle)
+		Return True
+	Else
+		Return False
+	EndIf
+EndFunction
+
+; -------------------------------------------------------
+; ---             Internal use functions              ---
+; -------------------------------------------------------
+
 Event OnInit()
 	If (Self.IsRunning())
 		If(Game.GetModByName("SexLab.esm") < 255)
@@ -79,6 +114,7 @@ Event OnInit()
 		EndIf
 
 		InitDefaultArrays()
+		RegisterForModEvent("SerialStripStart", "OnSerialStripStart")
 	EndIf
 EndEvent
 
@@ -143,24 +179,6 @@ Function InitDefaultArrays()
 
 	StringListAdd(Self, SS_KW_PANTIES, "Panties")
 	;/ closeFold /;
-EndFunction
-
-Bool Function SendSerialStripStartEvent(Form akSender, Bool abFullStrip = False)
-	;/ beginValidation /;
-	If (!akSender)
-		Return False
-	EndIf
-	;/ endValidation /;
-
-	Int Handle = ModEvent.Create("SerialStripStart")
-	If (Handle)
-		ModEvent.PushForm(Handle, akSender)
-		ModEvent.PushBool(Handle, abFullStrip)
-		ModEvent.Send(Handle)
-		Return True
-	Else
-		Return False
-	EndIf
 EndFunction
 
 Bool Function SendSerialStripStopEvent()
@@ -523,7 +541,6 @@ State Stripping
 			OtherCount == 0)
 
 			Game.SetPlayerAIDriven(False) ;give control back to the player
-			UnRegisterForModEvent("SerialStripStart")
 			UnRegisterForAnimationEvent(PlayerRef, "IdleStop")
 			GoToState("")
 			SendSerialStripStopEvent()
@@ -658,7 +675,6 @@ State Stripping
 
 		If (!bFullSerialStripSwitch && !abDontStop) ;if this is a single array strip and we have not been instructed to continue
 			Game.SetPlayerAIDriven(False) ;give control back to the player
-			UnRegisterForModEvent("SerialStripStart")
 			UnRegisterForAnimationEvent(PlayerRef, "IdleStop")
 			GoToState("")
 			SendSerialStripStopEvent()
@@ -684,7 +700,7 @@ EndState
 FArGl		Remove Armor Gloves
 FArHe		Remove Armor Helmet
 FArBo		Remove Armor Boots
-FArNoUS	Remove it - Thats an incomplete chest "shy" version
+FArNoUS		Remove it - Thats an incomplete chest "shy" version
 FArChB		Remove Armor chestpiece
 FClGl		Remove Cloth Gloves
 FClHo		Remove Cloth Hood
@@ -693,8 +709,8 @@ FClCi		Remove Cloth Circlet
 FClChB		Remove Cloth Dress
 FULB		Remove Panties
 FUUB		Remove Bra
-FJN		Remove Necklace
-FJR		Remove Ring
+FJN			Remove Necklace
+FJR			Remove Ring
 
 FArBo 185 frames - 6.17 sec
 
