@@ -5,4 +5,5 @@ SerialStrip Property SS Auto
 
 Event OnPlayerLoadGame()
 	SS.RegisterForModEvent("SerialStripStart", "OnSerialStripStart")
+	SS.GetSexLab()
 EndEvent
