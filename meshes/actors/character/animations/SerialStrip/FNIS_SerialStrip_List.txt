@@ -1,7 +1,6 @@
 b -a ssFArGl FArGl.hkx
 b -a ssFArHe FArHe.hkx
 b -a ssFArBo FArBo.hkx
-b -a ssFArNoUS FArChNoUS.hkx
 b -a ssFArChB FArChB.hkx
 b -a ssFClGl FClGl.hkx
 b -a ssFClHo FClHo.hkx
