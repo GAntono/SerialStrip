@@ -207,6 +207,21 @@ Bool Function SendSerialStripStopEvent()
 EndFunction
 
 Event OnSerialStripStart(Form akSender, Bool abFullStrip)
+	;/ beginValidation /;
+	If (PlayerRef.IsOnMount() || \
+		PlayerRef.IsSprinting() || \
+		PlayerRef.IsRunning() || \
+		PlayerRef.GetSleepState() > 2 || \
+		PlayerRef.IsInCombat() || \
+		PlayerRef.GetSitState() > 2 || \
+		PlayerRef.IsSwimming() || \
+		PlayerRef.IsSneaking() || \
+		PlayerRef.IsChild())
+		
+		Return	
+	EndIf
+	;/ endValidation /;
+
 	GoToState("Stripping")
 	EventSender = akSender
 	bFullSerialStripSwitch = abFullStrip
