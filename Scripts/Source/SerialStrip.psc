@@ -534,10 +534,10 @@ State Stripping
 			Debug.Trace("[SerialStrip] Item in slot " + aiSlot + " is strippable because of modder override")
 			Return True
 		ElseIf (abIsUserConfigStrippable[slot]) ;if the user has configured this slot as strippable
-			Debug.Trace("[SerialStrip] Item in slot " + aiSlot + " is strippable because of user SL configuration")
+			Debug.Trace("[SerialStrip] Item in slot " + aiSlot + " is strippable because of user slot configuration")
 			Return True
 		Else
-			Debug.Trace("[SerialStrip] item in slot " + aiSlot + " is not strippable because of user SL configuration")
+			Debug.Trace("[SerialStrip] item in slot " + aiSlot + " is not strippable because of user slot configuration")
 			Return False
 		EndIf
 	EndFunction
