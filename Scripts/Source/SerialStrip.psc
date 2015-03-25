@@ -115,7 +115,7 @@ Event OnInit()
 EndEvent
 
 Function GetSexLab()
-	If (Game.GetModByName("SexLab.esm") < 255)
+	If (Game.GetModByName("SexLab.esm") != 255)
 		IsSexLabInstalled = True
 		SetFormValue(Self, SS_SEXLAB, SexLabUtil.GetAPI()) ;points to the SexLabFramework script so we can use its functions
 	Else
@@ -395,7 +395,7 @@ State Stripping
 					FormListAdd(akActorRef, SS_STRIPLIST_PANTIES, kItemRef, allowDuplicate = False) ;adds this item to the panties undress list
 				EndIf
 
-				If (IsStrippableItem(kItemRef) == True) ;if this item is strippable according to SexLab
+				If (IsStrippableItem(kItemRef) == True) ;if this item is strippable according to us or SexLab
 					If (IsValidSlot(i, bUserConfigSlots, abSlotOverrideList)) ;if either the modder or the user have configured this slot to be strippable
 						If ((i == 33) || FormListFind(akActorRef, SS_STRIPLIST_GLOVES, kItemRef) != -1) ;if this is the gloves slot OR we already know the item has one of the gloves keywords
 							bArrayIsActive[2] = True ;activate the gloves stripping array
