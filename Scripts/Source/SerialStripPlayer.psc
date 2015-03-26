@@ -4,6 +4,7 @@ ScriptName SerialStripPlayer Extends ReferenceAlias
 SerialStrip Property SS Auto
 
 Event OnPlayerLoadGame()
+	Debug.Trace("[SerialStrip] v.1.0.2-beta")
 	SS.RegisterForModEvent("SerialStripStart", "OnSerialStripStart")
 	SS.GetSexLab()
 EndEvent
