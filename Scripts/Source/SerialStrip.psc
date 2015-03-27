@@ -3,9 +3,12 @@ ScriptName SerialStrip Extends Quest
 
 Import StorageUtil
 
+String Property SS_VERSION = "v1.0.2-beta" AutoReadOnly Hidden
+
 Actor Property PlayerRef Auto ;points to the player
 Actor Property kCurrentActor Auto Hidden ;the actor that is currently animating
 
+;/ openFold /;
 String Property SS_STRIPLIST_WEAPONSANDSHIELDS_R = "APPS.SerialStripList.WeaponsAndShieldsR" AutoReadOnly  Hidden
 String Property SS_STRIPLIST_WEAPONSANDSHIELDS_L = "APPS.SerialStripList.WeaponsAndShieldsL" AutoReadOnly  Hidden
 String Property SS_STRIPLIST_GLOVES = "APPS.SerialStripList.Gloves" AutoReadOnly  Hidden
@@ -57,6 +60,7 @@ String Property SS_ANIM_BRA = "APPS.SerialStripAnim.Bra" AutoReadOnly Hidden
 String Property SS_ANIM_PANTIES = "APPS.SerialStripAnim.Panties" AutoReadOnly Hidden
 
 String Property SS_SEXLAB = "APPS.SerialStripDependency.SexLab" AutoReadOnly Hidden
+;/ closeFold /;
 
 String Property sCurrentStripArray Auto Hidden ;the array that is currently animating i.e. the actor is playing the animation for stripping from this array
 String Property sCurrentStrippedArray Auto Hidden ;the array that is currently holding the stripped items
@@ -108,11 +112,20 @@ EndFunction
 
 Event OnInit()
 	If (Self.IsRunning())
-		GetSexLab()
+		PrepareMod()
 		InitDefaultArrays()
-		RegisterForModEvent("SerialStripStart", "OnSerialStripStart")
 	EndIf
 EndEvent
+
+Function PrepareMod()
+	ShowVersion()
+	GetSexLab()
+	RegisterForModEvent("SerialStripStart", "OnSerialStripStart")
+EndFunction
+
+Function ShowVersion()
+	Debug.Trace("[SerialStrip] " + SS_VERSION)
+EndFunction
 
 Function GetSexLab()
 	If (Game.GetModByName("SexLab.esm") != 255)
@@ -122,7 +135,7 @@ Function GetSexLab()
 		IsSexLabInstalled = False
 		UnSetFormValue(Self, SS_SEXLAB) ;points to the SexLabFramework script so we can use its functions
 	EndIf
-	
+
 	Debug.Trace("[SerialStrip] SexLab detected: " + IsSexLabInstalled)
 EndFunction
 
@@ -217,8 +230,8 @@ Event OnSerialStripStart(Form akSender, Bool abFullStrip)
 		PlayerRef.IsSwimming() || \
 		PlayerRef.IsSneaking() || \
 		PlayerRef.IsChild())
-		
-		Return	
+
+		Return
 	EndIf
 	;/ endValidation /;
 
@@ -485,7 +498,7 @@ State Stripping
 				Return True
 			EndIf
 		EndIf
-		
+
 		Debug.Trace("[SerialStrip] Item " + akItemRef + " is not strippable because we or SL detected the NoStrip keyword")
 		Return False
 	EndFunction
@@ -529,7 +542,7 @@ State Stripping
 	Bool Function IsValidSlot(Int aiSlot, Bool[] abIsUserConfigStrippable, Bool[] abIsSlotOverride)
 	;Returns True if either the modder or the user have designated this slot as strippable
 		Int Slot = aiSlot - 30
-		
+
 		If (abIsSlotOverride[slot]) ;if the modder has overridden this slot to strippable
 			Debug.Trace("[SerialStrip] Item in slot " + aiSlot + " is strippable because of modder override")
 			Return True
