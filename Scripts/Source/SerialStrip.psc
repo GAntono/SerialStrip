@@ -382,7 +382,9 @@ State Stripping
 				ElseIf (i == 37) || (ItemHasKeywords(kItemRef, SS_KW_BOOTS)) ;if this item is in the boots slot OR has any of the boots keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_BOOTS, kItemRef, allowDuplicate = False) ;adds this item to the boots undress list
 				ElseIf (i == 32) || (ItemHasKeywords(kItemRef, SS_KW_CHESTPIECE)) ;if this item is in the chestpiece slot OR has any of the chestpiece keywords
-					FormListAdd(akActorRef, SS_STRIPLIST_CHESTPIECE, kItemRef, allowDuplicate = False) ;adds this item to the chestpiece undress list
+					If (i != 56 && i != 52) ;and if it is not in the bra or panties slot (because underwear items may have chestpiece keywords)
+						FormListAdd(akActorRef, SS_STRIPLIST_CHESTPIECE, kItemRef, allowDuplicate = False) ;adds this item to the chestpiece undress list
+					EndIf
 				ElseIf (i == 35) || (ItemHasKeywords(kItemRef, SS_KW_NECKLACE)) ;if this item is in the necklace slot OR has any of the necklace keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_NECKLACE, kItemRef, allowDuplicate = False) ;adds this item to the necklace undress list
 				ElseIf (i == 42) || (ItemHasKeywords(kItemRef, SS_KW_CIRCLET)) ;if this item is in the circlet slot OR has any of the circlet keywords
@@ -403,7 +405,7 @@ State Stripping
 							bArrayIsActive[3] = True ;activate the helmet stripping array
 						ElseIf ((i == 37) || FormListFind(akActorRef, SS_STRIPLIST_BOOTS, kItemRef) != -1) ;if this is the boots slot OR we already know the item has one of the boots keywords
 							bArrayIsActive[4] = True ;activate the boots stripping array
-						ElseIf ((i == 32) || FormListFind(akActorRef, SS_STRIPLIST_CHESTPIECE, kItemRef) != -1) ;if this is the chestpiece slot OR we already know the item has one of the chestpiece keywords
+						ElseIf ((i == 32) || FormListFind(akActorRef, SS_STRIPLIST_CHESTPIECE, kItemRef) != -1) ;if this is the chestpiece slot OR we already know the item has one of the chestpiece keywords (we have already excluded underwear from this array)
 							bArrayIsActive[5] = True ;activate the chestpiece stripping array
 						ElseIf ((i == 35) || FormListFind(akActorRef, SS_STRIPLIST_NECKLACE, kItemRef) != -1) ;if this is the necklace slot OR we already know the item has one of the necklace keywords
 							bArrayIsActive[6] = True ;activate the necklace stripping array
