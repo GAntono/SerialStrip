@@ -385,7 +385,7 @@ State Stripping
 
 		While (i <= 61) ;run this loop up to and including node 61 (http://www.creationkit.com/Biped_Object)
 			Form kItemRef = akActorRef.GetWornForm(Armor.GetMaskForSlot(i)) ;fetch the item worn in this slot and load it in the kItemRef variable
-			Debug.Trace("i = " + i)
+
 			If (kItemRef && FormListFind(Self, asExceptionList, kItemRef) == -1) ;if there is an item in this slot and it is not found in the exception array
 
 				If (i == 33) || (ItemHasKeywords(kItemRef, SS_KW_GLOVES)) ;if this item is in the gloves slot OR has any of the gloves keywords
