@@ -3,7 +3,7 @@ ScriptName SerialStrip Extends Quest
 
 Import StorageUtil
 
-String Property SS_VERSION = "v1.0.2-beta" AutoReadOnly Hidden
+String Property SS_VERSION = "v1.0.3-beta" AutoReadOnly Hidden
 
 Actor Property PlayerRef Auto ;points to the player
 Actor Property kCurrentActor Auto Hidden ;the actor that is currently animating
