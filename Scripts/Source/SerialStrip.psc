@@ -149,8 +149,8 @@ Function InitDefaultArrays()
 	SetFormValue(Self, SS_ANIM_NECKLACE, Game.GetFormFromFile(0x4350, "SerialStrip.esp") as Idle)
 	SetFormValue(Self, SS_ANIM_CLOTHCIRCLET, Game.GetFormFromFile(0x434C, "SerialStrip.esp") as Idle)
 	SetFormValue(Self, SS_ANIM_RING, Game.GetFormFromFile(0x434F, "SerialStrip.esp") as Idle)
-	SetFormValue(Self, SS_ANIM_BRA, Game.GetFormFromFile(0x4351, "SerialStrip.esp") as Idle)
-	SetFormValue(Self, SS_ANIM_PANTIES, Game.GetFormFromFile(0x4352, "SerialStrip.esp") as Idle)
+	SetFormValue(Self, SS_ANIM_BRA, Game.GetFormFromFile(0x4352, "SerialStrip.esp") as Idle)
+	SetFormValue(Self, SS_ANIM_PANTIES, Game.GetFormFromFile(0x4351, "SerialStrip.esp") as Idle)
 	;/ closeFold /;
 
 	;/ fill our StorageUtil arrays with item keywords openFold /;
@@ -384,11 +384,9 @@ State Stripping
 				ElseIf (i == 37) || (ItemHasKeywords(kItemRef, SS_KW_BOOTS)) ;if this item is in the boots slot OR has any of the boots keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_BOOTS, kItemRef, allowDuplicate = False) ;adds this item to the boots undress list
 					Debug.Trace("[SerialStrip] Boots detected: " + kItemRef)
-				ElseIf (i == 32) || (ItemHasKeywords(kItemRef, SS_KW_CHESTPIECE)) ;if this item is in the chestpiece slot OR has any of the chestpiece keywords
-					If (i != 56 && i != 52) ;and if it is not in the bra or panties slot (because underwear items may have chestpiece keywords)
-						FormListAdd(akActorRef, SS_STRIPLIST_CHESTPIECE, kItemRef, allowDuplicate = False) ;adds this item to the chestpiece undress list
-						Debug.Trace("[SerialStrip] Chestpiece detected: " + kItemRef)
-					EndIf
+				ElseIf ((i == 32 || ItemHasKeywords(kItemRef, SS_KW_CHESTPIECE)) && i != 56 && i != 52) ;if this item is in the chestpiece slot OR has any of the chestpiece keywords and if it is not in the bra or panties slot (because underwear items may have chestpiece keywords)
+					FormListAdd(akActorRef, SS_STRIPLIST_CHESTPIECE, kItemRef, allowDuplicate = False) ;adds this item to the chestpiece undress list
+					Debug.Trace("[SerialStrip] Chestpiece detected: " + kItemRef)
 				ElseIf (i == 35) || (ItemHasKeywords(kItemRef, SS_KW_NECKLACE)) ;if this item is in the necklace slot OR has any of the necklace keywords
 					FormListAdd(akActorRef, SS_STRIPLIST_NECKLACE, kItemRef, allowDuplicate = False) ;adds this item to the necklace undress list
 					Debug.Trace("[SerialStrip] Necklace detected: " + kItemRef)
