@@ -627,10 +627,14 @@ State Stripping
 			EndIf
 		;ARMOR
 		ElseIf (GlovesCount > 0)
-			If (HasClothingItems(PlayerRef, SS_STRIPLIST_GLOVES))
-				SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, GetFormValue(Self, SS_ANIM_CLOTHGLOVES) as Idle)
-			Else
-				SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, GetFormValue(Self, SS_ANIM_ARMORGLOVES) as Idle) ;run the function to play the appropriate animation
+			If (!RingCount) ;if there are no rings equipped, remove gloves
+				If (HasClothingItems(PlayerRef, SS_STRIPLIST_GLOVES))
+					SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, GetFormValue(Self, SS_ANIM_CLOTHGLOVES) as Idle)
+				Else
+					SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, GetFormValue(Self, SS_ANIM_ARMORGLOVES) as Idle) ;run the function to play the appropriate animation
+				EndIf
+			Else ;if there are rings equipped, remove them first because in Skyrim they are worn over the gloves
+				SingleArrayAnimThenStrip(SS_STRIPLIST_RING, SS_STRIPPEDLIST_RING, GetFormValue(Self, SS_ANIM_RING) as Idle) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_HELMET) > 0)
 			If (HasClothingItems(PlayerRef, SS_STRIPLIST_HELMET))
