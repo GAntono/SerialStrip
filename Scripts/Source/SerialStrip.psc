@@ -113,30 +113,18 @@ EndFunction
 Event OnInit()
 	If (Self.IsRunning())
 		PrepareMod()
-		InitDefaultArrays()
 	EndIf
 EndEvent
 
 Function PrepareMod()
 	ShowVersion()
+	InitDefaultArrays()
 	GetSexLab()
 	RegisterForModEvent("SerialStripStart", "OnSerialStripStart")
 EndFunction
 
 Function ShowVersion()
 	Debug.Trace("[SerialStrip] " + SS_VERSION)
-EndFunction
-
-Function GetSexLab()
-	If (Game.GetModByName("SexLab.esm") != 255)
-		IsSexLabInstalled = True
-		SetFormValue(Self, SS_SEXLAB, SexLabUtil.GetAPI()) ;points to the SexLabFramework script so we can use its functions
-	Else
-		IsSexLabInstalled = False
-		UnSetFormValue(Self, SS_SEXLAB) ;points to the SexLabFramework script so we can use its functions
-	EndIf
-
-	Debug.Trace("[SerialStrip] SexLab detected: " + IsSexLabInstalled)
 EndFunction
 
 Function InitDefaultArrays()
@@ -166,7 +154,17 @@ Function InitDefaultArrays()
 	SetFormValue(Self, SS_ANIM_PANTIES, Game.GetFormFromFile(0x4351, "SerialStrip.esp") as Idle)
 	;/ closeFold /;
 
-	;/ fill our StorageUtil arrays with item keywords openFold /;
+	;/ clear our StorageUtil arrays for update compatibility, then fill them with item keywords openFold /;
+	StringListClear(Self, SS_KW_HELMET)
+	StringListClear(Self, SS_KW_GLOVES)
+	StringListClear(Self, SS_KW_BOOTS)
+	StringListClear(Self, SS_KW_CHESTPIECE)
+	StringListClear(Self, SS_KW_NECKLACE)
+	StringListClear(Self, SS_KW_CIRCLET)
+	StringListClear(Self, SS_KW_RING)
+	StringListClear(Self, SS_KW_BRA)
+	StringListClear(Self, SS_KW_PANTIES)
+	
 	StringListAdd(Self, SS_KW_HELMET, "Helmet")
 	StringListAdd(Self, SS_KW_HELMET, "Hood")
 	StringListAdd(Self, SS_KW_HELMET, "ArmorHelmet")
@@ -199,6 +197,18 @@ Function InitDefaultArrays()
 
 	StringListAdd(Self, SS_KW_PANTIES, "Panties")
 	;/ closeFold /;
+EndFunction
+
+Function GetSexLab()
+	If (Game.GetModByName("SexLab.esm") != 255)
+		IsSexLabInstalled = True
+		SetFormValue(Self, SS_SEXLAB, SexLabUtil.GetAPI()) ;points to the SexLabFramework script so we can use its functions
+	Else
+		IsSexLabInstalled = False
+		UnSetFormValue(Self, SS_SEXLAB) ;points to the SexLabFramework script so we can use its functions
+	EndIf
+
+	Debug.Trace("[SerialStrip] SexLab detected: " + IsSexLabInstalled)
 EndFunction
 
 Bool Function SendSerialStripStopEvent()
