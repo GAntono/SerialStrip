@@ -474,6 +474,7 @@ State Stripping
 
 		If (!abIsArrayActive) ;if the array is not active
 			FormListClear(akActorRef, asArrayName) ;clear the array by the name asArrayName on akActorRef
+			Debug.Trace("[SerialStrip] " + asArrayName + " cleared")
 		EndIf
 	EndFunction
 
