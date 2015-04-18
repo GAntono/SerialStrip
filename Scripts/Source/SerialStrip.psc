@@ -579,7 +579,7 @@ State Stripping
 		EndIf
 	EndFunction
 
-	Function SerialStrip(Actor akActor, Bool abFullStrip)
+	Function SerialStrip(Actor akActor)
 	;makes the actor strip one item/group of clothing (one array) and then strip the next one and so on. To be used for button taps.
 
 		;fetching all item counts once and storing them so we don't do this over and over again
@@ -714,16 +714,16 @@ State Stripping
 			akActor.PlayIdle(akAnimation) ;makes the actor play the stripping animation
 			RegisterForAnimationEvent(akActor, "IdleStop")
 		Else
-			SingleArrayStrip(akActor, sCurrentStripArray, sCurrentStrippedArray, abDontStop) ;go directly to stripping the array without animation
+			SingleArrayStrip(akActor, asStripArray, asStrippedArray, abDontStop) ;go directly to stripping the array without animation
 
 			If (bFullSerialStripSwitch)
-				SerialStrip(akActor, abFullStrip)
+				SerialStrip(akActor)
 			EndIf
 		EndIf
 	EndFunction
 
 	Function SingleArrayStrip(Actor akActor, String asStripArray, String asStrippedArray, Bool abDontStop = False)
-	;makes the player strip a single group of clothing
+	;makes the actor strip a single group of clothing
 
 		;/ beginValidation /;
 		If (!akActor)
@@ -750,15 +750,18 @@ State Stripping
 		FormListClear(akActor, asStripArray) ;clears the array
 
 		If (!bFullSerialStripSwitch && !abDontStop) ;if this is a single array strip and we have not been instructed to continue
-			Game.SetPlayerAIDriven(False) ;give control back to the player
-			UnRegisterForAnimationEvent(PlayerRef, "IdleStop")
+			If (akActor == PlayerRef)
+				Game.SetPlayerAIDriven(False) ;give control back to the player
+			EndIf
+
+			UnRegisterForAnimationEvent(akActor, "IdleStop")
 			GoToState("")
 			SendSerialStripStopEvent()
 		EndIf
 	EndFunction
 
 	Event OnAnimationEvent(ObjectReference akSource, string asEventName)
-		If (akSource == PlayerRef && asEventName == "IdleStop")
+		If (akSource == kCurrentActor && asEventName == "IdleStop")
 			If (!bFullSerialStripSwitch && !bIsSheathing)
 				SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
 			Else
