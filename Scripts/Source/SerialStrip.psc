@@ -79,7 +79,7 @@ Form Property EventSender Auto Hidden ;stores the form that initiated the stripp
 ; ---             Functions for modders               ---
 ; -------------------------------------------------------
 
-Bool Function SendSerialStripStartEvent(Form akSender, Bool abFullStrip = False)
+Bool Function SendSerialStripStartEvent(Form akSender, Actor akActor, Bool abFullStrip = False)
 ;/
 Sends a SerialStripStart event that will tell SerialStrip to begin stripping the player.
 SerialStrip is always listening for this event.
@@ -90,7 +90,7 @@ abFullStrip: True  = will do a full strip i.e. remove all strippable items.
 /;
 
 	;/ beginValidation /;
-	If (!akSender)
+	If (!akSender || !akActor)
 		Return False
 	EndIf
 	;/ endValidation /;
@@ -98,6 +98,7 @@ abFullStrip: True  = will do a full strip i.e. remove all strippable items.
 	Int Handle = ModEvent.Create("SerialStripStart")
 	If (Handle)
 		ModEvent.PushForm(Handle, akSender)
+		ModEvent.PushForm(Handle, akActor)
 		ModEvent.PushBool(Handle, abFullStrip)
 		ModEvent.Send(Handle)
 		Return True
@@ -164,7 +165,7 @@ Function InitDefaultArrays()
 	StringListClear(Self, SS_KW_RING)
 	StringListClear(Self, SS_KW_BRA)
 	StringListClear(Self, SS_KW_PANTIES)
-	
+
 	StringListAdd(Self, SS_KW_HELMET, "Helmet")
 	StringListAdd(Self, SS_KW_HELMET, "Hood")
 	StringListAdd(Self, SS_KW_HELMET, "ArmorHelmet")
@@ -213,7 +214,7 @@ EndFunction
 
 Bool Function SendSerialStripStopEvent()
 	;/ beginValidation /;
-	If (!EventSender)
+	If (!EventSender || !kCurrentActor)
 		Return False
 	EndIf
 	;/ endValidation /;
@@ -221,25 +222,27 @@ Bool Function SendSerialStripStopEvent()
 	Int Handle = ModEvent.Create("SerialStripStop")
 	If (Handle)
 		ModEvent.PushForm(Handle, EventSender)
+		ModEvent.PushForm(Handle, kCurrentActor)
 		ModEvent.Send(Handle)
 		EventSender = None ;clears the property holding the form that initiated the stripping
+		kCurrentActor = None
 		Return True
 	Else
 		Return False
 	EndIf
 EndFunction
 
-Event OnSerialStripStart(Form akSender, Bool abFullStrip)
+Event OnSerialStripStart(Form akSender, Actor akActor, Bool abFullStrip)
 	;/ beginValidation /;
-	If (PlayerRef.IsOnMount() || \
-		PlayerRef.IsSprinting() || \
-		PlayerRef.IsRunning() || \
-		PlayerRef.GetSleepState() > 2 || \
-		PlayerRef.IsInCombat() || \
-		PlayerRef.GetSitState() > 2 || \
-		PlayerRef.IsSwimming() || \
-		PlayerRef.IsSneaking() || \
-		PlayerRef.IsChild())
+	If (akActor.IsOnMount() || \
+		akActor.IsSprinting() || \
+		akActor.IsRunning() || \
+		akActor.GetSleepState() > 2 || \
+		akActor.IsInCombat() || \
+		akActor.GetSitState() > 2 || \
+		akActor.IsSwimming() || \
+		akActor.IsSneaking() || \
+		akActor.IsChild())
 
 		Return
 	EndIf
@@ -247,15 +250,16 @@ Event OnSerialStripStart(Form akSender, Bool abFullStrip)
 
 	GoToState("Stripping")
 	EventSender = akSender
+	kCurrentActor = akActor
 	bFullSerialStripSwitch = abFullStrip
-	PrepareForStripping(PlayerRef, bAllFalseList)
-	SerialStrip()
+	PrepareForStripping(akActor, bAllFalseList)
+	SerialStrip(akActor)
 EndEvent
 
-Function PrepareForStripping(Actor akActorRef, Bool[] abSlotOverrideList, String asExceptionList = "")
+Function PrepareForStripping(Actor akActor, Bool[] abSlotOverrideList, String asExceptionList = "")
 EndFunction
 
-Function ClearIfInactive(Actor akActorRef, String asArrayName, Bool abIsArrayActive)
+Function ClearIfInactive(Actor akActor, String asArrayName, Bool abIsArrayActive)
 EndFunction
 
 Bool Function IsStrippableItem(Form akItemRef)
@@ -267,16 +271,16 @@ EndFunction
 Bool Function IsValidSlot(Int aiSlot, Bool[] abIsUserConfigStrippable, Bool[] abIsSlotOverride)
 EndFunction
 
-Function SerialStrip()
+Function SerialStrip(Actor akActor, Bool abFullStrip)
 EndFunction
 
-Bool Function HasClothingItems(Actor akActorRef, String asArrayName)
+Bool Function HasClothingItems(Actor akActor, String asArrayName)
 EndFunction
 
 Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, Idle akAnimation = None, Bool abDontStop = False)
 EndFunction
 
-Function SingleArrayStrip(Actor akActorRef, String asStripArray, String asStrippedArray, Bool abDontStop = False)
+Function SingleArrayStrip(Actor akActor, String asStripArray, String asStrippedArray, Bool abDontStop = False)
 EndFunction
 
 Event OnAnimationEvent(ObjectReference akSource, string asEventName)
@@ -284,34 +288,34 @@ EndEvent
 
 State Stripping
 
-	Function PrepareForStripping(Actor akActorRef, Bool[] abSlotOverrideList, String asExceptionList = "")
-	;/analyses items worn by akActorRef and puts them into arrays for the actual
+	Function PrepareForStripping(Actor akActor, Bool[] abSlotOverrideList, String asExceptionList = "")
+	;/analyses items worn by akActor and puts them into arrays for the actual
 		stripping function to use.
-	akActorRef: actor to prepare
+	akActor: actor to prepare
 	asExceptionList: name of the StorageUtil array holding items that will NOT be stripped
 	abSlotOverrideList: a 33-item-long array which defaults to False. Set any item [i] to True to override the user configuration
 		for slot i+30 and force-strip it.
 	/;
 
 		;/ beginValidation /;
-		If (!akActorRef || abSlotOverrideList.Length != 33)
+		If (!akActor || abSlotOverrideList.Length != 33)
 			Return
 		EndIf
 		;/ endValidation /;
 
 		;clear all the arrays before filling them
-		FormListClear(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_R)
-		FormListClear(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_L)
-		FormListClear(akActorRef, SS_STRIPLIST_GLOVES)
-		FormListClear(akActorRef, SS_STRIPLIST_HELMET)
-		FormListClear(akActorRef, SS_STRIPLIST_BOOTS)
-		FormListClear(akActorRef, SS_STRIPLIST_CHESTPIECE)
-		FormListClear(akActorRef, SS_STRIPLIST_NECKLACE)
-		FormListClear(akActorRef, SS_STRIPLIST_CIRCLET)
-		FormListClear(akActorRef, SS_STRIPLIST_RING)
-		FormListClear(akActorRef, SS_STRIPLIST_BRA)
-		FormListClear(akActorRef, SS_STRIPLIST_PANTIES)
-		FormListClear(akActorRef, SS_STRIPLIST_OTHER)
+		FormListClear(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R)
+		FormListClear(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L)
+		FormListClear(akActor, SS_STRIPLIST_GLOVES)
+		FormListClear(akActor, SS_STRIPLIST_HELMET)
+		FormListClear(akActor, SS_STRIPLIST_BOOTS)
+		FormListClear(akActor, SS_STRIPLIST_CHESTPIECE)
+		FormListClear(akActor, SS_STRIPLIST_NECKLACE)
+		FormListClear(akActor, SS_STRIPLIST_CIRCLET)
+		FormListClear(akActor, SS_STRIPLIST_RING)
+		FormListClear(akActor, SS_STRIPLIST_BRA)
+		FormListClear(akActor, SS_STRIPLIST_PANTIES)
+		FormListClear(akActor, SS_STRIPLIST_OTHER)
 
 		Bool[] bArrayIsActive = new Bool[12]
 		;/Activates or deactivates (and clears) the stripping arrays
@@ -332,7 +336,7 @@ State Stripping
 		Bool[] bUserConfigSlots = new Bool[33] ;declares an array to hold the user's configuration
 
 		If (IsSexLabInstalled)
-			Int iGender = (GetFormValue(Self, SS_SEXLAB) As SexLabFramework).GetGender(akActorRef) ;fetches the gender of the actor
+			Int iGender = (GetFormValue(Self, SS_SEXLAB) As SexLabFramework).GetGender(akActor) ;fetches the gender of the actor
 
 			If (iGender == 0) ;if the actor is male
 				bUserConfigSlots = (GetFormValue(Self, SS_SEXLAB) As SexLabFramework).Config.GetStrip(IsFemale = False) ;fetch the user's MCM stripping configuration for males
@@ -348,41 +352,41 @@ State Stripping
 		;In SexLab's StripFemale and StripMale arrays, weapon is item 32 & shield is item 9. Add 30 to find the slot mask.
 		;weapons and shields employ a different logic than the other items
 
-		If (akActorRef.GetEquippedItemType(1) && \
-		akActorRef.GetEquippedItemType(1) != 5 && \
-		akActorRef.GetEquippedItemType(1) != 6 && \
-		akActorRef.GetEquippedItemType(1) != 7 && \
-		akActorRef.GetEquippedItemType(1) != 8 && \
-		akActorRef.GetEquippedItemType(1) != 9 && \
-		akActorRef.GetEquippedItemType(1) != 12) ;if there is a weapon in the right hand but it's not a two-handed one, then we also need to check the left hand
+		If (akActor.GetEquippedItemType(1) && \
+		akActor.GetEquippedItemType(1) != 5 && \
+		akActor.GetEquippedItemType(1) != 6 && \
+		akActor.GetEquippedItemType(1) != 7 && \
+		akActor.GetEquippedItemType(1) != 8 && \
+		akActor.GetEquippedItemType(1) != 9 && \
+		akActor.GetEquippedItemType(1) != 12) ;if there is a weapon in the right hand but it's not a two-handed one, then we also need to check the left hand
 
-			If (akActorRef.GetEquippedItemType(0) == 10) ;if the left hand is holding a shield
-				Form kItemRef = akActorRef.GetEquippedShield()
+			If (akActor.GetEquippedItemType(0) == 10) ;if the left hand is holding a shield
+				Form kItemRef = akActor.GetEquippedShield()
 
 				If ((FormListFind(Self, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
 					If (IsStrippableItem(kItemRef) == True && IsValidSlot(39, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
-						FormListAdd(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
+						FormListAdd(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
 						bArrayIsActive[1] = True ;activate the WeaponsAndShieldsL array
 					EndIf
 				EndIf
-			ElseIf (akActorRef.GetEquippedItemType(0) && akActorRef.GetEquippedItemType(0) != 9) ;if there is a weapon in the left hand (i.e. not just fists or a spell)
-				Form kItemRef = akActorRef.GetEquippedWeapon(True) ;fetches left-hand weapon and puts it in kItemRef
+			ElseIf (akActor.GetEquippedItemType(0) && akActor.GetEquippedItemType(0) != 9) ;if there is a weapon in the left hand (i.e. not just fists or a spell)
+				Form kItemRef = akActor.GetEquippedWeapon(True) ;fetches left-hand weapon and puts it in kItemRef
 
 				If ((FormListFind(Self, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
 					If (IsStrippableItem(kItemRef) == True && IsValidSlot(62, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
-						FormListAdd(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
+						FormListAdd(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
 						bArrayIsActive[1] = True ;activate the WeaponsAndShieldsL array
 					EndIf
 				EndIf
 			EndIf
 		EndIf
 
-		If (akActorRef.GetEquippedItemType(1) && akActorRef.GetEquippedItemType(1) != 9) ;if there is a weapon in the right hand (i.e. not just fists or a spell)
-			Form kItemRef = akActorRef.GetEquippedWeapon(False) ;fetches right-hand weapon and puts it in kItemRef
+		If (akActor.GetEquippedItemType(1) && akActor.GetEquippedItemType(1) != 9) ;if there is a weapon in the right hand (i.e. not just fists or a spell)
+			Form kItemRef = akActor.GetEquippedWeapon(False) ;fetches right-hand weapon and puts it in kItemRef
 
 			If ((FormListFind(Self, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
 				If (IsStrippableItem(kItemRef) == True && IsValidSlot(62, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
-					FormListAdd(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_R, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
+					FormListAdd(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
 					bArrayIsActive[0] = True ;activate the WeaponsAndShieldsR array
 				EndIf
 			EndIf
@@ -394,61 +398,61 @@ State Stripping
 		Int i = 30 ;sets i to 30
 
 		While (i <= 61) ;run this loop up to and including node 61 (http://www.creationkit.com/Biped_Object)
-			Form kItemRef = akActorRef.GetWornForm(Armor.GetMaskForSlot(i)) ;fetch the item worn in this slot and load it in the kItemRef variable
+			Form kItemRef = akActor.GetWornForm(Armor.GetMaskForSlot(i)) ;fetch the item worn in this slot and load it in the kItemRef variable
 
 			If (kItemRef && FormListFind(Self, asExceptionList, kItemRef) == -1) ;if there is an item in this slot and it is not found in the exception array
 
 				If (i == 33) || (ItemHasKeywords(kItemRef, SS_KW_GLOVES)) ;if this item is in the gloves slot OR has any of the gloves keywords
-					FormListAdd(akActorRef, SS_STRIPLIST_GLOVES, kItemRef, allowDuplicate = False);adds this item to the gloves undress list
-					Debug.Trace("[SerialStrip] Gloves detected: " + kItemRef)
+					FormListAdd(akActor, SS_STRIPLIST_GLOVES, kItemRef, allowDuplicate = False);adds this item to the gloves undress list
+					Debug.Trace("[SerialStrip] Gloves detected: " + kItemRef + " on actor: " + akActor)
 				ElseIf (i == 31) || (ItemHasKeywords(kItemRef, SS_KW_HELMET)) ;if this item is in the hair slot OR has any of the helmet keywords
-					FormListAdd(akActorRef, SS_STRIPLIST_HELMET, kItemRef, allowDuplicate = False) ;adds this item to the helmet undress list
-					Debug.Trace("[SerialStrip] Helmet detected: " + kItemRef)
+					FormListAdd(akActor, SS_STRIPLIST_HELMET, kItemRef, allowDuplicate = False) ;adds this item to the helmet undress list
+					Debug.Trace("[SerialStrip] Helmet detected: " + kItemRef + " on actor: " + akActor)
 				ElseIf (i == 37) || (ItemHasKeywords(kItemRef, SS_KW_BOOTS)) ;if this item is in the boots slot OR has any of the boots keywords
-					FormListAdd(akActorRef, SS_STRIPLIST_BOOTS, kItemRef, allowDuplicate = False) ;adds this item to the boots undress list
-					Debug.Trace("[SerialStrip] Boots detected: " + kItemRef)
+					FormListAdd(akActor, SS_STRIPLIST_BOOTS, kItemRef, allowDuplicate = False) ;adds this item to the boots undress list
+					Debug.Trace("[SerialStrip] Boots detected: " + kItemRef + " on actor: " + akActor)
 				ElseIf ((i == 32 || ItemHasKeywords(kItemRef, SS_KW_CHESTPIECE)) && i != 56 && i != 52) ;if this item is in the chestpiece slot OR has any of the chestpiece keywords and if it is not in the bra or panties slot (because underwear items may have chestpiece keywords)
-					FormListAdd(akActorRef, SS_STRIPLIST_CHESTPIECE, kItemRef, allowDuplicate = False) ;adds this item to the chestpiece undress list
-					Debug.Trace("[SerialStrip] Chestpiece detected: " + kItemRef)
+					FormListAdd(akActor, SS_STRIPLIST_CHESTPIECE, kItemRef, allowDuplicate = False) ;adds this item to the chestpiece undress list
+					Debug.Trace("[SerialStrip] Chestpiece detected: " + kItemRef + " on actor: " + akActor)
 				ElseIf (i == 35) || (ItemHasKeywords(kItemRef, SS_KW_NECKLACE)) ;if this item is in the necklace slot OR has any of the necklace keywords
-					FormListAdd(akActorRef, SS_STRIPLIST_NECKLACE, kItemRef, allowDuplicate = False) ;adds this item to the necklace undress list
-					Debug.Trace("[SerialStrip] Necklace detected: " + kItemRef)
+					FormListAdd(akActor, SS_STRIPLIST_NECKLACE, kItemRef, allowDuplicate = False) ;adds this item to the necklace undress list
+					Debug.Trace("[SerialStrip] Necklace detected: " + kItemRef + " on actor: " + akActor)
 				ElseIf (i == 42) || (ItemHasKeywords(kItemRef, SS_KW_CIRCLET)) ;if this item is in the circlet slot OR has any of the circlet keywords
-					FormListAdd(akActorRef, SS_STRIPLIST_CIRCLET, kItemRef, allowDuplicate = False) ;adds this item to the circlet undress list
-					Debug.Trace("[SerialStrip] Circlet detected: " + kItemRef)
+					FormListAdd(akActor, SS_STRIPLIST_CIRCLET, kItemRef, allowDuplicate = False) ;adds this item to the circlet undress list
+					Debug.Trace("[SerialStrip] Circlet detected: " + kItemRef + " on actor: " + akActor)
 				ElseIf (i == 36) || (ItemHasKeywords(kItemRef, SS_KW_RING)) ;if this item is in the ring slot OR has any of the ring keywords
-					FormListAdd(akActorRef, SS_STRIPLIST_RING, kItemRef, allowDuplicate = False) ;adds this item to the ring undress list
-					Debug.Trace("[SerialStrip] Ring detected: " + kItemRef)
+					FormListAdd(akActor, SS_STRIPLIST_RING, kItemRef, allowDuplicate = False) ;adds this item to the ring undress list
+					Debug.Trace("[SerialStrip] Ring detected: " + kItemRef + " on actor: " + akActor)
 				ElseIf (i == 56) || (ItemHasKeywords(kItemRef, SS_KW_BRA)) ;if this item is in the bra slot OR has any of the bra keywords
-					FormListAdd(akActorRef, SS_STRIPLIST_BRA, kItemRef, allowDuplicate = False) ;adds this item to the bra undress list
-					Debug.Trace("[SerialStrip] Bra detected: " + kItemRef)
+					FormListAdd(akActor, SS_STRIPLIST_BRA, kItemRef, allowDuplicate = False) ;adds this item to the bra undress list
+					Debug.Trace("[SerialStrip] Bra detected: " + kItemRef + " on actor: " + akActor)
 				ElseIf (i == 52) || (ItemHasKeywords(kItemRef, SS_KW_PANTIES)) ;if this item is in the panties slot OR has any of the panties keywords
-					FormListAdd(akActorRef, SS_STRIPLIST_PANTIES, kItemRef, allowDuplicate = False) ;adds this item to the panties undress list
-					Debug.Trace("[SerialStrip] Panties detected: " + kItemRef)
+					FormListAdd(akActor, SS_STRIPLIST_PANTIES, kItemRef, allowDuplicate = False) ;adds this item to the panties undress list
+					Debug.Trace("[SerialStrip] Panties detected: " + kItemRef + " on actor: " + akActor)
 				EndIf
 
 				If (IsStrippableItem(kItemRef) == True) ;if this item is strippable according to us or SexLab
 					If (IsValidSlot(i, bUserConfigSlots, abSlotOverrideList)) ;if either the modder or the user have configured this slot to be strippable
-						If ((i == 33) || FormListFind(akActorRef, SS_STRIPLIST_GLOVES, kItemRef) != -1) ;if this is the gloves slot OR we already know the item has one of the gloves keywords
+						If ((i == 33) || FormListFind(akActor, SS_STRIPLIST_GLOVES, kItemRef) != -1) ;if this is the gloves slot OR we already know the item has one of the gloves keywords
 							bArrayIsActive[2] = True ;activate the gloves stripping array
-						ElseIf ((i == 31) || FormListFind(akActorRef, SS_STRIPLIST_HELMET, kItemRef) != -1) ;if this is the hair slot (checking for helmets) OR we already know the item has one of the helmet keywords
+						ElseIf ((i == 31) || FormListFind(akActor, SS_STRIPLIST_HELMET, kItemRef) != -1) ;if this is the hair slot (checking for helmets) OR we already know the item has one of the helmet keywords
 							bArrayIsActive[3] = True ;activate the helmet stripping array
-						ElseIf ((i == 37) || FormListFind(akActorRef, SS_STRIPLIST_BOOTS, kItemRef) != -1) ;if this is the boots slot OR we already know the item has one of the boots keywords
+						ElseIf ((i == 37) || FormListFind(akActor, SS_STRIPLIST_BOOTS, kItemRef) != -1) ;if this is the boots slot OR we already know the item has one of the boots keywords
 							bArrayIsActive[4] = True ;activate the boots stripping array
-						ElseIf ((i == 32) || FormListFind(akActorRef, SS_STRIPLIST_CHESTPIECE, kItemRef) != -1) ;if this is the chestpiece slot OR we already know the item has one of the chestpiece keywords (we have already excluded underwear from this array)
+						ElseIf ((i == 32) || FormListFind(akActor, SS_STRIPLIST_CHESTPIECE, kItemRef) != -1) ;if this is the chestpiece slot OR we already know the item has one of the chestpiece keywords (we have already excluded underwear from this array)
 							bArrayIsActive[5] = True ;activate the chestpiece stripping array
-						ElseIf ((i == 35) || FormListFind(akActorRef, SS_STRIPLIST_NECKLACE, kItemRef) != -1) ;if this is the necklace slot OR we already know the item has one of the necklace keywords
+						ElseIf ((i == 35) || FormListFind(akActor, SS_STRIPLIST_NECKLACE, kItemRef) != -1) ;if this is the necklace slot OR we already know the item has one of the necklace keywords
 							bArrayIsActive[6] = True ;activate the necklace stripping array
-						ElseIf ((i == 42) || FormListFind(akActorRef, SS_STRIPLIST_CIRCLET, kItemRef) != -1) ;if this is the circlet slot OR we already know the item has one of the circlet keywords
+						ElseIf ((i == 42) || FormListFind(akActor, SS_STRIPLIST_CIRCLET, kItemRef) != -1) ;if this is the circlet slot OR we already know the item has one of the circlet keywords
 							bArrayIsActive[7] = True ;activate the circlet stripping array
-						ElseIf ((i == 36) || FormListFind(akActorRef, SS_STRIPLIST_RING, kItemRef) != -1) ;if this is the ring slot OR we already know the item has one of the ring keywords
+						ElseIf ((i == 36) || FormListFind(akActor, SS_STRIPLIST_RING, kItemRef) != -1) ;if this is the ring slot OR we already know the item has one of the ring keywords
 							bArrayIsActive[8] = True ;activate the ring stripping array
-						ElseIf ((i == 56) || FormListFind(akActorRef, SS_STRIPLIST_BRA, kItemRef) != -1) ;if this is the bra slot OR we already know the item has one of the bra keywords
+						ElseIf ((i == 56) || FormListFind(akActor, SS_STRIPLIST_BRA, kItemRef) != -1) ;if this is the bra slot OR we already know the item has one of the bra keywords
 							bArrayIsActive[9] = True ;activate the bra stripping array
-						ElseIf ((i == 52) || FormListFind(akActorRef, SS_STRIPLIST_PANTIES, kItemRef) != -1) ;if this is the panties slot OR we already know the item has one of the panties keywords
+						ElseIf ((i == 52) || FormListFind(akActor, SS_STRIPLIST_PANTIES, kItemRef) != -1) ;if this is the panties slot OR we already know the item has one of the panties keywords
 							bArrayIsActive[10] = True ;activate the panties stripping array
 						Else
-							FormListAdd(akActorRef, SS_STRIPLIST_OTHER, kItemRef, allowDuplicate = False) ;adds this item to the "other" undress list
+							FormListAdd(akActor, SS_STRIPLIST_OTHER, kItemRef, allowDuplicate = False) ;adds this item to the "other" undress list
 							bArrayIsActive[11] = True ;activate the "other" stripping array
 						EndIf
 					EndIf
@@ -458,44 +462,44 @@ State Stripping
 		EndWhile
 
 		;clears the arrays if they are not active (i.e. there's nothing strippable in them)
-		ClearIfInactive(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_R, bArrayIsActive[0])
-		ClearIfInactive(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_L, bArrayIsActive[1])
-		ClearIfInactive(akActorRef, SS_STRIPLIST_GLOVES, bArrayIsActive[2])
-		ClearIfInactive(akActorRef, SS_STRIPLIST_HELMET, bArrayIsActive[3])
-		ClearIfInactive(akActorRef, SS_STRIPLIST_BOOTS, bArrayIsActive[4])
-		ClearIfInactive(akActorRef, SS_STRIPLIST_CHESTPIECE, bArrayIsActive[5])
-		ClearIfInactive(akActorRef, SS_STRIPLIST_NECKLACE, bArrayIsActive[6])
-		ClearIfInactive(akActorRef, SS_STRIPLIST_CIRCLET, bArrayIsActive[7])
-		ClearIfInactive(akActorRef, SS_STRIPLIST_RING, bArrayIsActive[8])
-		ClearIfInactive(akActorRef, SS_STRIPLIST_BRA, bArrayIsActive[9])
-		ClearIfInactive(akActorRef, SS_STRIPLIST_PANTIES, bArrayIsActive[10])
-		ClearIfInactive(akActorRef, SS_STRIPLIST_OTHER, bArrayIsActive[11])
+		ClearIfInactive(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R, bArrayIsActive[0])
+		ClearIfInactive(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L, bArrayIsActive[1])
+		ClearIfInactive(akActor, SS_STRIPLIST_GLOVES, bArrayIsActive[2])
+		ClearIfInactive(akActor, SS_STRIPLIST_HELMET, bArrayIsActive[3])
+		ClearIfInactive(akActor, SS_STRIPLIST_BOOTS, bArrayIsActive[4])
+		ClearIfInactive(akActor, SS_STRIPLIST_CHESTPIECE, bArrayIsActive[5])
+		ClearIfInactive(akActor, SS_STRIPLIST_NECKLACE, bArrayIsActive[6])
+		ClearIfInactive(akActor, SS_STRIPLIST_CIRCLET, bArrayIsActive[7])
+		ClearIfInactive(akActor, SS_STRIPLIST_RING, bArrayIsActive[8])
+		ClearIfInactive(akActor, SS_STRIPLIST_BRA, bArrayIsActive[9])
+		ClearIfInactive(akActor, SS_STRIPLIST_PANTIES, bArrayIsActive[10])
+		ClearIfInactive(akActor, SS_STRIPLIST_OTHER, bArrayIsActive[11])
 
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_WEAPONSANDSHIELDS_R + " contains " + FormListCount(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_R) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_WEAPONSANDSHIELDS_L + " contains " + FormListCount(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_L) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_GLOVES + " contains " + FormListCount(akActorRef, SS_STRIPLIST_GLOVES) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_HELMET + " contains " + FormListCount(akActorRef, SS_STRIPLIST_HELMET) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_BOOTS + " contains " + FormListCount(akActorRef, SS_STRIPLIST_BOOTS) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_CHESTPIECE + " contains " + FormListCount(akActorRef, SS_STRIPLIST_CHESTPIECE) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_NECKLACE + " contains " + FormListCount(akActorRef, SS_STRIPLIST_NECKLACE) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_CIRCLET + " contains " + FormListCount(akActorRef, SS_STRIPLIST_CIRCLET) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_RING + " contains " + FormListCount(akActorRef, SS_STRIPLIST_RING) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_BRA + " contains " + FormListCount(akActorRef, SS_STRIPLIST_BRA) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_PANTIES + " contains " + FormListCount(akActorRef, SS_STRIPLIST_PANTIES) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_OTHER + " contains " + FormListCount(akActorRef, SS_STRIPLIST_OTHER) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_WEAPONSANDSHIELDS_R + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_WEAPONSANDSHIELDS_L + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_GLOVES + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_GLOVES) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_HELMET + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_HELMET) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_BOOTS + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_BOOTS) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_CHESTPIECE + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_CHESTPIECE) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_NECKLACE + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_NECKLACE) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_CIRCLET + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_CIRCLET) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_RING + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_RING) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_BRA + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_BRA) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_PANTIES + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_PANTIES) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_OTHER + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_OTHER) + " elements.")
 	EndFunction
 
-	Function ClearIfInactive(Actor akActorRef, String asArrayName, Bool abIsArrayActive)
-	;clears the asArrayName array on akActorRef, depending on whether abIsArrayActive
+	Function ClearIfInactive(Actor akActor, String asArrayName, Bool abIsArrayActive)
+	;clears the asArrayName array on akActor, depending on whether abIsArrayActive
 		;/ beginValidation /;
-		If (!akActorRef || asArrayName == "")
+		If (!akActor || asArrayName == "")
 			Return
 		EndIf
 		;/ endValidation /;
 
 		If (!abIsArrayActive) ;if the array is not active
-			FormListClear(akActorRef, asArrayName) ;clear the array by the name asArrayName on akActorRef
-			Debug.Trace("[SerialStrip] " + asArrayName + " cleared")
+			FormListClear(akActor, asArrayName) ;clear the array by the name asArrayName on akActor
+			Debug.Trace("[SerialStrip] " + asArrayName + " on actor " + akActor + " cleared.")
 		EndIf
 	EndFunction
 
@@ -575,21 +579,21 @@ State Stripping
 		EndIf
 	EndFunction
 
-	Function SerialStrip()
+	Function SerialStrip(Actor akActor, Bool abFullStrip)
 	;makes the actor strip one item/group of clothing (one array) and then strip the next one and so on. To be used for button taps.
 
 		;fetching all item counts once and storing them so we don't do this over and over again
-		Int WeaponsAndShieldsRCount = FormListCount(PlayerRef, SS_STRIPLIST_WEAPONSANDSHIELDS_R)
-		Int WeaponsAndShieldsLCount = FormListCount(PlayerRef, SS_STRIPLIST_WEAPONSANDSHIELDS_L)
-		Int GlovesCount = FormListCount(PlayerRef, SS_STRIPLIST_GLOVES)
-		Int BootsCount = FormListCount(PlayerRef, SS_STRIPLIST_BOOTS)
-		Int ChestpieceCount = FormListCount(PlayerRef, SS_STRIPLIST_CHESTPIECE)
-		Int NecklaceCount =  FormListCount(PlayerRef, SS_STRIPLIST_NECKLACE)
-		Int CircletCount = FormListCount(PlayerRef, SS_STRIPLIST_CIRCLET)
-		Int RingCount = FormListCount(PlayerRef, SS_STRIPLIST_RING)
-		Int BraCount = FormListCount(PlayerRef, SS_STRIPLIST_BRA)
-		Int PantiesCount = FormListCount(PlayerRef, SS_STRIPLIST_PANTIES)
-		Int OtherCount = FormListCount(PlayerRef, SS_STRIPLIST_OTHER)
+		Int WeaponsAndShieldsRCount = FormListCount(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R)
+		Int WeaponsAndShieldsLCount = FormListCount(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L)
+		Int GlovesCount = FormListCount(akActor, SS_STRIPLIST_GLOVES)
+		Int BootsCount = FormListCount(akActor, SS_STRIPLIST_BOOTS)
+		Int ChestpieceCount = FormListCount(akActor, SS_STRIPLIST_CHESTPIECE)
+		Int NecklaceCount =  FormListCount(akActor, SS_STRIPLIST_NECKLACE)
+		Int CircletCount = FormListCount(akActor, SS_STRIPLIST_CIRCLET)
+		Int RingCount = FormListCount(akActor, SS_STRIPLIST_RING)
+		Int BraCount = FormListCount(akActor, SS_STRIPLIST_BRA)
+		Int PantiesCount = FormListCount(akActor, SS_STRIPLIST_PANTIES)
+		Int OtherCount = FormListCount(akActor, SS_STRIPLIST_OTHER)
 
 		;if nothing to strip, return now
 		If (WeaponsAndShieldsRCount + \
@@ -604,20 +608,25 @@ State Stripping
 			PantiesCount + \
 			OtherCount == 0)
 
-			Game.SetPlayerAIDriven(False) ;give control back to the player
-			UnRegisterForAnimationEvent(PlayerRef, "IdleStop")
+			If (akActor == PlayerRef)
+				Game.SetPlayerAIDriven(False) ;give control back to the player
+			EndIf
+
+			UnRegisterForAnimationEvent(akActor, "IdleStop")
 			GoToState("")
 			SendSerialStripStopEvent()
 			Return
 		EndIf
 
-		Game.ForceThirdPerson() ;force third person camera mode
-		Game.SetPlayerAIDriven(True) ;instead of DisablePlayerControls(True)
+		If (akActor == PlayerRef)
+			Game.ForceThirdPerson() ;force third person camera mode
+			Game.SetPlayerAIDriven(True) ;instead of DisablePlayerControls(True)
+		EndIf
 
-		If (PlayerRef.IsWeaponDrawn()) ;if the player has their weapon drawn
+		If (akActor.IsWeaponDrawn()) ;if the actor has their weapon drawn
 			bIsSheathing = True
-			PlayerRef.SheatheWeapon() ;make the player sheath their weapon
-			RegisterForAnimationEvent(PlayerRef, "IdleStop") ;listening for when the player stops sheathing to continue
+			akActor.SheatheWeapon() ;make the actor sheath their weapon
+			RegisterForAnimationEvent(akActor, "IdleStop") ;listening for when the actor stops sheathing to continue
 			Return
 		Else
 			bIsSheathing = False
@@ -679,12 +688,12 @@ State Stripping
 		EndIf
 	EndFunction
 
-	Bool Function HasClothingItems(Actor akActorRef, String asArrayName)
-		Int itemCount = FormListCount(akActorRef, asArrayName)
+	Bool Function HasClothingItems(Actor akActor, String asArrayName)
+		Int itemCount = FormListCount(akActor, asArrayName)
 		Int i
 
 		While (i < itemCount)
-			Armor kItemRef = FormListGet(akActorRef, asArrayName, i) as Armor
+			Armor kItemRef = FormListGet(akActor, asArrayName, i) as Armor
 			If (kItemRef.IsClothing())
 				Return True
 			Else
@@ -695,51 +704,50 @@ State Stripping
 		Return False
 	EndFunction
 
-	Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, Idle akAnimation = None, Bool abDontStop = False)
-	;makes the player animate the stripping animation for a single group of clothing, then strips it
+	Function SingleArrayAnimThenStrip(Actor akActor, String asStripArray, String asStrippedArray, Idle akAnimation = None, Bool abDontStop = False)
+	;makes the actor animate the stripping animation for a single group of clothing, then strips it
 
-		kCurrentActor = PlayerRef ;sets the currently stripping actor to be the player
 		sCurrentStripArray = asStripArray ;sets the currently stripping array to be asStripArray
 		sCurrentStrippedArray = asStrippedArray ;sets the array currently holding the stripped items to be asStrippedArray
 
 		If (akAnimation) ;if the function has been given an animation to play
-			PlayerRef.PlayIdle(akAnimation) ;makes the player play the stripping animation
-			RegisterForAnimationEvent(PlayerRef, "IdleStop")
+			akActor.PlayIdle(akAnimation) ;makes the actor play the stripping animation
+			RegisterForAnimationEvent(akActor, "IdleStop")
 		Else
-			SingleArrayStrip(PlayerRef, sCurrentStripArray, sCurrentStrippedArray, abDontStop) ;go directly to stripping the array without animation
+			SingleArrayStrip(akActor, sCurrentStripArray, sCurrentStrippedArray, abDontStop) ;go directly to stripping the array without animation
 
 			If (bFullSerialStripSwitch)
-				SerialStrip()
+				SerialStrip(akActor, abFullStrip)
 			EndIf
 		EndIf
 	EndFunction
 
-	Function SingleArrayStrip(Actor akActorRef, String asStripArray, String asStrippedArray, Bool abDontStop = False)
+	Function SingleArrayStrip(Actor akActor, String asStripArray, String asStrippedArray, Bool abDontStop = False)
 	;makes the player strip a single group of clothing
 
 		;/ beginValidation /;
-		If (!akActorRef)
+		If (!akActor)
 			Return
 		EndIf
 		;/ endValidation /;
 
-		FormListClear(akActorRef, asStrippedArray) ;clears the array that will store the stripped items before refilling it
+		FormListClear(akActor, asStrippedArray) ;clears the array that will store the stripped items before refilling it
 
-		Int i = FormListCount(akActorRef, asStripArray) - 1 ;sets i equal to the length of the array (-1 because FormListCount's result is 1-based while the array is 0 based)
+		Int i = FormListCount(akActor, asStripArray) - 1 ;sets i equal to the length of the array (-1 because FormListCount's result is 1-based while the array is 0 based)
 
 		While (i >= 0) ;sets the loop to run up to and including position zero in the array (backwards)
 
-			Form kItemRef = FormListGet(akActorRef, asStripArray, i) ;fetches the item stored in i position in the array
+			Form kItemRef = FormListGet(akActor, asStripArray, i) ;fetches the item stored in i position in the array
 
 			If (kItemRef) ;if this is an actual item, i.e. the array has not been cleared
-				akActorRef.UnequipItem(kItemRef) ;unequips this item
-				FormListAdd(akActorRef, asStrippedArray, kItemRef) ;adds the item to this array
+				akActor.UnequipItem(kItemRef) ;unequips this item
+				FormListAdd(akActor, asStrippedArray, kItemRef) ;adds the item to this array
 			EndIf
 
 			i -= 1 ;go to the next item in the array (backwards)
 		EndWhile
 
-		FormListClear(akActorRef, asStripArray) ;clears the array
+		FormListClear(akActor, asStripArray) ;clears the array
 
 		If (!bFullSerialStripSwitch && !abDontStop) ;if this is a single array strip and we have not been instructed to continue
 			Game.SetPlayerAIDriven(False) ;give control back to the player
