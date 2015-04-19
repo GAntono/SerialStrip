@@ -271,13 +271,13 @@ EndFunction
 Bool Function IsValidSlot(Int aiSlot, Bool[] abIsUserConfigStrippable, Bool[] abIsSlotOverride)
 EndFunction
 
-Function SerialStrip(Actor akActor, Bool abFullStrip)
+Function SerialStrip(Actor akActor)
 EndFunction
 
 Bool Function HasClothingItems(Actor akActor, String asArrayName)
 EndFunction
 
-Function SingleArrayAnimThenStrip(String asStripArray, String asStrippedArray, Idle akAnimation = None, Bool abDontStop = False)
+Function SingleArrayAnimThenStrip(Actor akActor, String asStripArray, String asStrippedArray, Idle akAnimation = None, Bool abDontStop = False)
 EndFunction
 
 Function SingleArrayStrip(Actor akActor, String asStripArray, String asStrippedArray, Bool abDontStop = False)
@@ -637,54 +637,54 @@ State Stripping
 
 			;until we have special weapons stripping animation, this is being deprecated later on in SingleArrayAnimThenStrip()
 			If (WeaponsAndShieldsRCount == 0) ;if the right hand array is empty i.e. the left is not empty
-				SingleArrayAnimThenStrip(SS_STRIPLIST_WEAPONSANDSHIELDS_L, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_L, WeaponsAndShieldsAnim) ;run the function to play the appropriate animation
+				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_L, WeaponsAndShieldsAnim) ;run the function to play the appropriate animation
 			ElseIf (WeaponsAndShieldsLCount == 0) ;if the left hand array is empty i.e. the right is not empty
-				SingleArrayAnimThenStrip(SS_STRIPLIST_WEAPONSANDSHIELDS_R, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, WeaponsAndShieldsAnim) ;run the function to play the appropriate animation
+				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, WeaponsAndShieldsAnim) ;run the function to play the appropriate animation
 			Else ;if both right and left hand arrays are not empty
-				SingleArrayAnimThenStrip(SS_STRIPLIST_WEAPONSANDSHIELDS_R, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, WeaponsAndShieldsAnim, abDontStop = True) ;run the function to play the appropriate animation and continue to strip the left hand too
-				SingleArrayAnimThenStrip(SS_STRIPLIST_WEAPONSANDSHIELDS_L, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_L) ;run the function to just strip the left hand without playing an animation
+				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, WeaponsAndShieldsAnim, abDontStop = True) ;run the function to play the appropriate animation and continue to strip the left hand too
+				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_L) ;run the function to just strip the left hand without playing an animation
 			EndIf
 		;ARMOR
 		ElseIf (GlovesCount > 0)
 			If (!RingCount) ;if there are no rings equipped, remove gloves
 				If (HasClothingItems(PlayerRef, SS_STRIPLIST_GLOVES))
-					SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, GetFormValue(Self, SS_ANIM_CLOTHGLOVES) as Idle)
+					SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, GetFormValue(Self, SS_ANIM_CLOTHGLOVES) as Idle)
 				Else
-					SingleArrayAnimThenStrip(SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, GetFormValue(Self, SS_ANIM_ARMORGLOVES) as Idle) ;run the function to play the appropriate animation
+					SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, GetFormValue(Self, SS_ANIM_ARMORGLOVES) as Idle) ;run the function to play the appropriate animation
 				EndIf
 			Else ;if there are rings equipped, remove them first because in Skyrim they are worn over the gloves
-				SingleArrayAnimThenStrip(SS_STRIPLIST_RING, SS_STRIPPEDLIST_RING, GetFormValue(Self, SS_ANIM_RING) as Idle) ;run the function to play the appropriate animation
+				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_RING, SS_STRIPPEDLIST_RING, GetFormValue(Self, SS_ANIM_RING) as Idle) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_HELMET) > 0)
 			If (HasClothingItems(PlayerRef, SS_STRIPLIST_HELMET))
-				SingleArrayAnimThenStrip(SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, GetFormValue(Self, SS_ANIM_CLOTHHOOD) as Idle)
+				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, GetFormValue(Self, SS_ANIM_CLOTHHOOD) as Idle)
 			Else
-				SingleArrayAnimThenStrip(SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, GetFormValue(Self, SS_ANIM_ARMORHELMET) as Idle) ;run the function to play the appropriate animation
+				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, GetFormValue(Self, SS_ANIM_ARMORHELMET) as Idle) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (BootsCount > 0)
 			If (HasClothingItems(PlayerRef, SS_STRIPLIST_BOOTS))
-				SingleArrayAnimThenStrip(SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, GetFormValue(Self, SS_ANIM_CLOTHBOOTS) as Idle)
+				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, GetFormValue(Self, SS_ANIM_CLOTHBOOTS) as Idle)
 			Else
-				SingleArrayAnimThenStrip(SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, GetFormValue(Self, SS_ANIM_ARMORBOOTS) as Idle) ;run the function to play the appropriate animation
+				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, GetFormValue(Self, SS_ANIM_ARMORBOOTS) as Idle) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (ChestpieceCount > 0)
 			If (HasClothingItems(PlayerRef, SS_STRIPLIST_CHESTPIECE))
-				SingleArrayAnimThenStrip(SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, GetFormValue(Self, SS_ANIM_CLOTHCHESTPIECE) as Idle)
+				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, GetFormValue(Self, SS_ANIM_CLOTHCHESTPIECE) as Idle)
 			Else
-				SingleArrayAnimThenStrip(SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, GetFormValue(Self, SS_ANIM_ARMORCHESTPIECE) as Idle) ;run the function to play the appropriate animation
+				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, GetFormValue(Self, SS_ANIM_ARMORCHESTPIECE) as Idle) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (NecklaceCount > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_NECKLACE, SS_STRIPPEDLIST_NECKLACE, GetFormValue(Self, SS_ANIM_NECKLACE) as Idle) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_NECKLACE, SS_STRIPPEDLIST_NECKLACE, GetFormValue(Self, SS_ANIM_NECKLACE) as Idle) ;run the function to play the appropriate animation
 		ElseIf (CircletCount > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_CIRCLET, SS_STRIPPEDLIST_CIRCLET, GetFormValue(Self, SS_ANIM_CLOTHCIRCLET) as Idle) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_CIRCLET, SS_STRIPPEDLIST_CIRCLET, GetFormValue(Self, SS_ANIM_CLOTHCIRCLET) as Idle) ;run the function to play the appropriate animation
 		ElseIf (RingCount > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_RING, SS_STRIPPEDLIST_RING, GetFormValue(Self, SS_ANIM_RING) as Idle) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_RING, SS_STRIPPEDLIST_RING, GetFormValue(Self, SS_ANIM_RING) as Idle) ;run the function to play the appropriate animation
 		ElseIf (BraCount > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_BRA, SS_STRIPPEDLIST_BRA, GetFormValue(Self, SS_ANIM_BRA) as Idle) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_BRA, SS_STRIPPEDLIST_BRA, GetFormValue(Self, SS_ANIM_BRA) as Idle) ;run the function to play the appropriate animation
 		ElseIf (PantiesCount > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_PANTIES, SS_STRIPPEDLIST_PANTIES, GetFormValue(Self, SS_ANIM_PANTIES) as Idle) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_PANTIES, SS_STRIPPEDLIST_PANTIES, GetFormValue(Self, SS_ANIM_PANTIES) as Idle) ;run the function to play the appropriate animation
 		ElseIf (OtherCount > 0)
-			SingleArrayAnimThenStrip(SS_STRIPLIST_OTHER, SS_STRIPPEDLIST_OTHER, OtherAnim) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_OTHER, SS_STRIPPEDLIST_OTHER, OtherAnim) ;run the function to play the appropriate animation
 		EndIf
 	EndFunction
 
@@ -767,7 +767,7 @@ State Stripping
 			Else
 				SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
 				Utility.Wait(GetFloatValue(None, "APPS.SerialStripper.WaitingTimeAfterAnim"))
-				SerialStrip()
+				SerialStrip(kCurrentActor)
 			EndIf
 		EndIf
 	EndEvent
