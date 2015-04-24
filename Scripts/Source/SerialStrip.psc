@@ -164,7 +164,7 @@ Function InitDefaultArrays()
 	StringListClear(Self, SS_KW_RING)
 	StringListClear(Self, SS_KW_BRA)
 	StringListClear(Self, SS_KW_PANTIES)
-	
+
 	StringListAdd(Self, SS_KW_HELMET, "Helmet")
 	StringListAdd(Self, SS_KW_HELMET, "Hood")
 	StringListAdd(Self, SS_KW_HELMET, "ArmorHelmet")
@@ -279,7 +279,19 @@ EndFunction
 Function SingleArrayStrip(Actor akActor, String asStripArray, String asStrippedArray, Bool abDontStop = False)
 EndFunction
 
-Function ClearStripLists(akActor)
+Function ClearStripLists(Actor akActor)
+	FormListClear(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R)
+	FormListClear(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L)
+	FormListClear(akActor, SS_STRIPLIST_GLOVES)
+	FormListClear(akActor, SS_STRIPLIST_HELMET)
+	FormListClear(akActor, SS_STRIPLIST_BOOTS)
+	FormListClear(akActor, SS_STRIPLIST_CHESTPIECE)
+	FormListClear(akActor, SS_STRIPLIST_NECKLACE)
+	FormListClear(akActor, SS_STRIPLIST_CIRCLET)
+	FormListClear(akActor, SS_STRIPLIST_RING)
+	FormListClear(akActor, SS_STRIPLIST_BRA)
+	FormListClear(akActor, SS_STRIPLIST_PANTIES)
+	FormListClear(akActor, SS_STRIPLIST_OTHER)
 EndFunction
 
 Event OnAnimationEvent(ObjectReference akSource, string asEventName)
@@ -741,7 +753,7 @@ State Stripping
 		EndIf
 	EndFunction
 
-	Function ClearStripLists(akActor)
+	Function ClearStripLists(Actor akActor)
 		FormListClear(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R)
 		FormListClear(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L)
 		FormListClear(akActor, SS_STRIPLIST_GLOVES)
@@ -770,26 +782,10 @@ State Stripping
 
 EndState
 
-Function ClearStripLists(akActor)
-	FormListClear(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R)
-	FormListClear(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L)
-	FormListClear(akActor, SS_STRIPLIST_GLOVES)
-	FormListClear(akActor, SS_STRIPLIST_HELMET)
-	FormListClear(akActor, SS_STRIPLIST_BOOTS)
-	FormListClear(akActor, SS_STRIPLIST_CHESTPIECE)
-	FormListClear(akActor, SS_STRIPLIST_NECKLACE)
-	FormListClear(akActor, SS_STRIPLIST_CIRCLET)
-	FormListClear(akActor, SS_STRIPLIST_RING)
-	FormListClear(akActor, SS_STRIPLIST_BRA)
-	FormListClear(akActor, SS_STRIPLIST_PANTIES)
-	FormListClear(akActor, SS_STRIPLIST_OTHER)
-EndFunction
-
-Function Uninstall()
+Bool Function Uninstall()
 	Debug.Trace("SerialStrip uninstalling")
-	Debug.Notification("SerialStrip uninstalling")
 	UnRegisterForModEvent("SerialStripStart")
-	
+
 	UnSetFormValue(Self, SS_ANIM_ARMORGLOVES)
 	UnSetFormValue(Self, SS_ANIM_CLOTHGLOVES)
 	UnSetFormValue(Self, SS_ANIM_ARMORHELMET)
@@ -803,7 +799,7 @@ Function Uninstall()
 	UnSetFormValue(Self, SS_ANIM_RING)
 	UnSetFormValue(Self, SS_ANIM_BRA)
 	UnSetFormValue(Self, SS_ANIM_PANTIES)
-	
+
 	StringListClear(Self, SS_KW_HELMET)
 	StringListClear(Self, SS_KW_GLOVES)
 	StringListClear(Self, SS_KW_BOOTS)
@@ -813,10 +809,26 @@ Function Uninstall()
 	StringListClear(Self, SS_KW_RING)
 	StringListClear(Self, SS_KW_BRA)
 	StringListClear(Self, SS_KW_PANTIES)
-	
+
 	UnSetFormValue(Self, SS_SEXLAB)
-	
+
 	ClearStripLists(PlayerRef)
+
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_R)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_L)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_GLOVES)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_HELMET)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_BOOTS)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_CHESTPIECE)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_NECKLACE)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_CIRCLET)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_RING)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_BRA)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_PANTIES)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_OTHER)
+	
+	Debug.Trace("SerialStrip uninstalled")
+	Return True
 EndFunction
 
 ;/ Animation Descriptions & Durations
