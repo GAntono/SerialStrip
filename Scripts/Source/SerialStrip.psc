@@ -205,7 +205,7 @@ Function GetSexLab()
 		SetFormValue(Self, SS_SEXLAB, SexLabUtil.GetAPI()) ;points to the SexLabFramework script so we can use its functions
 	Else
 		IsSexLabInstalled = False
-		UnSetFormValue(Self, SS_SEXLAB) ;points to the SexLabFramework script so we can use its functions
+		UnSetFormValue(Self, SS_SEXLAB)
 	EndIf
 
 	Debug.Trace("[SerialStrip] SexLab detected: " + IsSexLabInstalled)
@@ -279,6 +279,9 @@ EndFunction
 Function SingleArrayStrip(Actor akActorRef, String asStripArray, String asStrippedArray, Bool abDontStop = False)
 EndFunction
 
+Function ClearStripLists(akActorRef)
+EndFunction
+
 Event OnAnimationEvent(ObjectReference akSource, string asEventName)
 EndEvent
 
@@ -300,18 +303,7 @@ State Stripping
 		;/ endValidation /;
 
 		;clear all the arrays before filling them
-		FormListClear(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_R)
-		FormListClear(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_L)
-		FormListClear(akActorRef, SS_STRIPLIST_GLOVES)
-		FormListClear(akActorRef, SS_STRIPLIST_HELMET)
-		FormListClear(akActorRef, SS_STRIPLIST_BOOTS)
-		FormListClear(akActorRef, SS_STRIPLIST_CHESTPIECE)
-		FormListClear(akActorRef, SS_STRIPLIST_NECKLACE)
-		FormListClear(akActorRef, SS_STRIPLIST_CIRCLET)
-		FormListClear(akActorRef, SS_STRIPLIST_RING)
-		FormListClear(akActorRef, SS_STRIPLIST_BRA)
-		FormListClear(akActorRef, SS_STRIPLIST_PANTIES)
-		FormListClear(akActorRef, SS_STRIPLIST_OTHER)
+		ClearStripLists(akActorRef)
 
 		Bool[] bArrayIsActive = new Bool[12]
 		;/Activates or deactivates (and clears) the stripping arrays
@@ -749,6 +741,21 @@ State Stripping
 		EndIf
 	EndFunction
 
+	Function ClearStripLists(akActorRef)
+		FormListClear(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_R)
+		FormListClear(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_L)
+		FormListClear(akActorRef, SS_STRIPLIST_GLOVES)
+		FormListClear(akActorRef, SS_STRIPLIST_HELMET)
+		FormListClear(akActorRef, SS_STRIPLIST_BOOTS)
+		FormListClear(akActorRef, SS_STRIPLIST_CHESTPIECE)
+		FormListClear(akActorRef, SS_STRIPLIST_NECKLACE)
+		FormListClear(akActorRef, SS_STRIPLIST_CIRCLET)
+		FormListClear(akActorRef, SS_STRIPLIST_RING)
+		FormListClear(akActorRef, SS_STRIPLIST_BRA)
+		FormListClear(akActorRef, SS_STRIPLIST_PANTIES)
+		FormListClear(akActorRef, SS_STRIPLIST_OTHER)
+	EndFunction
+
 	Event OnAnimationEvent(ObjectReference akSource, string asEventName)
 		If (akSource == PlayerRef && asEventName == "IdleStop")
 			If (!bFullSerialStripSwitch && !bIsSheathing)
@@ -762,6 +769,55 @@ State Stripping
 	EndEvent
 
 EndState
+
+Function ClearStripLists(akActorRef)
+	FormListClear(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_R)
+	FormListClear(akActorRef, SS_STRIPLIST_WEAPONSANDSHIELDS_L)
+	FormListClear(akActorRef, SS_STRIPLIST_GLOVES)
+	FormListClear(akActorRef, SS_STRIPLIST_HELMET)
+	FormListClear(akActorRef, SS_STRIPLIST_BOOTS)
+	FormListClear(akActorRef, SS_STRIPLIST_CHESTPIECE)
+	FormListClear(akActorRef, SS_STRIPLIST_NECKLACE)
+	FormListClear(akActorRef, SS_STRIPLIST_CIRCLET)
+	FormListClear(akActorRef, SS_STRIPLIST_RING)
+	FormListClear(akActorRef, SS_STRIPLIST_BRA)
+	FormListClear(akActorRef, SS_STRIPLIST_PANTIES)
+	FormListClear(akActorRef, SS_STRIPLIST_OTHER)
+EndFunction
+
+Function Uninstall()
+	Debug.Trace("SerialStrip uninstalling")
+	Debug.Notification("SerialStrip uninstalling")
+	UnRegisterForModEvent("SerialStripStart")
+	
+	UnSetFormValue(Self, SS_ANIM_ARMORGLOVES)
+	UnSetFormValue(Self, SS_ANIM_CLOTHGLOVES)
+	UnSetFormValue(Self, SS_ANIM_ARMORHELMET)
+	UnSetFormValue(Self, SS_ANIM_CLOTHHOOD)
+	UnSetFormValue(Self, SS_ANIM_ARMORBOOTS)
+	UnSetFormValue(Self, SS_ANIM_CLOTHBOOTS)
+	UnSetFormValue(Self, SS_ANIM_ARMORCHESTPIECE)
+	UnSetFormValue(Self, SS_ANIM_CLOTHCHESTPIECE)
+	UnSetFormValue(Self, SS_ANIM_NECKLACE)
+	UnSetFormValue(Self, SS_ANIM_CLOTHCIRCLET)
+	UnSetFormValue(Self, SS_ANIM_RING)
+	UnSetFormValue(Self, SS_ANIM_BRA)
+	UnSetFormValue(Self, SS_ANIM_PANTIES)
+	
+	StringListClear(Self, SS_KW_HELMET)
+	StringListClear(Self, SS_KW_GLOVES)
+	StringListClear(Self, SS_KW_BOOTS)
+	StringListClear(Self, SS_KW_CHESTPIECE)
+	StringListClear(Self, SS_KW_NECKLACE)
+	StringListClear(Self, SS_KW_CIRCLET)
+	StringListClear(Self, SS_KW_RING)
+	StringListClear(Self, SS_KW_BRA)
+	StringListClear(Self, SS_KW_PANTIES)
+	
+	UnSetFormValue(Self, SS_SEXLAB)
+	
+	ClearStripLists(PlayerRef)
+EndFunction
 
 ;/ Animation Descriptions & Durations
 
