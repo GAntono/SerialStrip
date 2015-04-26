@@ -60,6 +60,7 @@ String Property SS_ANIM_BRA = "APPS.SerialStripAnim.Bra" AutoReadOnly Hidden
 String Property SS_ANIM_PANTIES = "APPS.SerialStripAnim.Panties" AutoReadOnly Hidden
 
 String Property SS_SEXLAB = "APPS.SerialStripDependency.SexLab" AutoReadOnly Hidden
+String Property SS_WAITTIMEAFTERANIM = "APPS.SerialStrip.WaitingTimeAfterAnim" AutoReadOnly Hidden
 ;/ closeFold /;
 
 String Property sCurrentStripArray Auto Hidden ;the array that is currently animating i.e. the actor is playing the animation for stripping from this array
@@ -111,7 +112,7 @@ EndFunction
 ; -------------------------------------------------------
 
 Event OnInit()
-	If (Self.IsRunning())
+	If (!Self.IsRunning()) ;makes sure that the quest is not already running, because OnInit() fires multiple times
 		PrepareMod()
 	EndIf
 EndEvent
@@ -774,7 +775,11 @@ State Stripping
 				SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
 			Else
 				SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
-				Utility.Wait(GetFloatValue(None, "APPS.SerialStripper.WaitingTimeAfterAnim"))
+				If (HasFloatValue(None, SS_WAITTIMEAFTERANIM))
+					Utility.Wait(GetFloatValue(None, SS_WAITTIMEAFTERANIM))
+				Else
+					Utility.Wait(1.0)
+				EndIf
 				SerialStrip()
 			EndIf
 		EndIf
@@ -814,6 +819,7 @@ Bool Function Uninstall()
 	StringListClear(Self, SS_KW_PANTIES)
 
 	UnSetFormValue(Self, SS_SEXLAB)
+	UnSetFormValue(None, SS_WAITTIMEAFTERANIM)
 
 	ClearStripLists(PlayerRef)
 
@@ -829,7 +835,7 @@ Bool Function Uninstall()
 	FormListClear(PlayerRef, SS_STRIPPEDLIST_BRA)
 	FormListClear(PlayerRef, SS_STRIPPEDLIST_PANTIES)
 	FormListClear(PlayerRef, SS_STRIPPEDLIST_OTHER)
-	
+
 	Debug.Trace("SerialStrip uninstalled")
 	Return True
 EndFunction
