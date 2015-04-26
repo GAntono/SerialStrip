@@ -138,6 +138,9 @@ Function InitDefaultArrays()
 		bAllFalseList[i] = False
 		i += 1
 	EndWhile
+	
+	Debug.Trace("bAllFalseList initialized")
+	Debug.Trace("bAllFalseList length = " + bAllFalseList.Length)
 
 	;/ fetch our animations via GetFormFromFile() and store them in StorageUtil openFold /;
 	SetFormValue(Self, SS_ANIM_ARMORGLOVES, Game.GetFormFromFile(0x4347, "SerialStrip.esp") as Idle)
@@ -231,6 +234,7 @@ Bool Function SendSerialStripStopEvent()
 EndFunction
 
 Event OnSerialStripStart(Form akSender, Bool abFullStrip)
+	Debug.Trace("OnSerialStripStart event detected")
 	;/ beginValidation /;
 	If (PlayerRef.IsOnMount() || \
 		PlayerRef.IsSprinting() || \
@@ -301,6 +305,7 @@ EndEvent
 State Stripping
 
 	Function PrepareForStripping(Actor akActor, Bool[] abSlotOverrideList, String asExceptionList = "")
+		Debug.Trace("PrepareForStripping() called")
 	;/analyses items worn by akActor and puts them into arrays for the actual
 		stripping function to use.
 	akActor: actor to prepare
@@ -311,6 +316,13 @@ State Stripping
 
 		;/ beginValidation /;
 		If (!akActor || abSlotOverrideList.Length != 33)
+			Debug.Trace("PrepareForStripping() validation failed")
+			If (!akActor)
+				Debug.Trace("!akActor")
+			ElseIf (abSlotOverrideList.Length != 33)
+				Debug.Trace("abSlotOverrideList.Length != 33")
+				Debug.Trace("abSlotOverrideList length = " + abSlotOverrideList.Length)
+			EndIf
 			Return
 		EndIf
 		;/ endValidation /;
