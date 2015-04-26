@@ -112,7 +112,7 @@ EndFunction
 ; -------------------------------------------------------
 
 Event OnInit()
-	If (!Self.IsRunning()) ;makes sure that the quest is not already running, because OnInit() fires multiple times
+	If (!HasFormValue(Self, SS_ANIM_ARMORGLOVES)) ;makes sure that OnInit() has not already run, because this event fires multiple times.
 		PrepareMod()
 	EndIf
 EndEvent
