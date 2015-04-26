@@ -1,4 +1,4 @@
-ScriptName SerialStrip Extends Quest
+ScriptName SerialStripFunctions Extends Quest
 {serial undressing: remove one garment at a time, with animations}
 
 Import StorageUtil
@@ -784,7 +784,10 @@ EndState
 
 Bool Function Uninstall()
 	Debug.Trace("SerialStrip uninstalling")
+	GoToState("")
+	SendSerialStripStopEvent()
 	UnRegisterForModEvent("SerialStripStart")
+	UnregisterForAnimationEvent(PlayerRef, "IdleStop")
 
 	UnSetFormValue(Self, SS_ANIM_ARMORGLOVES)
 	UnSetFormValue(Self, SS_ANIM_CLOTHGLOVES)
