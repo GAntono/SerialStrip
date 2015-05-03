@@ -116,6 +116,7 @@ Event OnInit()
 	If (GetIntValue(Self, "OnInitCounter") == 2)
 		PrepareMod()
 		UnSetIntValue(Self, "OnInitCounter")
+		Debug.Notification("$SS_INSTALLSSTRIPDONE_NOTIFY{" + SS_VERSION + "}")
 	EndIf
 EndEvent
 
