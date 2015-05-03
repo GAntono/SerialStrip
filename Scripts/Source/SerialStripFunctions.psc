@@ -1,9 +1,9 @@
-ScriptName SerialStrip Extends Quest
+ScriptName SerialStripFunctions Extends Quest
 {serial undressing: remove one garment at a time, with animations}
 
 Import StorageUtil
 
-String Property SS_VERSION = "v1.0.3-beta" AutoReadOnly Hidden
+String Property SS_Version = "v1.0.4" AutoReadOnly Hidden
 
 Actor Property PlayerRef Auto ;points to the player
 Actor Property kCurrentActor Auto Hidden ;the actor that is currently animating
@@ -60,6 +60,7 @@ String Property SS_ANIM_BRA = "APPS.SerialStripAnim.Bra" AutoReadOnly Hidden
 String Property SS_ANIM_PANTIES = "APPS.SerialStripAnim.Panties" AutoReadOnly Hidden
 
 String Property SS_SEXLAB = "APPS.SerialStripDependency.SexLab" AutoReadOnly Hidden
+String Property SS_WAITTIMEAFTERANIM = "APPS.SerialStrip.WaitingTimeAfterAnim" AutoReadOnly Hidden
 ;/ closeFold /;
 
 String Property sCurrentStripArray Auto Hidden ;the array that is currently animating i.e. the actor is playing the animation for stripping from this array
@@ -112,8 +113,11 @@ EndFunction
 ; -------------------------------------------------------
 
 Event OnInit()
-	If (Self.IsRunning())
+	AdjustIntValue(Self, "OnInitCounter", 1)
+	If (GetIntValue(Self, "OnInitCounter") == 2)
 		PrepareMod()
+		UnSetIntValue(Self, "OnInitCounter")
+		Debug.Notification("$SS_INSTALLSSTRIPDONE_NOTIFY")
 	EndIf
 EndEvent
 
@@ -206,7 +210,7 @@ Function GetSexLab()
 		SetFormValue(Self, SS_SEXLAB, SexLabUtil.GetAPI()) ;points to the SexLabFramework script so we can use its functions
 	Else
 		IsSexLabInstalled = False
-		UnSetFormValue(Self, SS_SEXLAB) ;points to the SexLabFramework script so we can use its functions
+		UnSetFormValue(Self, SS_SEXLAB)
 	EndIf
 
 	Debug.Trace("[SerialStrip] SexLab detected: " + IsSexLabInstalled)
@@ -283,6 +287,21 @@ EndFunction
 Function SingleArrayStrip(Actor akActor, String asStripArray, String asStrippedArray, Bool abDontStop = False)
 EndFunction
 
+Function ClearStripLists(Actor akActor)
+	FormListClear(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R)
+	FormListClear(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L)
+	FormListClear(akActor, SS_STRIPLIST_GLOVES)
+	FormListClear(akActor, SS_STRIPLIST_HELMET)
+	FormListClear(akActor, SS_STRIPLIST_BOOTS)
+	FormListClear(akActor, SS_STRIPLIST_CHESTPIECE)
+	FormListClear(akActor, SS_STRIPLIST_NECKLACE)
+	FormListClear(akActor, SS_STRIPLIST_CIRCLET)
+	FormListClear(akActor, SS_STRIPLIST_RING)
+	FormListClear(akActor, SS_STRIPLIST_BRA)
+	FormListClear(akActor, SS_STRIPLIST_PANTIES)
+	FormListClear(akActor, SS_STRIPLIST_OTHER)
+EndFunction
+
 Event OnAnimationEvent(ObjectReference akSource, string asEventName)
 EndEvent
 
@@ -304,18 +323,7 @@ State Stripping
 		;/ endValidation /;
 
 		;clear all the arrays before filling them
-		FormListClear(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R)
-		FormListClear(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L)
-		FormListClear(akActor, SS_STRIPLIST_GLOVES)
-		FormListClear(akActor, SS_STRIPLIST_HELMET)
-		FormListClear(akActor, SS_STRIPLIST_BOOTS)
-		FormListClear(akActor, SS_STRIPLIST_CHESTPIECE)
-		FormListClear(akActor, SS_STRIPLIST_NECKLACE)
-		FormListClear(akActor, SS_STRIPLIST_CIRCLET)
-		FormListClear(akActor, SS_STRIPLIST_RING)
-		FormListClear(akActor, SS_STRIPLIST_BRA)
-		FormListClear(akActor, SS_STRIPLIST_PANTIES)
-		FormListClear(akActor, SS_STRIPLIST_OTHER)
+		ClearStripLists(akActor)
 
 		Bool[] bArrayIsActive = new Bool[12]
 		;/Activates or deactivates (and clears) the stripping arrays
@@ -760,19 +768,91 @@ State Stripping
 		EndIf
 	EndFunction
 
+	Function ClearStripLists(Actor akActor)
+		FormListClear(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R)
+		FormListClear(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L)
+		FormListClear(akActor, SS_STRIPLIST_GLOVES)
+		FormListClear(akActor, SS_STRIPLIST_HELMET)
+		FormListClear(akActor, SS_STRIPLIST_BOOTS)
+		FormListClear(akActor, SS_STRIPLIST_CHESTPIECE)
+		FormListClear(akActor, SS_STRIPLIST_NECKLACE)
+		FormListClear(akActor, SS_STRIPLIST_CIRCLET)
+		FormListClear(akActor, SS_STRIPLIST_RING)
+		FormListClear(akActor, SS_STRIPLIST_BRA)
+		FormListClear(akActor, SS_STRIPLIST_PANTIES)
+		FormListClear(akActor, SS_STRIPLIST_OTHER)
+	EndFunction
+
 	Event OnAnimationEvent(ObjectReference akSource, string asEventName)
 		If (akSource == kCurrentActor && asEventName == "IdleStop")
 			If (!bFullSerialStripSwitch && !bIsSheathing)
 				SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
 			Else
 				SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
-				Utility.Wait(GetFloatValue(None, "APPS.SerialStripper.WaitingTimeAfterAnim"))
+				If (HasFloatValue(None, SS_WAITTIMEAFTERANIM))
+					Utility.Wait(GetFloatValue(None, SS_WAITTIMEAFTERANIM))
+				Else
+					Utility.Wait(1.0)
+				EndIf
 				SerialStrip(kCurrentActor)
 			EndIf
 		EndIf
 	EndEvent
 
 EndState
+
+Bool Function Uninstall()
+	Debug.Trace("SerialStrip uninstalling")
+	GoToState("")
+	SendSerialStripStopEvent()
+	UnRegisterForModEvent("SerialStripStart")
+	UnregisterForAnimationEvent(PlayerRef, "IdleStop")
+
+	UnSetFormValue(Self, SS_ANIM_ARMORGLOVES)
+	UnSetFormValue(Self, SS_ANIM_CLOTHGLOVES)
+	UnSetFormValue(Self, SS_ANIM_ARMORHELMET)
+	UnSetFormValue(Self, SS_ANIM_CLOTHHOOD)
+	UnSetFormValue(Self, SS_ANIM_ARMORBOOTS)
+	UnSetFormValue(Self, SS_ANIM_CLOTHBOOTS)
+	UnSetFormValue(Self, SS_ANIM_ARMORCHESTPIECE)
+	UnSetFormValue(Self, SS_ANIM_CLOTHCHESTPIECE)
+	UnSetFormValue(Self, SS_ANIM_NECKLACE)
+	UnSetFormValue(Self, SS_ANIM_CLOTHCIRCLET)
+	UnSetFormValue(Self, SS_ANIM_RING)
+	UnSetFormValue(Self, SS_ANIM_BRA)
+	UnSetFormValue(Self, SS_ANIM_PANTIES)
+
+	StringListClear(Self, SS_KW_HELMET)
+	StringListClear(Self, SS_KW_GLOVES)
+	StringListClear(Self, SS_KW_BOOTS)
+	StringListClear(Self, SS_KW_CHESTPIECE)
+	StringListClear(Self, SS_KW_NECKLACE)
+	StringListClear(Self, SS_KW_CIRCLET)
+	StringListClear(Self, SS_KW_RING)
+	StringListClear(Self, SS_KW_BRA)
+	StringListClear(Self, SS_KW_PANTIES)
+
+	UnSetFormValue(Self, SS_SEXLAB)
+	UnSetFormValue(None, SS_WAITTIMEAFTERANIM)
+
+	ClearStripLists(PlayerRef)
+
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_R)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_L)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_GLOVES)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_HELMET)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_BOOTS)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_CHESTPIECE)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_NECKLACE)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_CIRCLET)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_RING)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_BRA)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_PANTIES)
+	FormListClear(PlayerRef, SS_STRIPPEDLIST_OTHER)
+
+	Debug.Trace("SerialStrip uninstalled")
+	Return True
+EndFunction
 
 ;/ Animation Descriptions & Durations
 
