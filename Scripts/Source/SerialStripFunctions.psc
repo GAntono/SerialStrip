@@ -6,7 +6,26 @@ Import StorageUtil
 String Property SS_Version = "v1.0.4" AutoReadOnly Hidden
 
 Actor Property PlayerRef Auto ;points to the player
-Actor Property kCurrentActor Auto Hidden ;the actor that is currently animating
+;Actor Property kCurrentActor Auto Hidden ;the actor that is currently animating
+String Property SS_STRIPPINGACTORS = "APPS.SerialStrip.StrippingActors" AutoReadOnly Hidden
+
+;String Property sCurrentStripArray Auto Hidden ;the array that is currently animating i.e. the actor is playing the animation for stripping from this array
+String Property SS_CURRENTSTRIPARRAY = "APPS.SerialStrip.CurrentStripArray" AutoReadOnly Hidden
+;String Property sCurrentStrippedArray Auto Hidden ;the array that is currently holding the stripped items
+String Property SS_CURRENTSTRIPPEDARRAY = "APPS.SerialStrip.CurrentStrippedArray" AutoReadOnly Hidden
+
+Idle WeaponsAndShieldsAnim ;the name of the weapons and shields stripping animation
+Idle OtherAnim ;the name of the "other" stripping animation
+
+Bool[] Property bAllTrueList Auto Hidden
+Bool[] Property bAllFalseList Auto Hidden
+;Bool Property bFullSerialStripSwitch Auto Hidden ;switches to full stripping
+String Property SS_FULLSERIALSTRIPSWITCH = "APPS.SerialStrip.FullSerialStripSwitch" AutoReadOnly Hidden
+Bool Property IsSexLabInstalled Auto Hidden
+;Bool Property bIsSheathing Auto Hidden ;notifys script that actor is sheathing
+String Property SS_ISSHEATHING = "APPS.SerialStrip.IsSheathing" AutoReadOnly Hidden
+;Form Property EventSender Auto Hidden ;stores the form that initiated the stripping
+String Property SS_EVENTSENDER = "APPS.SerialStrip.EventSender" AutoReadOnly Hidden
 
 ;/ openFold /;
 String Property SS_STRIPLIST_WEAPONSANDSHIELDS_R = "APPS.SerialStripList.WeaponsAndShieldsR" AutoReadOnly  Hidden
@@ -63,26 +82,13 @@ String Property SS_SEXLAB = "APPS.SerialStripDependency.SexLab" AutoReadOnly Hid
 String Property SS_WAITTIMEAFTERANIM = "APPS.SerialStrip.WaitingTimeAfterAnim" AutoReadOnly Hidden
 ;/ closeFold /;
 
-String Property sCurrentStripArray Auto Hidden ;the array that is currently animating i.e. the actor is playing the animation for stripping from this array
-String Property sCurrentStrippedArray Auto Hidden ;the array that is currently holding the stripped items
-
-Idle Property WeaponsAndShieldsAnim Auto Hidden ;the name of the weapons and shields stripping animation
-Idle Property OtherAnim Auto Hidden ;the name of the "other" stripping animation
-
-Bool[] Property bAllTrueList Auto Hidden
-Bool[] Property bAllFalseList Auto Hidden
-Bool Property bFullSerialStripSwitch Auto Hidden ;switches to full stripping
-Bool Property IsSexLabInstalled Auto Hidden
-Bool Property bIsSheathing Auto Hidden ;notifys script that actor is sheathing
-Form Property EventSender Auto Hidden ;stores the form that initiated the stripping
-
 ; -------------------------------------------------------
 ; ---             Functions for modders               ---
 ; -------------------------------------------------------
 
 Bool Function SendSerialStripStartEvent(Form akSender, Actor akActor, Bool abFullStrip = False)
 ;/
-Sends a SerialStripStart event that will tell SerialStrip to begin stripping the player.
+Sends a SerialStripStart event that will tell SerialStrip to begin stripping the actor.
 SerialStrip is always listening for this event.
 You can copy this function in your mod, write a similar or call this one from inside SerialStrip
 akSender:	 the object that sent the event (your mod).
@@ -216,20 +222,26 @@ Function GetSexLab()
 	Debug.Trace("[SerialStrip] SexLab detected: " + IsSexLabInstalled)
 EndFunction
 
-Bool Function SendSerialStripStopEvent()
+Bool Function SendSerialStripStopEvent(Form akSender, Actor akActor)
 	;/ beginValidation /;
-	If (!EventSender || !kCurrentActor)
+	If (!akSender || !akActor || !FormListFind(Self, SS_STRIPPINGACTORS, akActor) || GetFormValue(akActor, SS_EVENTSENDER) != akSender)
 		Return False
 	EndIf
 	;/ endValidation /;
 
 	Int Handle = ModEvent.Create("SerialStripStop")
 	If (Handle)
-		ModEvent.PushForm(Handle, EventSender)
-		ModEvent.PushForm(Handle, kCurrentActor)
+		ModEvent.PushForm(Handle, akSender)
+		ModEvent.PushForm(Handle, akActor)
 		ModEvent.Send(Handle)
-		EventSender = None ;clears the property holding the form that initiated the stripping
-		kCurrentActor = None
+		ClearStripLists(akActor)
+		ClearStrippedLists(akActor)
+		StringListClear(akActor, SS_CURRENTSTRIPARRAY)
+		StringListClear(akActor, SS_CURRENTSTRIPPEDARRAY)
+		UnsetIntValue(akActor, SS_FULLSERIALSTRIPSWITCH)
+		UnsetIntValue(akActor, SS_ISSHEATHING)
+		UnsetFormValue(akActor, SS_EVENTSENDER)
+		FormListRemove(Self, SS_STRIPPINGACTORS, akActor)
 		Return True
 	Else
 		Return False
@@ -253,9 +265,11 @@ Event OnSerialStripStart(Form akSender, Actor akActor, Bool abFullStrip)
 	;/ endValidation /;
 
 	GoToState("Stripping")
-	EventSender = akSender
-	kCurrentActor = akActor
-	bFullSerialStripSwitch = abFullStrip
+	FormListAdd(Self, SS_STRIPPINGACTORS, akActor)
+	SetFormValue(akActor, SS_EVENTSENDER, akSender)
+	If (abFullStrip)
+		SetIntValue(akActor, SS_FULLSERIALSTRIPSWITCH, 1)
+	EndIf
 	PrepareForStripping(akActor, bAllFalseList)
 	SerialStrip(akActor)
 EndEvent
@@ -300,6 +314,21 @@ Function ClearStripLists(Actor akActor)
 	FormListClear(akActor, SS_STRIPLIST_BRA)
 	FormListClear(akActor, SS_STRIPLIST_PANTIES)
 	FormListClear(akActor, SS_STRIPLIST_OTHER)
+EndFunction
+
+Function ClearStrippedLists(Actor akActor)
+	FormListClear(akActor, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_R)
+	FormListClear(akActor, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_L)
+	FormListClear(akActor, SS_STRIPPEDLIST_GLOVES)
+	FormListClear(akActor, SS_STRIPPEDLIST_HELMET)
+	FormListClear(akActor, SS_STRIPPEDLIST_BOOTS)
+	FormListClear(akActor, SS_STRIPPEDLIST_CHESTPIECE)
+	FormListClear(akActor, SS_STRIPPEDLIST_NECKLACE)
+	FormListClear(akActor, SS_STRIPPEDLIST_CIRCLET)
+	FormListClear(akActor, SS_STRIPPEDLIST_RING)
+	FormListClear(akActor, SS_STRIPPEDLIST_BRA)
+	FormListClear(akActor, SS_STRIPPEDLIST_PANTIES)
+	FormListClear(akActor, SS_STRIPPEDLIST_OTHER)
 EndFunction
 
 Event OnAnimationEvent(ObjectReference akSource, string asEventName)
@@ -622,7 +651,7 @@ State Stripping
 
 			UnRegisterForAnimationEvent(akActor, "IdleStop")
 			GoToState("")
-			SendSerialStripStopEvent()
+			SendSerialStripStopEvent(GetFormValue(akActor, SS_EVENTSENDER), akActor)
 			Return
 		EndIf
 
@@ -632,12 +661,12 @@ State Stripping
 		EndIf
 
 		If (akActor.IsWeaponDrawn()) ;if the actor has their weapon drawn
-			bIsSheathing = True
+			SetIntValue(akActor, SS_ISSHEATHING, 1)
 			akActor.SheatheWeapon() ;make the actor sheath their weapon
 			RegisterForAnimationEvent(akActor, "IdleStop") ;listening for when the actor stops sheathing to continue
 			Return
 		Else
-			bIsSheathing = False
+			UnsetIntValue(akActor, SS_ISSHEATHING)
 		EndIf
 
 		;WEAPONS
@@ -655,7 +684,7 @@ State Stripping
 		;ARMOR
 		ElseIf (GlovesCount > 0)
 			If (!RingCount) ;if there are no rings equipped, remove gloves
-				If (HasClothingItems(PlayerRef, SS_STRIPLIST_GLOVES))
+				If (HasClothingItems(akActor, SS_STRIPLIST_GLOVES))
 					SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, GetFormValue(Self, SS_ANIM_CLOTHGLOVES) as Idle)
 				Else
 					SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, GetFormValue(Self, SS_ANIM_ARMORGLOVES) as Idle) ;run the function to play the appropriate animation
@@ -663,20 +692,20 @@ State Stripping
 			Else ;if there are rings equipped, remove them first because in Skyrim they are worn over the gloves
 				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_RING, SS_STRIPPEDLIST_RING, GetFormValue(Self, SS_ANIM_RING) as Idle) ;run the function to play the appropriate animation
 			EndIf
-		ElseIf (FormListCount(PlayerRef, SS_STRIPLIST_HELMET) > 0)
-			If (HasClothingItems(PlayerRef, SS_STRIPLIST_HELMET))
+		ElseIf (FormListCount(akActor, SS_STRIPLIST_HELMET) > 0)
+			If (HasClothingItems(akActor, SS_STRIPLIST_HELMET))
 				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, GetFormValue(Self, SS_ANIM_CLOTHHOOD) as Idle)
 			Else
 				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, GetFormValue(Self, SS_ANIM_ARMORHELMET) as Idle) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (BootsCount > 0)
-			If (HasClothingItems(PlayerRef, SS_STRIPLIST_BOOTS))
+			If (HasClothingItems(akActor, SS_STRIPLIST_BOOTS))
 				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, GetFormValue(Self, SS_ANIM_CLOTHBOOTS) as Idle)
 			Else
 				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, GetFormValue(Self, SS_ANIM_ARMORBOOTS) as Idle) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (ChestpieceCount > 0)
-			If (HasClothingItems(PlayerRef, SS_STRIPLIST_CHESTPIECE))
+			If (HasClothingItems(akActor, SS_STRIPLIST_CHESTPIECE))
 				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, GetFormValue(Self, SS_ANIM_CLOTHCHESTPIECE) as Idle)
 			Else
 				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, GetFormValue(Self, SS_ANIM_ARMORCHESTPIECE) as Idle) ;run the function to play the appropriate animation
@@ -715,8 +744,8 @@ State Stripping
 	Function SingleArrayAnimThenStrip(Actor akActor, String asStripArray, String asStrippedArray, Idle akAnimation = None, Bool abDontStop = False)
 	;makes the actor animate the stripping animation for a single group of clothing, then strips it
 
-		sCurrentStripArray = asStripArray ;sets the currently stripping array to be asStripArray
-		sCurrentStrippedArray = asStrippedArray ;sets the array currently holding the stripped items to be asStrippedArray
+		SetStringVAlue(akActor, SS_CURRENTSTRIPARRAY, asStripArray)
+		SetStringVAlue(akActor, SS_CURRENTSTRIPPEDARRAY, asStrippedArray)
 
 		If (akAnimation) ;if the function has been given an animation to play
 			akActor.PlayIdle(akAnimation) ;makes the actor play the stripping animation
@@ -724,7 +753,7 @@ State Stripping
 		Else
 			SingleArrayStrip(akActor, asStripArray, asStrippedArray, abDontStop) ;go directly to stripping the array without animation
 
-			If (bFullSerialStripSwitch)
+			If (HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH))
 				SerialStrip(akActor)
 			EndIf
 		EndIf
@@ -757,14 +786,14 @@ State Stripping
 
 		FormListClear(akActor, asStripArray) ;clears the array
 
-		If (!bFullSerialStripSwitch && !abDontStop) ;if this is a single array strip and we have not been instructed to continue
+		If (!HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH) && !abDontStop) ;if this is a single array strip and we have not been instructed to continue
 			If (akActor == PlayerRef)
 				Game.SetPlayerAIDriven(False) ;give control back to the player
 			EndIf
 
 			UnRegisterForAnimationEvent(akActor, "IdleStop")
 			GoToState("")
-			SendSerialStripStopEvent()
+			SendSerialStripStopEvent(GetFormValue(akActor, SS_EVENTSENDER), akActor)
 		EndIf
 	EndFunction
 
@@ -784,17 +813,15 @@ State Stripping
 	EndFunction
 
 	Event OnAnimationEvent(ObjectReference akSource, string asEventName)
-		If (akSource == kCurrentActor && asEventName == "IdleStop")
-			If (!bFullSerialStripSwitch && !bIsSheathing)
-				SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
-			Else
-				SingleArrayStrip(kCurrentActor, sCurrentStripArray, sCurrentStrippedArray) ;strip this array (without animation - animation has hopefully been already played!)
+		If (FormListFind(Self, SS_STRIPPINGACTORS, akSource) && asEventName == "IdleStop")
+			SingleArrayStrip(akSource as Actor, GetStringValue(akSource, SS_CURRENTSTRIPARRAY), GetStringValue(akSource, SS_CURRENTSTRIPPEDARRAY)) ;strip this array (without animation - animation has hopefully been already played!)
+			If (HasIntValue(akSource, SS_FULLSERIALSTRIPSWITCH) || HasIntValue(akSource, SS_ISSHEATHING))
 				If (HasFloatValue(None, SS_WAITTIMEAFTERANIM))
 					Utility.Wait(GetFloatValue(None, SS_WAITTIMEAFTERANIM))
 				Else
 					Utility.Wait(1.0)
 				EndIf
-				SerialStrip(kCurrentActor)
+				SerialStrip(akSource as Actor)
 			EndIf
 		EndIf
 	EndEvent
