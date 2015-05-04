@@ -21,7 +21,7 @@ Bool[] Property bAllTrueList Auto Hidden
 Bool[] Property bAllFalseList Auto Hidden
 ;Bool Property bFullSerialStripSwitch Auto Hidden ;switches to full stripping
 String Property SS_FULLSERIALSTRIPSWITCH = "APPS.SerialStrip.FullSerialStripSwitch" AutoReadOnly Hidden
-Bool Property IsSexLabInstalled Auto Hidden
+;Bool Property IsSexLabInstalled Auto Hidden
 ;Bool Property bIsSheathing Auto Hidden ;notifys script that actor is sheathing
 String Property SS_ISSHEATHING = "APPS.SerialStrip.IsSheathing" AutoReadOnly Hidden
 ;Form Property EventSender Auto Hidden ;stores the form that initiated the stripping
@@ -212,14 +212,12 @@ EndFunction
 
 Function GetSexLab()
 	If (Game.GetModByName("SexLab.esm") != 255)
-		IsSexLabInstalled = True
 		SetFormValue(Self, SS_SEXLAB, SexLabUtil.GetAPI()) ;points to the SexLabFramework script so we can use its functions
 	Else
-		IsSexLabInstalled = False
 		UnSetFormValue(Self, SS_SEXLAB)
 	EndIf
 
-	Debug.Trace("[SerialStrip] SexLab detected: " + IsSexLabInstalled)
+	Debug.Trace("[SerialStrip] SexLab detected: " + HasFormValue(Self, SS_SEXLAB))
 EndFunction
 
 Bool Function SendSerialStripStopEvent(Form akSender, Actor akActor)
@@ -372,7 +370,7 @@ State Stripping
 
 		Bool[] bUserConfigSlots = new Bool[33] ;declares an array to hold the user's configuration
 
-		If (IsSexLabInstalled)
+		If (HasFormValue(Self, SS_SEXLAB))
 			Int iGender = (GetFormValue(Self, SS_SEXLAB) As SexLabFramework).GetGender(akActor) ;fetches the gender of the actor
 
 			If (iGender == 0) ;if the actor is male
@@ -548,7 +546,7 @@ State Stripping
 		EndIf
 		;/ endValidation /;
 
-		If (IsSexLabInstalled)
+		If (HasFormValue(Self, SS_SEXLAB))
 			If ((GetFormValue(Self, SS_SEXLAB) As SexLabFramework).IsStrippable(akItemRef))
 				Debug.Trace("[SerialStrip] Item " + akItemRef + " is strippable according to SL IsStrippable()")
 				Return True
@@ -575,7 +573,7 @@ State Stripping
 		Int KeywordCount = StringListCount(Self, asListName)
 		Int i
 
-		If (IsSexLabInstalled) ;if SexLab is installed, use its advanced SKSE keyword searching function
+		If (HasFormValue(Self, SS_SEXLAB)) ;if SexLab is installed, use its advanced SKSE keyword searching function
 			While (i < KeywordCount)
 				String sKeywordRef = StringListGet(Self, asListName, i) ;fetch the keyword in this position in the array
 
@@ -831,9 +829,20 @@ EndState
 Bool Function Uninstall()
 	Debug.Trace("SerialStrip uninstalling")
 	GoToState("")
-	SendSerialStripStopEvent()
+
+	Int i
+
+	While (i < FormListCount(Self, SS_STRIPPINGACTORS))
+		Actor kActor = FormListGet(Self, SS_STRIPPINGACTORS, i) as Actor
+		SendSerialStripStopEvent(GetFormValue(kActor, SS_EVENTSENDER), kActor)
+		UnregisterForAnimationEvent(kActor, "IdleStop")
+
+		i += 1
+	EndWhile
+
 	UnRegisterForModEvent("SerialStripStart")
-	UnregisterForAnimationEvent(PlayerRef, "IdleStop")
+
+	FormListClear(Self, SS_STRIPPINGACTORS)
 
 	UnSetFormValue(Self, SS_ANIM_ARMORGLOVES)
 	UnSetFormValue(Self, SS_ANIM_CLOTHGLOVES)
@@ -861,21 +870,6 @@ Bool Function Uninstall()
 
 	UnSetFormValue(Self, SS_SEXLAB)
 	UnSetFormValue(None, SS_WAITTIMEAFTERANIM)
-
-	ClearStripLists(PlayerRef)
-
-	FormListClear(PlayerRef, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_R)
-	FormListClear(PlayerRef, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_L)
-	FormListClear(PlayerRef, SS_STRIPPEDLIST_GLOVES)
-	FormListClear(PlayerRef, SS_STRIPPEDLIST_HELMET)
-	FormListClear(PlayerRef, SS_STRIPPEDLIST_BOOTS)
-	FormListClear(PlayerRef, SS_STRIPPEDLIST_CHESTPIECE)
-	FormListClear(PlayerRef, SS_STRIPPEDLIST_NECKLACE)
-	FormListClear(PlayerRef, SS_STRIPPEDLIST_CIRCLET)
-	FormListClear(PlayerRef, SS_STRIPPEDLIST_RING)
-	FormListClear(PlayerRef, SS_STRIPPEDLIST_BRA)
-	FormListClear(PlayerRef, SS_STRIPPEDLIST_PANTIES)
-	FormListClear(PlayerRef, SS_STRIPPEDLIST_OTHER)
 
 	Debug.Trace("SerialStrip uninstalled")
 	Return True
