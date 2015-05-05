@@ -247,6 +247,7 @@ Bool Function SendSerialStripStopEvent(Form akSender, Actor akActor)
 EndFunction
 
 Event OnSerialStripStart(Form akSender, Actor akActor, Bool abFullStrip)
+	Debug.Trace("OnSerialStripStart() event detected. Sender: " + akSender + ", Actor: " + akActor + ", FullStrip: " + abFullStrip)
 	;/ beginValidation /;
 	If (akActor.IsOnMount() || \
 		akActor.IsSprinting() || \
