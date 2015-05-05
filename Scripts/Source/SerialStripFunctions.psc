@@ -95,19 +95,25 @@ akSender:	 the object that sent the event (your mod).
 abFullStrip: True  = will do a full strip i.e. remove all strippable items.
 			 False = will do a single strip i.e. remove one group of items.
 /;
-
+	Debug.Trace("SendSerialStripStartEvent() has begun validation")
 	;/ beginValidation /;
 	If (!akSender || !akActor)
 		Return False
 	EndIf
 	;/ endValidation /;
+	Debug.Trace("SendSerialStripStartEvent() has ended validation")
 
 	Int Handle = ModEvent.Create("SerialStripStart")
 	If (Handle)
+		Debug.Trace("SendSerialStripStartEvent() pushing akSender")
 		ModEvent.PushForm(Handle, akSender)
+		Debug.Trace("SendSerialStripStartEvent() pushing akActor")
 		ModEvent.PushForm(Handle, akActor)
+		Debug.Trace("SendSerialStripStartEvent() pushing abFullStrip")
 		ModEvent.PushBool(Handle, abFullStrip)
+		Debug.Trace("SendSerialStripStartEvent() all items pushed. Sending.")
 		ModEvent.Send(Handle)
+		Debug.Trace("SendSerialStripStartEvent() sent")
 		Return True
 	Else
 		Return False
@@ -246,31 +252,32 @@ Bool Function SendSerialStripStopEvent(Form akSender, Actor akActor)
 	EndIf
 EndFunction
 
-Event OnSerialStripStart(Form akSender, Actor akActor, Bool abFullStrip)
+Event OnSerialStripStart(Form akSender, Form akActor, Bool abFullStrip)
 	Debug.Trace("OnSerialStripStart() event detected. Sender: " + akSender + ", Actor: " + akActor + ", FullStrip: " + abFullStrip)
+	Actor kActor = akActor as Actor
 	;/ beginValidation /;
-	If (akActor.IsOnMount() || \
-		akActor.IsSprinting() || \
-		akActor.IsRunning() || \
-		akActor.GetSleepState() > 2 || \
-		akActor.IsInCombat() || \
-		akActor.GetSitState() > 2 || \
-		akActor.IsSwimming() || \
-		akActor.IsSneaking() || \
-		akActor.IsChild())
+	If (kActor.IsOnMount() || \
+		kActor.IsSprinting() || \
+		kActor.IsRunning() || \
+		kActor.GetSleepState() > 2 || \
+		kActor.IsInCombat() || \
+		kActor.GetSitState() > 2 || \
+		kActor.IsSwimming() || \
+		kActor.IsSneaking() || \
+		kActor.IsChild())
 
 		Return
 	EndIf
 	;/ endValidation /;
 
 	GoToState("Stripping")
-	FormListAdd(Self, SS_STRIPPINGACTORS, akActor)
-	SetFormValue(akActor, SS_EVENTSENDER, akSender)
+	FormListAdd(Self, SS_STRIPPINGACTORS, kActor)
+	SetFormValue(kActor, SS_EVENTSENDER, akSender)
 	If (abFullStrip)
-		SetIntValue(akActor, SS_FULLSERIALSTRIPSWITCH, 1)
+		SetIntValue(kActor, SS_FULLSERIALSTRIPSWITCH, 1)
 	EndIf
-	PrepareForStripping(akActor, bAllFalseList)
-	SerialStrip(akActor)
+	PrepareForStripping(kActor, bAllFalseList)
+	SerialStrip(kActor)
 EndEvent
 
 Function PrepareForStripping(Actor akActor, Bool[] abSlotOverrideList, String asExceptionList = "")
