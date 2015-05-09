@@ -26,6 +26,7 @@ String Property SS_FULLSERIALSTRIPSWITCH = "APPS.SerialStrip.FullSerialStripSwit
 String Property SS_ISSHEATHING = "APPS.SerialStrip.IsSheathing" AutoReadOnly Hidden
 ;Form Property EventSender Auto Hidden ;stores the form that initiated the stripping
 String Property SS_EVENTSENDER = "APPS.SerialStrip.EventSender" AutoReadOnly Hidden
+Package Property DoNothingPackage Auto
 
 ;/ openFold /;
 String Property SS_STRIPLIST_WEAPONSANDSHIELDS_R = "APPS.SerialStripList.WeaponsAndShieldsR" AutoReadOnly  Hidden
@@ -653,6 +654,9 @@ State Stripping
 
 			If (akActor == PlayerRef)
 				Game.SetPlayerAIDriven(False) ;give control back to the player
+			Else
+				ActorUtil.RemovePackageOverride(akActor, DoNothingPackage)
+				akActor.EvaluatePackage()
 			EndIf
 
 			UnRegisterForAnimationEvent(akActor, "IdleStop")
@@ -661,9 +665,13 @@ State Stripping
 			Return
 		EndIf
 
+		Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
+
 		If (akActor == PlayerRef)
 			Game.ForceThirdPerson() ;force third person camera mode
 			Game.SetPlayerAIDriven(True) ;instead of DisablePlayerControls(True)
+		Else
+			ActorUtil.AddPackageOverride(akActor, DoNothingPackage, 100, 1)
 		EndIf
 
 		If (akActor.IsWeaponDrawn()) ;if the actor has their weapon drawn
@@ -795,6 +803,9 @@ State Stripping
 		If (!HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH) && !abDontStop) ;if this is a single array strip and we have not been instructed to continue
 			If (akActor == PlayerRef)
 				Game.SetPlayerAIDriven(False) ;give control back to the player
+			Else
+				ActorUtil.RemovePackageOverride(akActor, DoNothingPackage)
+				akActor.EvaluatePackage()
 			EndIf
 
 			UnRegisterForAnimationEvent(akActor, "IdleStop")
@@ -842,12 +853,15 @@ Bool Function Uninstall()
 
 	While (i < FormListCount(Self, SS_STRIPPINGACTORS))
 		Actor kActor = FormListGet(Self, SS_STRIPPINGACTORS, i) as Actor
-		SendSerialStripStopEvent(GetFormValue(kActor, SS_EVENTSENDER), kActor)
 		UnregisterForAnimationEvent(kActor, "IdleStop")
+		ActorUtil.RemovePackageOverride(kActor, DoNothingPackage)
+		kActor.EvaluatePackage()
+		SendSerialStripStopEvent(GetFormValue(kActor, SS_EVENTSENDER), kActor)
 
 		i += 1
 	EndWhile
 
+	Game.SetPlayerAIDriven(False)
 	UnRegisterForModEvent("SerialStripStart")
 
 	FormListClear(Self, SS_STRIPPINGACTORS)
