@@ -26,7 +26,7 @@ String Property SS_FULLSERIALSTRIPSWITCH = "APPS.SerialStrip.FullSerialStripSwit
 String Property SS_ISSHEATHING = "APPS.SerialStrip.IsSheathing" AutoReadOnly Hidden
 ;Form Property EventSender Auto Hidden ;stores the form that initiated the stripping
 String Property SS_EVENTSENDER = "APPS.SerialStrip.EventSender" AutoReadOnly Hidden
-Package Property DoNothingPackage Auto
+Package Property DoNothing Auto
 
 ;/ openFold /;
 String Property SS_STRIPLIST_WEAPONSANDSHIELDS_R = "APPS.SerialStripList.WeaponsAndShieldsR" AutoReadOnly  Hidden
@@ -655,7 +655,7 @@ State Stripping
 			If (akActor == PlayerRef)
 				Game.SetPlayerAIDriven(False) ;give control back to the player
 			Else
-				ActorUtil.RemovePackageOverride(akActor, DoNothingPackage)
+				ActorUtil.RemovePackageOverride(akActor, DoNothing)
 				akActor.EvaluatePackage()
 			EndIf
 
@@ -671,7 +671,7 @@ State Stripping
 			Game.ForceThirdPerson() ;force third person camera mode
 			Game.SetPlayerAIDriven(True) ;instead of DisablePlayerControls(True)
 		Else
-			ActorUtil.AddPackageOverride(akActor, DoNothingPackage, 100, 1)
+			ActorUtil.AddPackageOverride(akActor, DoNothing, 100, 1)
 		EndIf
 
 		If (akActor.IsWeaponDrawn()) ;if the actor has their weapon drawn
@@ -804,7 +804,7 @@ State Stripping
 			If (akActor == PlayerRef)
 				Game.SetPlayerAIDriven(False) ;give control back to the player
 			Else
-				ActorUtil.RemovePackageOverride(akActor, DoNothingPackage)
+				ActorUtil.RemovePackageOverride(akActor, DoNothing)
 				akActor.EvaluatePackage()
 			EndIf
 
@@ -854,7 +854,7 @@ Bool Function Uninstall()
 	While (i < FormListCount(Self, SS_STRIPPINGACTORS))
 		Actor kActor = FormListGet(Self, SS_STRIPPINGACTORS, i) as Actor
 		UnregisterForAnimationEvent(kActor, "IdleStop")
-		ActorUtil.RemovePackageOverride(kActor, DoNothingPackage)
+		ActorUtil.RemovePackageOverride(kActor, DoNothing)
 		kActor.EvaluatePackage()
 		SendSerialStripStopEvent(GetFormValue(kActor, SS_EVENTSENDER), kActor)
 
