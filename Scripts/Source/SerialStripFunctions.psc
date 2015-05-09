@@ -894,29 +894,16 @@ FJN			Remove Necklace
 FJR			Remove Ring
 
 FArBo 185 frames - 6.17 sec
-
 FArChB 140 frames - 4.67 sec
-
 FArGl 145 frames - 4.83 sec
-
 FArHe 140 frames - 4.67 sec
-
 FClBo 185 frames - 6.17 sec
-
 FClChB 181 frames - 6.03 sec
-
 FClCi 85 frames - 2.83 sec
-
 FClGl 85 frames - 2.83 sec
-
 FClHo 85 frames - 2.83 sec
-
 FULB 93 frames - 3.1 sec
-
 FUUB 105 frames - 3.5 sec
-
 FJR 74 frames - 2.5 sec
-
 FJN 74 frames - 2.5 sec
-
 /;
