@@ -14,8 +14,8 @@ String Property SS_CURRENTSTRIPARRAY = "APPS.SerialStrip.CurrentStripArray" Auto
 ;String Property sCurrentStrippedArray Auto Hidden ;the array that is currently holding the stripped items
 String Property SS_CURRENTSTRIPPEDARRAY = "APPS.SerialStrip.CurrentStrippedArray" AutoReadOnly Hidden
 
-Idle WeaponsAndShieldsAnim ;the name of the weapons and shields stripping animation
-Idle OtherAnim ;the name of the "other" stripping animation
+String WeaponsAndShieldsAnim ;the name of the weapons and shields stripping animation
+String OtherAnim ;the name of the "other" stripping animation
 
 Bool[] Property bAllTrueList Auto Hidden
 Bool[] Property bAllFalseList Auto Hidden
@@ -67,7 +67,7 @@ String Property SS_KW_RING = "APPS.SerialStripKeyword.Ring" AutoReadOnly Hidden
 String Property SS_KW_BRA = "APPS.SerialStripKeyword.Bra" AutoReadOnly Hidden
 String Property SS_KW_PANTIES = "APPS.SerialStripKeyword.Panties" AutoReadOnly Hidden
 
-String Property SS_ANIM_ARMORGLOVES = "APPS.SerialStripAnim.ArmorHands" AutoReadOnly Hidden
+;/ String Property SS_ANIM_ARMORGLOVES = "APPS.SerialStripAnim.ArmorHands" AutoReadOnly Hidden
 String Property SS_ANIM_CLOTHGLOVES = "APPS.SerialStripAnim.ClothHands" AutoReadOnly Hidden
 String Property SS_ANIM_ARMORHELMET = "APPS.SerialStripAnim.ArmorHelmet" AutoReadOnly Hidden
 String Property SS_ANIM_CLOTHHOOD = "APPS.SerialStripAnim.ClothHood" AutoReadOnly Hidden
@@ -79,7 +79,21 @@ String Property SS_ANIM_NECKLACE = "APPS.SerialStripAnim.Necklace" AutoReadOnly 
 String Property SS_ANIM_CLOTHCIRCLET = "APPS.SerialStripAnim.ClothCirclet" AutoReadOnly Hidden
 String Property SS_ANIM_RING = "APPS.SerialStripAnim.Ring" AutoReadOnly Hidden
 String Property SS_ANIM_BRA = "APPS.SerialStripAnim.Bra" AutoReadOnly Hidden
-String Property SS_ANIM_PANTIES = "APPS.SerialStripAnim.Panties" AutoReadOnly Hidden
+String Property SS_ANIM_PANTIES = "APPS.SerialStripAnim.Panties" AutoReadOnly Hidden /;
+
+String Property SS_ANIM_ARMORGLOVES = "ssFArGl" AutoReadOnly Hidden
+String Property SS_ANIM_CLOTHGLOVES = "ssFClGl" AutoReadOnly Hidden
+String Property SS_ANIM_ARMORHELMET = "ssFArHe" AutoReadOnly Hidden
+String Property SS_ANIM_CLOTHHOOD = "ssFClHo" AutoReadOnly Hidden
+String Property SS_ANIM_ARMORBOOTS = "ssFArBo" AutoReadOnly Hidden
+String Property SS_ANIM_CLOTHBOOTS = "ssFClBo" AutoReadOnly Hidden
+String Property SS_ANIM_ARMORCHESTPIECE = "ssFArChB" AutoReadOnly Hidden
+String Property SS_ANIM_CLOTHCHESTPIECE = "ssFClChB" AutoReadOnly Hidden
+String Property SS_ANIM_NECKLACE = "ssFJN" AutoReadOnly Hidden
+String Property SS_ANIM_CLOTHCIRCLET = "ssFClCi" AutoReadOnly Hidden
+String Property SS_ANIM_RING = "ssFJR" AutoReadOnly Hidden
+String Property SS_ANIM_BRA = "ssFUUB" AutoReadOnly Hidden
+String Property SS_ANIM_PANTIES = "ssFULB" AutoReadOnly Hidden
 
 String Property SS_SEXLAB = "APPS.SerialStripDependency.SexLab" AutoReadOnly Hidden
 String Property SS_WAITTIMEAFTERANIM = "APPS.SerialStrip.WaitingTimeAfterAnim" AutoReadOnly Hidden
@@ -306,7 +320,7 @@ EndFunction
 Bool Function HasClothingItems(Actor akActor, String asArrayName)
 EndFunction
 
-Function SingleArrayAnimThenStrip(Actor akActor, String asStripArray, String asStrippedArray, Idle akAnimation = None, Bool abDontStop = False)
+Function SingleArrayAnimThenStrip(Actor akActor, String asStripArray, String asStrippedArray, String asAnimation = "", Bool abDontStop = False)
 EndFunction
 
 Function SingleArrayStrip(Actor akActor, String asStripArray, String asStrippedArray, Bool abDontStop = False)
@@ -720,41 +734,41 @@ State Stripping
 		ElseIf (GlovesCount > 0)
 			If (!RingCount) ;if there are no rings equipped, remove gloves
 				If (HasClothingItems(akActor, SS_STRIPLIST_GLOVES))
-					SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, GetFormValue(Self, SS_ANIM_CLOTHGLOVES) as Idle)
+					SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, SS_ANIM_CLOTHGLOVES)
 				Else
-					SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, GetFormValue(Self, SS_ANIM_ARMORGLOVES) as Idle) ;run the function to play the appropriate animation
+					SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_GLOVES, SS_STRIPPEDLIST_GLOVES, SS_ANIM_ARMORGLOVES) ;run the function to play the appropriate animation
 				EndIf
 			Else ;if there are rings equipped, remove them first because in Skyrim they are worn over the gloves
-				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_RING, SS_STRIPPEDLIST_RING, GetFormValue(Self, SS_ANIM_RING) as Idle) ;run the function to play the appropriate animation
+				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_RING, SS_STRIPPEDLIST_RING, SS_ANIM_RING) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (FormListCount(akActor, SS_STRIPLIST_HELMET) > 0)
 			If (HasClothingItems(akActor, SS_STRIPLIST_HELMET))
-				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, GetFormValue(Self, SS_ANIM_CLOTHHOOD) as Idle)
+				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, SS_ANIM_CLOTHHOOD)
 			Else
-				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, GetFormValue(Self, SS_ANIM_ARMORHELMET) as Idle) ;run the function to play the appropriate animation
+				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_HELMET, SS_STRIPPEDLIST_HELMET, SS_ANIM_ARMORHELMET) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (BootsCount > 0)
 			If (HasClothingItems(akActor, SS_STRIPLIST_BOOTS))
-				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, GetFormValue(Self, SS_ANIM_CLOTHBOOTS) as Idle)
+				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, SS_ANIM_CLOTHBOOTS)
 			Else
-				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, GetFormValue(Self, SS_ANIM_ARMORBOOTS) as Idle) ;run the function to play the appropriate animation
+				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_BOOTS, SS_STRIPPEDLIST_BOOTS, SS_ANIM_ARMORBOOTS) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (ChestpieceCount > 0)
 			If (HasClothingItems(akActor, SS_STRIPLIST_CHESTPIECE))
-				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, GetFormValue(Self, SS_ANIM_CLOTHCHESTPIECE) as Idle)
+				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, SS_ANIM_CLOTHCHESTPIECE)
 			Else
-				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, GetFormValue(Self, SS_ANIM_ARMORCHESTPIECE) as Idle) ;run the function to play the appropriate animation
+				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_CHESTPIECE, SS_STRIPPEDLIST_CHESTPIECE, SS_ANIM_ARMORCHESTPIECE) ;run the function to play the appropriate animation
 			EndIf
 		ElseIf (NecklaceCount > 0)
-			SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_NECKLACE, SS_STRIPPEDLIST_NECKLACE, GetFormValue(Self, SS_ANIM_NECKLACE) as Idle) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_NECKLACE, SS_STRIPPEDLIST_NECKLACE, SS_ANIM_NECKLACE) ;run the function to play the appropriate animation
 		ElseIf (CircletCount > 0)
-			SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_CIRCLET, SS_STRIPPEDLIST_CIRCLET, GetFormValue(Self, SS_ANIM_CLOTHCIRCLET) as Idle) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_CIRCLET, SS_STRIPPEDLIST_CIRCLET, SS_ANIM_CLOTHCIRCLET) ;run the function to play the appropriate animation
 		ElseIf (RingCount > 0)
-			SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_RING, SS_STRIPPEDLIST_RING, GetFormValue(Self, SS_ANIM_RING) as Idle) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_RING, SS_STRIPPEDLIST_RING, SS_ANIM_RING) ;run the function to play the appropriate animation
 		ElseIf (BraCount > 0)
-			SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_BRA, SS_STRIPPEDLIST_BRA, GetFormValue(Self, SS_ANIM_BRA) as Idle) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_BRA, SS_STRIPPEDLIST_BRA, SS_ANIM_BRA) ;run the function to play the appropriate animation
 		ElseIf (PantiesCount > 0)
-			SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_PANTIES, SS_STRIPPEDLIST_PANTIES, GetFormValue(Self, SS_ANIM_PANTIES) as Idle) ;run the function to play the appropriate animation
+			SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_PANTIES, SS_STRIPPEDLIST_PANTIES, SS_ANIM_PANTIES) ;run the function to play the appropriate animation
 		ElseIf (OtherCount > 0)
 			SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_OTHER, SS_STRIPPEDLIST_OTHER, OtherAnim) ;run the function to play the appropriate animation
 		EndIf
@@ -776,14 +790,14 @@ State Stripping
 		Return False
 	EndFunction
 
-	Function SingleArrayAnimThenStrip(Actor akActor, String asStripArray, String asStrippedArray, Idle akAnimation = None, Bool abDontStop = False)
+	Function SingleArrayAnimThenStrip(Actor akActor, String asStripArray, String asStrippedArray, String asAnimation = "", Bool abDontStop = False)
 	;makes the actor animate the stripping animation for a single group of clothing, then strips it
 
 		SetStringVAlue(akActor, SS_CURRENTSTRIPARRAY, asStripArray)
 		SetStringVAlue(akActor, SS_CURRENTSTRIPPEDARRAY, asStrippedArray)
 
-		If (akAnimation) ;if the function has been given an animation to play
-			akActor.PlayIdle(akAnimation) ;makes the actor play the stripping animation
+		If (asAnimation) ;if the function has been given an animation to play
+			Debug.SendAnimationEvent(akActor, asAnimation)
 			RegisterForAnimationEvent(akActor, "IdleStop")
 			Debug.Trace("Registered for IdleStop")
 		Else
