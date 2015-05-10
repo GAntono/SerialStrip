@@ -27,6 +27,8 @@ String Property SS_ISSHEATHING = "APPS.SerialStrip.IsSheathing" AutoReadOnly Hid
 ;Form Property EventSender Auto Hidden ;stores the form that initiated the stripping
 String Property SS_EVENTSENDER = "APPS.SerialStrip.EventSender" AutoReadOnly Hidden
 Package Property DoNothing Auto
+Static Property XMarker Auto
+ObjectReference Property Marker Auto Hidden
 
 ;/ openFold /;
 String Property SS_STRIPLIST_WEAPONSANDSHIELDS_R = "APPS.SerialStripList.WeaponsAndShieldsR" AutoReadOnly  Hidden
@@ -229,7 +231,7 @@ EndFunction
 
 Bool Function SendSerialStripStopEvent(Form akSender, Actor akActor)
 	;/ beginValidation /;
-	If (!akSender || !akActor || !FormListFind(Self, SS_STRIPPINGACTORS, akActor) || GetFormValue(akActor, SS_EVENTSENDER) != akSender)
+	If (!akSender || !akActor || FormListFind(Self, SS_STRIPPINGACTORS, akActor) == -1 || GetFormValue(akActor, SS_EVENTSENDER) != akSender)
 		Return False
 	EndIf
 	;/ endValidation /;
@@ -276,6 +278,8 @@ Event OnSerialStripStart(Form akSender, Form akActor, Bool abFullStrip)
 	SetFormValue(kActor, SS_EVENTSENDER, akSender)
 	If (abFullStrip)
 		SetIntValue(kActor, SS_FULLSERIALSTRIPSWITCH, 1)
+	Else
+		UnsetIntValue(kActor, SS_FULLSERIALSTRIPSWITCH)
 	EndIf
 	PrepareForStripping(kActor, bAllFalseList)
 	SerialStrip(kActor)
@@ -654,9 +658,15 @@ State Stripping
 
 			If (akActor == PlayerRef)
 				Game.SetPlayerAIDriven(False) ;give control back to the player
+				Debug.Trace("Player has control")
 			Else
 				ActorUtil.RemovePackageOverride(akActor, DoNothing)
 				akActor.EvaluatePackage()
+				akActor.SetRestrained(False)
+				akActor.SetDontMove(False)
+				akActor.SetVehicle(None)
+				Marker.Disable()
+				Marker.Delete()
 			EndIf
 
 			UnRegisterForAnimationEvent(akActor, "IdleStop")
@@ -672,6 +682,17 @@ State Stripping
 			Game.SetPlayerAIDriven(True) ;instead of DisablePlayerControls(True)
 		Else
 			ActorUtil.AddPackageOverride(akActor, DoNothing, 100, 1)
+			akActor.EvaluatePackage()
+			akActor.SetRestrained(true)
+			akActor.SetDontMove(true)
+			If (!Marker)
+				Marker = akActor.PlaceAtMe(XMarker)
+			EndIf
+			Marker.Enable()
+			Marker.MoveTo(akActor)
+			akActor.StopTranslation()
+			akActor.SetVehicle(Marker)
+			Debug.Trace("Actor has been stopped")
 		EndIf
 
 		If (akActor.IsWeaponDrawn()) ;if the actor has their weapon drawn
@@ -764,6 +785,7 @@ State Stripping
 		If (akAnimation) ;if the function has been given an animation to play
 			akActor.PlayIdle(akAnimation) ;makes the actor play the stripping animation
 			RegisterForAnimationEvent(akActor, "IdleStop")
+			Debug.Trace("Registered for IdleStop")
 		Else
 			SingleArrayStrip(akActor, asStripArray, asStrippedArray, abDontStop) ;go directly to stripping the array without animation
 
@@ -799,13 +821,19 @@ State Stripping
 		EndWhile
 
 		FormListClear(akActor, asStripArray) ;clears the array
-
+		Debug.Trace("HasIntValue is " + HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH) + " and abDontStop is " + abDontStop)
 		If (!HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH) && !abDontStop) ;if this is a single array strip and we have not been instructed to continue
 			If (akActor == PlayerRef)
 				Game.SetPlayerAIDriven(False) ;give control back to the player
+				Debug.Trace("Player has control")
 			Else
 				ActorUtil.RemovePackageOverride(akActor, DoNothing)
 				akActor.EvaluatePackage()
+				akActor.SetRestrained(False)
+				akActor.SetDontMove(False)
+				akActor.SetVehicle(None)
+				Marker.Disable()
+				Marker.Delete()
 			EndIf
 
 			UnRegisterForAnimationEvent(akActor, "IdleStop")
@@ -830,7 +858,9 @@ State Stripping
 	EndFunction
 
 	Event OnAnimationEvent(ObjectReference akSource, string asEventName)
-		If (FormListFind(Self, SS_STRIPPINGACTORS, akSource) && asEventName == "IdleStop")
+	Debug.Trace("AnimationEvent detected")
+		If (FormListFind(Self, SS_STRIPPINGACTORS, akSource) != -1 && asEventName == "IdleStop")
+		Debug.Trace("Actor is valid and event is IdleStop")
 			SingleArrayStrip(akSource as Actor, GetStringValue(akSource, SS_CURRENTSTRIPARRAY), GetStringValue(akSource, SS_CURRENTSTRIPPEDARRAY)) ;strip this array (without animation - animation has hopefully been already played!)
 			If (HasIntValue(akSource, SS_FULLSERIALSTRIPSWITCH) || HasIntValue(akSource, SS_ISSHEATHING))
 				If (HasFloatValue(None, SS_WAITTIMEAFTERANIM))
@@ -856,6 +886,11 @@ Bool Function Uninstall()
 		UnregisterForAnimationEvent(kActor, "IdleStop")
 		ActorUtil.RemovePackageOverride(kActor, DoNothing)
 		kActor.EvaluatePackage()
+		kActor.SetRestrained(False)
+		kActor.SetDontMove(False)
+		kActor.SetVehicle(None)
+		Marker.Disable()
+		Marker.Delete()
 		SendSerialStripStopEvent(GetFormValue(kActor, SS_EVENTSENDER), kActor)
 
 		i += 1
