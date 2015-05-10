@@ -67,20 +67,6 @@ String Property SS_KW_RING = "APPS.SerialStripKeyword.Ring" AutoReadOnly Hidden
 String Property SS_KW_BRA = "APPS.SerialStripKeyword.Bra" AutoReadOnly Hidden
 String Property SS_KW_PANTIES = "APPS.SerialStripKeyword.Panties" AutoReadOnly Hidden
 
-;/ String Property SS_ANIM_ARMORGLOVES = "APPS.SerialStripAnim.ArmorHands" AutoReadOnly Hidden
-String Property SS_ANIM_CLOTHGLOVES = "APPS.SerialStripAnim.ClothHands" AutoReadOnly Hidden
-String Property SS_ANIM_ARMORHELMET = "APPS.SerialStripAnim.ArmorHelmet" AutoReadOnly Hidden
-String Property SS_ANIM_CLOTHHOOD = "APPS.SerialStripAnim.ClothHood" AutoReadOnly Hidden
-String Property SS_ANIM_ARMORBOOTS = "APPS.SerialStripAnim.ArmorBoots" AutoReadOnly Hidden
-String Property SS_ANIM_CLOTHBOOTS = "APPS.SerialStripAnim.ClothBoots" AutoReadOnly Hidden
-String Property SS_ANIM_ARMORCHESTPIECE = "APPS.SerialStripAnim.ArmorChestPiece" AutoReadOnly Hidden
-String Property SS_ANIM_CLOTHCHESTPIECE = "APPS.SerialStripAnim.ClothChestPiece" AutoReadOnly Hidden
-String Property SS_ANIM_NECKLACE = "APPS.SerialStripAnim.Necklace" AutoReadOnly Hidden
-String Property SS_ANIM_CLOTHCIRCLET = "APPS.SerialStripAnim.ClothCirclet" AutoReadOnly Hidden
-String Property SS_ANIM_RING = "APPS.SerialStripAnim.Ring" AutoReadOnly Hidden
-String Property SS_ANIM_BRA = "APPS.SerialStripAnim.Bra" AutoReadOnly Hidden
-String Property SS_ANIM_PANTIES = "APPS.SerialStripAnim.Panties" AutoReadOnly Hidden /;
-
 String Property SS_ANIM_ARMORGLOVES = "ssFArGl" AutoReadOnly Hidden
 String Property SS_ANIM_CLOTHGLOVES = "ssFClGl" AutoReadOnly Hidden
 String Property SS_ANIM_ARMORHELMET = "ssFArHe" AutoReadOnly Hidden
@@ -172,22 +158,6 @@ Function InitDefaultArrays()
 		i += 1
 	EndWhile
 
-	;/ fetch our animations via GetFormFromFile() and store them in StorageUtil openFold /;
-	SetFormValue(Self, SS_ANIM_ARMORGLOVES, Game.GetFormFromFile(0x4347, "SerialStrip.esp") as Idle)
-	SetFormValue(Self, SS_ANIM_CLOTHGLOVES, Game.GetFormFromFile(0x434D, "SerialStrip.esp") as Idle)
-	SetFormValue(Self, SS_ANIM_ARMORHELMET, Game.GetFormFromFile(0x4348, "SerialStrip.esp") as Idle)
-	SetFormValue(Self, SS_ANIM_CLOTHHOOD, Game.GetFormFromFile(0x434E, "SerialStrip.esp") as Idle)
-	SetFormValue(Self, SS_ANIM_ARMORBOOTS, Game.GetFormFromFile(0x4345, "SerialStrip.esp") as Idle)
-	SetFormValue(Self, SS_ANIM_CLOTHBOOTS, Game.GetFormFromFile(0x434A, "SerialStrip.esp") as Idle)
-	SetFormValue(Self, SS_ANIM_ARMORCHESTPIECE, Game.GetFormFromFile(0x4346, "SerialStrip.esp") as Idle)
-	SetFormValue(Self, SS_ANIM_CLOTHCHESTPIECE, Game.GetFormFromFile(0x434B, "SerialStrip.esp") as Idle)
-	SetFormValue(Self, SS_ANIM_NECKLACE, Game.GetFormFromFile(0x4350, "SerialStrip.esp") as Idle)
-	SetFormValue(Self, SS_ANIM_CLOTHCIRCLET, Game.GetFormFromFile(0x434C, "SerialStrip.esp") as Idle)
-	SetFormValue(Self, SS_ANIM_RING, Game.GetFormFromFile(0x434F, "SerialStrip.esp") as Idle)
-	SetFormValue(Self, SS_ANIM_BRA, Game.GetFormFromFile(0x4352, "SerialStrip.esp") as Idle)
-	SetFormValue(Self, SS_ANIM_PANTIES, Game.GetFormFromFile(0x4351, "SerialStrip.esp") as Idle)
-	;/ closeFold /;
-
 	;/ clear our StorageUtil arrays for update compatibility, then fill them with item keywords openFold /;
 	StringListClear(Self, SS_KW_HELMET)
 	StringListClear(Self, SS_KW_GLOVES)
@@ -270,6 +240,10 @@ Bool Function SendSerialStripStopEvent(Form akSender, Actor akActor)
 EndFunction
 
 Event OnSerialStripStart(Form akSender, Form akActor, Bool abFullStrip)
+	If (GetState()) ;prevents reacting to this event while not in the default state
+		Return
+	EndIf
+
 	Debug.Trace("OnSerialStripStart() event detected. Sender: " + akSender + ", Actor: " + akActor + ", FullStrip: " + abFullStrip)
 	Actor kActor = akActor as Actor
 	;/ beginValidation /;
@@ -428,6 +402,7 @@ State Stripping
 				If ((FormListFind(Self, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
 					If (IsStrippableItem(kItemRef) == True && IsValidSlot(39, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 						FormListAdd(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
+						Debug.Trace("[SerialStrip] Shield detected: " + kItemRef + " on actor: " + akActor)
 						bArrayIsActive[1] = True ;activate the WeaponsAndShieldsL array
 					EndIf
 				EndIf
@@ -437,6 +412,7 @@ State Stripping
 				If ((FormListFind(Self, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
 					If (IsStrippableItem(kItemRef) == True && IsValidSlot(62, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 						FormListAdd(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
+						Debug.Trace("[SerialStrip] Left-hand weapon detected: " + kItemRef + " on actor: " + akActor)
 						bArrayIsActive[1] = True ;activate the WeaponsAndShieldsL array
 					EndIf
 				EndIf
@@ -449,6 +425,7 @@ State Stripping
 			If ((FormListFind(Self, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
 				If (IsStrippableItem(kItemRef) == True && IsValidSlot(62, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 					FormListAdd(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
+					Debug.Trace("[SerialStrip] Right-hand weapon detected: " + kItemRef + " on actor: " + akActor)
 					bArrayIsActive[0] = True ;activate the WeaponsAndShieldsR array
 				EndIf
 			EndIf
@@ -874,16 +851,24 @@ State Stripping
 	Event OnAnimationEvent(ObjectReference akSource, string asEventName)
 	Debug.Trace("AnimationEvent detected")
 		If (FormListFind(Self, SS_STRIPPINGACTORS, akSource) != -1 && asEventName == "IdleStop")
-		Debug.Trace("Actor is valid and event is IdleStop")
+			Debug.Trace("Actor is valid and event is IdleStop")
+			GoToState("Animating")
+			Debug.Trace("Went to state Animating")
 			SingleArrayStrip(akSource as Actor, GetStringValue(akSource, SS_CURRENTSTRIPARRAY), GetStringValue(akSource, SS_CURRENTSTRIPPEDARRAY)) ;strip this array (without animation - animation has hopefully been already played!)
 			If (HasIntValue(akSource, SS_FULLSERIALSTRIPSWITCH) || HasIntValue(akSource, SS_ISSHEATHING))
 				If (HasFloatValue(None, SS_WAITTIMEAFTERANIM))
+					Debug.Trace("Waiting for " + GetFloatValue(None, SS_WAITTIMEAFTERANIM) + " seconds")
 					Utility.Wait(GetFloatValue(None, SS_WAITTIMEAFTERANIM))
 				Else
+					Debug.Trace("Waiting for default 1 seconds")
 					Utility.Wait(1.0)
 				EndIf
+				GoToState("Stripping")
+				Debug.Trace("Went to state Stripping")
 				SerialStrip(akSource as Actor)
 			EndIf
+			GoToState("Stripping")
+			Debug.Trace("Went to state Stripping")
 		EndIf
 	EndEvent
 
@@ -945,6 +930,57 @@ Bool Function Uninstall()
 	Debug.Trace("SerialStrip uninstalled")
 	Return True
 EndFunction
+
+State Animating
+
+	Function SingleArrayStrip(Actor akActor, String asStripArray, String asStrippedArray, Bool abDontStop = False)
+	;makes the actor strip a single group of clothing
+
+		;/ beginValidation /;
+		If (!akActor)
+			Return
+		EndIf
+		;/ endValidation /;
+
+		FormListClear(akActor, asStrippedArray) ;clears the array that will store the stripped items before refilling it
+
+		Int i = FormListCount(akActor, asStripArray) - 1 ;sets i equal to the length of the array (-1 because FormListCount's result is 1-based while the array is 0 based)
+
+		While (i >= 0) ;sets the loop to run up to and including position zero in the array (backwards)
+
+			Form kItemRef = FormListGet(akActor, asStripArray, i) ;fetches the item stored in i position in the array
+
+			If (kItemRef) ;if this is an actual item, i.e. the array has not been cleared
+				akActor.UnequipItem(kItemRef) ;unequips this item
+				FormListAdd(akActor, asStrippedArray, kItemRef) ;adds the item to this array
+			EndIf
+
+			i -= 1 ;go to the next item in the array (backwards)
+		EndWhile
+
+		FormListClear(akActor, asStripArray) ;clears the array
+		Debug.Trace("HasIntValue is " + HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH) + " and abDontStop is " + abDontStop)
+		If (!HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH) && !abDontStop) ;if this is a single array strip and we have not been instructed to continue
+			If (akActor == PlayerRef)
+				Game.SetPlayerAIDriven(False) ;give control back to the player
+				Debug.Trace("Player has control")
+			Else
+				ActorUtil.RemovePackageOverride(akActor, DoNothing)
+				akActor.EvaluatePackage()
+				akActor.SetRestrained(False)
+				akActor.SetDontMove(False)
+				akActor.SetVehicle(None)
+				Marker.Disable()
+				Marker.Delete()
+			EndIf
+
+			UnRegisterForAnimationEvent(akActor, "IdleStop")
+			GoToState("")
+			SendSerialStripStopEvent(GetFormValue(akActor, SS_EVENTSENDER), akActor)
+		EndIf
+	EndFunction
+
+EndState
 
 ;/ Animation Descriptions & Durations
 
