@@ -770,8 +770,8 @@ State Stripping
 	Function SingleArrayAnimThenStrip(Actor akActor, String asStripArray, String asStrippedArray, String asAnimation = "", Bool abDontStop = False)
 	;makes the actor animate the stripping animation for a single group of clothing, then strips it
 
-		SetStringVAlue(akActor, SS_CURRENTSTRIPARRAY, asStripArray)
-		SetStringVAlue(akActor, SS_CURRENTSTRIPPEDARRAY, asStrippedArray)
+		SetStringValue(akActor, SS_CURRENTSTRIPARRAY, asStripArray)
+		SetStringValue(akActor, SS_CURRENTSTRIPPEDARRAY, asStrippedArray)
 
 		If (asAnimation) ;if the function has been given an animation to play
 			Debug.SendAnimationEvent(akActor, asAnimation)
@@ -852,6 +852,8 @@ State Stripping
 	Debug.Trace("AnimationEvent detected")
 		If (FormListFind(Self, SS_STRIPPINGACTORS, akSource) != -1 && asEventName == "IdleStop")
 			Debug.Trace("Actor is valid and event is IdleStop")
+			UnregisterForAnimationEvent(akSource as Actor, "IdleStop")
+			Debug.Trace("Unregistered for IdleStop")
 			SingleArrayStrip(akSource as Actor, GetStringValue(akSource, SS_CURRENTSTRIPARRAY), GetStringValue(akSource, SS_CURRENTSTRIPPEDARRAY)) ;strip this array (without animation - animation has hopefully been already played!)
 			If (HasIntValue(akSource, SS_FULLSERIALSTRIPSWITCH) || HasIntValue(akSource, SS_ISSHEATHING))
 				If (HasFloatValue(None, SS_WAITTIMEAFTERANIM))
