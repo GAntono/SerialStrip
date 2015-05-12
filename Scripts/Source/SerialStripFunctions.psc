@@ -227,8 +227,8 @@ Bool Function SendSerialStripStopEvent(Form akSender, Actor akActor)
 		ModEvent.Send(Handle)
 		ClearStripLists(akActor)
 		ClearStrippedLists(akActor)
-		StringListClear(akActor, SS_CURRENTSTRIPARRAY)
-		StringListClear(akActor, SS_CURRENTSTRIPPEDARRAY)
+		FormListClear(akActor, SS_CURRENTSTRIPARRAY)
+		FormListClear(akActor, SS_CURRENTSTRIPPEDARRAY)
 		UnsetIntValue(akActor, SS_FULLSERIALSTRIPSWITCH)
 		UnsetIntValue(akActor, SS_ISSHEATHING)
 		UnsetFormValue(akActor, SS_EVENTSENDER)
@@ -620,6 +620,7 @@ State Stripping
 
 	Function SerialStrip(Actor akActor)
 	;makes the actor strip one item/group of clothing (one array) and then strip the next one and so on. To be used for button taps.
+	Debug.Trace("SerialStrip() called on " + akActor)
 
 		;fetching all item counts once and storing them so we don't do this over and over again
 		Int WeaponsAndShieldsRCount = FormListCount(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R)
@@ -705,7 +706,6 @@ State Stripping
 				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, WeaponsAndShieldsAnim) ;run the function to play the appropriate animation
 			Else ;if both right and left hand arrays are not empty
 				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_R, WeaponsAndShieldsAnim, abDontStop = True) ;run the function to play the appropriate animation and continue to strip the left hand too
-				SingleArrayAnimThenStrip(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L, SS_STRIPPEDLIST_WEAPONSANDSHIELDS_L) ;run the function to just strip the left hand without playing an animation
 			EndIf
 		;ARMOR
 		ElseIf (GlovesCount > 0)
@@ -769,25 +769,27 @@ State Stripping
 
 	Function SingleArrayAnimThenStrip(Actor akActor, String asStripArray, String asStrippedArray, String asAnimation = "", Bool abDontStop = False)
 	;makes the actor animate the stripping animation for a single group of clothing, then strips it
+	Debug.Trace("SingleArrayAnimThenStrip() called for " + asStripArray)
 
 		SetStringValue(akActor, SS_CURRENTSTRIPARRAY, asStripArray)
 		SetStringValue(akActor, SS_CURRENTSTRIPPEDARRAY, asStrippedArray)
 
 		If (asAnimation) ;if the function has been given an animation to play
 			Debug.SendAnimationEvent(akActor, asAnimation)
+			Debug.Trace("Playing animation " + asAnimation)
 			RegisterForAnimationEvent(akActor, "IdleStop")
 			Debug.Trace("Registered for IdleStop")
 		Else
+			Debug.Trace("Stripping " + asStripArray + " without animating")
 			SingleArrayStrip(akActor, asStripArray, asStrippedArray, abDontStop) ;go directly to stripping the array without animation
-
 			If (HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH))
 				SerialStrip(akActor)
 			EndIf
 		EndIf
 	EndFunction
-
 	Function SingleArrayStrip(Actor akActor, String asStripArray, String asStrippedArray, Bool abDontStop = False)
 	;makes the actor strip a single group of clothing
+	Debug.Trace("SingleArrayStrip() called for " + asStripArray)
 
 		;/ beginValidation /;
 		If (!akActor)
@@ -812,7 +814,8 @@ State Stripping
 		EndWhile
 
 		FormListClear(akActor, asStripArray) ;clears the array
-		Debug.Trace("HasIntValue is " + HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH) + " and abDontStop is " + abDontStop)
+		Debug.Trace("Stripped " + asStripArray)
+		Debug.Trace("FullSerialStripSwitch is " + HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH) + " and abDontStop is " + abDontStop)
 		If (!HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH) && !abDontStop) ;if this is a single array strip and we have not been instructed to continue
 			If (akActor == PlayerRef)
 				Game.SetPlayerAIDriven(False) ;give control back to the player
