@@ -852,8 +852,6 @@ State Stripping
 	Debug.Trace("AnimationEvent detected")
 		If (FormListFind(Self, SS_STRIPPINGACTORS, akSource) != -1 && asEventName == "IdleStop")
 			Debug.Trace("Actor is valid and event is IdleStop")
-			GoToState("Animating")
-			Debug.Trace("Went to state Animating")
 			SingleArrayStrip(akSource as Actor, GetStringValue(akSource, SS_CURRENTSTRIPARRAY), GetStringValue(akSource, SS_CURRENTSTRIPPEDARRAY)) ;strip this array (without animation - animation has hopefully been already played!)
 			If (HasIntValue(akSource, SS_FULLSERIALSTRIPSWITCH) || HasIntValue(akSource, SS_ISSHEATHING))
 				If (HasFloatValue(None, SS_WAITTIMEAFTERANIM))
@@ -863,12 +861,8 @@ State Stripping
 					Debug.Trace("Waiting for default 1 seconds")
 					Utility.Wait(1.0)
 				EndIf
-				GoToState("Stripping")
-				Debug.Trace("Went to state Stripping")
 				SerialStrip(akSource as Actor)
 			EndIf
-			GoToState("Stripping")
-			Debug.Trace("Went to state Stripping")
 		EndIf
 	EndEvent
 
@@ -930,57 +924,6 @@ Bool Function Uninstall()
 	Debug.Trace("SerialStrip uninstalled")
 	Return True
 EndFunction
-
-State Animating
-
-	Function SingleArrayStrip(Actor akActor, String asStripArray, String asStrippedArray, Bool abDontStop = False)
-	;makes the actor strip a single group of clothing
-
-		;/ beginValidation /;
-		If (!akActor)
-			Return
-		EndIf
-		;/ endValidation /;
-
-		FormListClear(akActor, asStrippedArray) ;clears the array that will store the stripped items before refilling it
-
-		Int i = FormListCount(akActor, asStripArray) - 1 ;sets i equal to the length of the array (-1 because FormListCount's result is 1-based while the array is 0 based)
-
-		While (i >= 0) ;sets the loop to run up to and including position zero in the array (backwards)
-
-			Form kItemRef = FormListGet(akActor, asStripArray, i) ;fetches the item stored in i position in the array
-
-			If (kItemRef) ;if this is an actual item, i.e. the array has not been cleared
-				akActor.UnequipItem(kItemRef) ;unequips this item
-				FormListAdd(akActor, asStrippedArray, kItemRef) ;adds the item to this array
-			EndIf
-
-			i -= 1 ;go to the next item in the array (backwards)
-		EndWhile
-
-		FormListClear(akActor, asStripArray) ;clears the array
-		Debug.Trace("HasIntValue is " + HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH) + " and abDontStop is " + abDontStop)
-		If (!HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH) && !abDontStop) ;if this is a single array strip and we have not been instructed to continue
-			If (akActor == PlayerRef)
-				Game.SetPlayerAIDriven(False) ;give control back to the player
-				Debug.Trace("Player has control")
-			Else
-				ActorUtil.RemovePackageOverride(akActor, DoNothing)
-				akActor.EvaluatePackage()
-				akActor.SetRestrained(False)
-				akActor.SetDontMove(False)
-				akActor.SetVehicle(None)
-				Marker.Disable()
-				Marker.Delete()
-			EndIf
-
-			UnRegisterForAnimationEvent(akActor, "IdleStop")
-			GoToState("")
-			SendSerialStripStopEvent(GetFormValue(akActor, SS_EVENTSENDER), akActor)
-		EndIf
-	EndFunction
-
-EndState
 
 ;/ Animation Descriptions & Durations
 
