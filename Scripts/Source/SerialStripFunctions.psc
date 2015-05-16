@@ -884,9 +884,9 @@ State Stripping
 	EndFunction
 
 	Event OnAnimationEvent(ObjectReference akSource, string asEventName)
-	Debug.Trace("AnimationEvent detected")
+	Debug.Trace("[SerialStrip] AnimationEvent detected")
 		If (FormListFind(Self, SS_STRIPPINGACTORS, akSource) != -1 && asEventName == "IdleStop")
-			Debug.Trace("Actor " + (akSource as Actor).GetLeveledActorBase().GetName() + " is valid and AnimationEvent is IdleStop")
+			Debug.Trace("[SerialStrip] Actor " + (akSource as Actor).GetLeveledActorBase().GetName() + " is valid and AnimationEvent is IdleStop")
 			UnregisterForAnimationEvent(akSource as Actor, "IdleStop")
 			SingleArrayStrip(akSource as Actor, GetStringValue(akSource, SS_CURRENTSTRIPARRAY), GetStringValue(akSource, SS_CURRENTSTRIPPEDARRAY)) ;strip this array (without animation - animation has hopefully been already played!)
 			If (HasIntValue(akSource, SS_FULLSERIALSTRIPSWITCH) || HasIntValue(akSource, SS_ISSHEATHING))
