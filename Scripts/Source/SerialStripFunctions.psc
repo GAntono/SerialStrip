@@ -98,25 +98,23 @@ akSender:	 the object that sent the event (your mod).
 abFullStrip: True  = will do a full strip i.e. remove all strippable items.
 			 False = will do a single strip i.e. remove one group of items.
 /;
-	Debug.Trace("SendSerialStripStartEvent() has begun validation")
 	;/ beginValidation /;
-	If (!akSender || !akActor)
+	If (!akSender)
+		Debug.Trace("[SerialStrip] ERROR: SendSerialStripStartEvent() has been passed a none argument for akSender.")
+		Return False
+	ElseIf (!akActor)
+		Debug.Trace("[SerialStrip] ERROR: SendSerialStripStartEvent() has been passed a none argument for akActor.")
 		Return False
 	EndIf
 	;/ endValidation /;
-	Debug.Trace("SendSerialStripStartEvent() has ended validation")
 
 	Int Handle = ModEvent.Create("SerialStripStart")
 	If (Handle)
-		Debug.Trace("SendSerialStripStartEvent() pushing akSender")
+		Debug.Trace("[SerialStrip] Sending SerialStripStart event. akSender is " + akSender + ", akActor is " + akActor.GetLeveledActorBase().GetName() + ", abFullStrip is " + abFullStrip + ".")
 		ModEvent.PushForm(Handle, akSender)
-		Debug.Trace("SendSerialStripStartEvent() pushing akActor")
 		ModEvent.PushForm(Handle, akActor)
-		Debug.Trace("SendSerialStripStartEvent() pushing abFullStrip")
 		ModEvent.PushBool(Handle, abFullStrip)
-		Debug.Trace("SendSerialStripStartEvent() all items pushed. Sending.")
 		ModEvent.Send(Handle)
-		Debug.Trace("SendSerialStripStartEvent() sent")
 		Return True
 	Else
 		Return False
@@ -133,6 +131,7 @@ Event OnInit()
 		PrepareMod()
 		UnSetIntValue(Self, "OnInitCounter")
 		Debug.Notification("$SS_INSTALLSSTRIPDONE_NOTIFY")
+		Debug.Trace("[SerialStrip] SerialStrip installed.")
 	EndIf
 EndEvent
 
@@ -215,7 +214,17 @@ EndFunction
 
 Bool Function SendSerialStripStopEvent(Form akSender, Actor akActor)
 	;/ beginValidation /;
-	If (!akSender || !akActor || FormListFind(Self, SS_STRIPPINGACTORS, akActor) == -1 || GetFormValue(akActor, SS_EVENTSENDER) != akSender)
+	If (!akSender)
+		Debug.Trace("[SerialStrip] ERROR: SendSerialStripStopEvent() has been passed a none argument for akSender.")
+		Return False
+	ElseIf (!akActor)
+		Debug.Trace("[SerialStrip] ERROR: SendSerialStripStopEvent() has been passed a none argument for akActor.")
+		Return False
+	ElseIf (FormListFind(Self, SS_STRIPPINGACTORS, akActor) == -1)
+		Debug.Trace("[SerialStrip] ERROR: SendSerialStripStopEvent() - Actor " + akActor.GetLeveledActorBase().GetName() + " was not found in the StrippingActors array.")
+		Return False
+	ElseIf (GetFormValue(akActor, SS_EVENTSENDER) != akSender)
+		Debug.Trace("[SerialStrip] ERROR: SendSerialStripStopEvent() - " + akSender + " cannot instruct actor " + akActor.GetLeveledActorBase().GetName() + " to stop stripping because this actor is being stripped by another object.")
 		Return False
 	EndIf
 	;/ endValidation /;
@@ -244,19 +253,35 @@ Event OnSerialStripStart(Form akSender, Form akActor, Bool abFullStrip)
 		Return
 	EndIf
 
-	Debug.Trace("OnSerialStripStart() event detected. Sender: " + akSender + ", Actor: " + akActor + ", FullStrip: " + abFullStrip)
 	Actor kActor = akActor as Actor
+	Debug.Trace("[SerialStrip] OnSerialStripStart() event detected. Sender: " + akSender + ", Actor: " + kActor.GetLeveledActorBase().GetName() + ", FullStrip: " + abFullStrip)
 	;/ beginValidation /;
-	If (kActor.IsOnMount() || \
-		kActor.IsSprinting() || \
-		kActor.IsRunning() || \
-		kActor.GetSleepState() > 2 || \
-		kActor.IsInCombat() || \
-		kActor.GetSitState() > 2 || \
-		kActor.IsSwimming() || \
-		kActor.IsSneaking() || \
-		kActor.IsChild())
-
+	If (kActor.IsOnMount())
+		Debug.Trace("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is on mount.")
+		Return
+	ElseIf (kActor.IsSprinting())
+		Debug.Trace("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is sprinting.")
+		Return
+	ElseIf (kActor.IsRunning())
+		Debug.Trace("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is running.")
+		Return
+	ElseIf (kActor.GetSleepState() > 2)
+		Debug.Trace("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is sleeping.")
+		Return
+	ElseIf (kActor.IsInCombat())
+		Debug.Trace("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is in combat.")
+		Return
+	ElseIf (kActor.GetSitState() > 2)
+		Debug.Trace("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is sitting.")
+		Return
+	ElseIf (kActor.IsSwimming())
+		Debug.Trace("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is swimming.")
+		Return
+	ElseIf (kActor.IsSneaking())
+		Debug.Trace("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is sneaking.")
+		Return
+	ElseIf (kActor.IsChild())
+		Debug.Trace("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is not an adult.")
 		Return
 	EndIf
 	;/ endValidation /;
@@ -345,7 +370,11 @@ State Stripping
 	/;
 
 		;/ beginValidation /;
-		If (!akActor || abSlotOverrideList.Length != 33)
+		If (!akActor)
+			Debug.Trace("[SerialStrip] ERROR: PrepareForStripping() has been passed a none object for akActor.")
+			Return
+		ElseIf (abSlotOverrideList.Length != 33)
+			Debug.Trace("[SerialStrip] ERROR: PrepareForStripping() has been passed an array for abSlotOverrideList which is not 33 items long.")
 			Return
 		EndIf
 		;/ endValidation /;
@@ -402,7 +431,7 @@ State Stripping
 				If ((FormListFind(Self, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
 					If (IsStrippableItem(kItemRef) == True && IsValidSlot(39, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 						FormListAdd(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
-						Debug.Trace("[SerialStrip] Shield detected: " + kItemRef + " on actor: " + akActor)
+						Debug.Trace("[SerialStrip] Shield detected: " + kItemRef.GetName() + " on actor: " + akActor.GetLeveledActorBase().GetName())
 						bArrayIsActive[1] = True ;activate the WeaponsAndShieldsL array
 					EndIf
 				EndIf
@@ -412,7 +441,7 @@ State Stripping
 				If ((FormListFind(Self, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
 					If (IsStrippableItem(kItemRef) == True && IsValidSlot(62, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 						FormListAdd(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
-						Debug.Trace("[SerialStrip] Left-hand weapon detected: " + kItemRef + " on actor: " + akActor)
+						Debug.Trace("[SerialStrip] Left-hand weapon detected: " + kItemRef.GetName() + " on actor: " + akActor.GetLeveledActorBase().GetName())
 						bArrayIsActive[1] = True ;activate the WeaponsAndShieldsL array
 					EndIf
 				EndIf
@@ -425,7 +454,7 @@ State Stripping
 			If ((FormListFind(Self, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
 				If (IsStrippableItem(kItemRef) == True && IsValidSlot(62, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 					FormListAdd(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
-					Debug.Trace("[SerialStrip] Right-hand weapon detected: " + kItemRef + " on actor: " + akActor)
+					Debug.Trace("[SerialStrip] Right-hand weapon detected: " + kItemRef.GetName() + " on actor: " + akActor.GetLeveledActorBase().GetName())
 					bArrayIsActive[0] = True ;activate the WeaponsAndShieldsR array
 				EndIf
 			EndIf
@@ -443,31 +472,31 @@ State Stripping
 
 				If (i == 33) || (ItemHasKeywords(kItemRef, SS_KW_GLOVES)) ;if this item is in the gloves slot OR has any of the gloves keywords
 					FormListAdd(akActor, SS_STRIPLIST_GLOVES, kItemRef, allowDuplicate = False);adds this item to the gloves undress list
-					Debug.Trace("[SerialStrip] Gloves detected: " + kItemRef + " on actor: " + akActor)
+					Debug.Trace("[SerialStrip] Gloves detected: " + kItemRef.GetName() + " on actor: " + akActor.GetLeveledActorBase().GetName())
 				ElseIf (i == 31) || (ItemHasKeywords(kItemRef, SS_KW_HELMET)) ;if this item is in the hair slot OR has any of the helmet keywords
 					FormListAdd(akActor, SS_STRIPLIST_HELMET, kItemRef, allowDuplicate = False) ;adds this item to the helmet undress list
-					Debug.Trace("[SerialStrip] Helmet detected: " + kItemRef + " on actor: " + akActor)
+					Debug.Trace("[SerialStrip] Helmet detected: " + kItemRef.GetName() + " on actor: " + akActor.GetLeveledActorBase().GetName())
 				ElseIf (i == 37) || (ItemHasKeywords(kItemRef, SS_KW_BOOTS)) ;if this item is in the boots slot OR has any of the boots keywords
 					FormListAdd(akActor, SS_STRIPLIST_BOOTS, kItemRef, allowDuplicate = False) ;adds this item to the boots undress list
-					Debug.Trace("[SerialStrip] Boots detected: " + kItemRef + " on actor: " + akActor)
+					Debug.Trace("[SerialStrip] Boots detected: " + kItemRef.GetName() + " on actor: " + akActor.GetLeveledActorBase().GetName())
 				ElseIf ((i == 32 || ItemHasKeywords(kItemRef, SS_KW_CHESTPIECE)) && i != 56 && i != 52) ;if this item is in the chestpiece slot OR has any of the chestpiece keywords and if it is not in the bra or panties slot (because underwear items may have chestpiece keywords)
 					FormListAdd(akActor, SS_STRIPLIST_CHESTPIECE, kItemRef, allowDuplicate = False) ;adds this item to the chestpiece undress list
-					Debug.Trace("[SerialStrip] Chestpiece detected: " + kItemRef + " on actor: " + akActor)
+					Debug.Trace("[SerialStrip] Chestpiece detected: " + kItemRef.GetName() + " on actor: " + akActor.GetLeveledActorBase().GetName())
 				ElseIf (i == 35) || (ItemHasKeywords(kItemRef, SS_KW_NECKLACE)) ;if this item is in the necklace slot OR has any of the necklace keywords
 					FormListAdd(akActor, SS_STRIPLIST_NECKLACE, kItemRef, allowDuplicate = False) ;adds this item to the necklace undress list
-					Debug.Trace("[SerialStrip] Necklace detected: " + kItemRef + " on actor: " + akActor)
+					Debug.Trace("[SerialStrip] Necklace detected: " + kItemRef.GetName() + " on actor: " + akActor.GetLeveledActorBase().GetName())
 				ElseIf (i == 42) || (ItemHasKeywords(kItemRef, SS_KW_CIRCLET)) ;if this item is in the circlet slot OR has any of the circlet keywords
 					FormListAdd(akActor, SS_STRIPLIST_CIRCLET, kItemRef, allowDuplicate = False) ;adds this item to the circlet undress list
-					Debug.Trace("[SerialStrip] Circlet detected: " + kItemRef + " on actor: " + akActor)
+					Debug.Trace("[SerialStrip] Circlet detected: " + kItemRef.GetName() + " on actor: " + akActor.GetLeveledActorBase().GetName())
 				ElseIf (i == 36) || (ItemHasKeywords(kItemRef, SS_KW_RING)) ;if this item is in the ring slot OR has any of the ring keywords
 					FormListAdd(akActor, SS_STRIPLIST_RING, kItemRef, allowDuplicate = False) ;adds this item to the ring undress list
-					Debug.Trace("[SerialStrip] Ring detected: " + kItemRef + " on actor: " + akActor)
+					Debug.Trace("[SerialStrip] Ring detected: " + kItemRef.GetName() + " on actor: " + akActor.GetLeveledActorBase().GetName())
 				ElseIf (i == 56) || (ItemHasKeywords(kItemRef, SS_KW_BRA)) ;if this item is in the bra slot OR has any of the bra keywords
 					FormListAdd(akActor, SS_STRIPLIST_BRA, kItemRef, allowDuplicate = False) ;adds this item to the bra undress list
-					Debug.Trace("[SerialStrip] Bra detected: " + kItemRef + " on actor: " + akActor)
+					Debug.Trace("[SerialStrip] Bra detected: " + kItemRef.GetName() + " on actor: " + akActor.GetLeveledActorBase().GetName())
 				ElseIf (i == 52) || (ItemHasKeywords(kItemRef, SS_KW_PANTIES)) ;if this item is in the panties slot OR has any of the panties keywords
 					FormListAdd(akActor, SS_STRIPLIST_PANTIES, kItemRef, allowDuplicate = False) ;adds this item to the panties undress list
-					Debug.Trace("[SerialStrip] Panties detected: " + kItemRef + " on actor: " + akActor)
+					Debug.Trace("[SerialStrip] Panties detected: " + kItemRef.GetName() + " on actor: " + akActor.GetLeveledActorBase().GetName())
 				EndIf
 
 				If (IsStrippableItem(kItemRef) == True) ;if this item is strippable according to us or SexLab
@@ -514,18 +543,18 @@ State Stripping
 		ClearIfInactive(akActor, SS_STRIPLIST_PANTIES, bArrayIsActive[10])
 		ClearIfInactive(akActor, SS_STRIPLIST_OTHER, bArrayIsActive[11])
 
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_WEAPONSANDSHIELDS_R + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_WEAPONSANDSHIELDS_L + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_GLOVES + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_GLOVES) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_HELMET + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_HELMET) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_BOOTS + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_BOOTS) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_CHESTPIECE + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_CHESTPIECE) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_NECKLACE + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_NECKLACE) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_CIRCLET + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_CIRCLET) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_RING + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_RING) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_BRA + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_BRA) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_PANTIES + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_PANTIES) + " elements.")
-		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_OTHER + " on actor " + akActor + " contains " + FormListCount(akActor, SS_STRIPLIST_OTHER) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_WEAPONSANDSHIELDS_R + " on actor: " + akActor.GetLeveledActorBase().GetName() + " contains " + FormListCount(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_WEAPONSANDSHIELDS_L + " on actor: " + akActor.GetLeveledActorBase().GetName() + " contains " + FormListCount(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_GLOVES + " on actor: " + akActor.GetLeveledActorBase().GetName() + " contains " + FormListCount(akActor, SS_STRIPLIST_GLOVES) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_HELMET + " on actor: " + akActor.GetLeveledActorBase().GetName() + " contains " + FormListCount(akActor, SS_STRIPLIST_HELMET) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_BOOTS + " on actor: " + akActor.GetLeveledActorBase().GetName() + " contains " + FormListCount(akActor, SS_STRIPLIST_BOOTS) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_CHESTPIECE + " on actor: " + akActor.GetLeveledActorBase().GetName() + " contains " + FormListCount(akActor, SS_STRIPLIST_CHESTPIECE) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_NECKLACE + " on actor: " + akActor.GetLeveledActorBase().GetName() + " contains " + FormListCount(akActor, SS_STRIPLIST_NECKLACE) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_CIRCLET + " on actor: " + akActor.GetLeveledActorBase().GetName() + " contains " + FormListCount(akActor, SS_STRIPLIST_CIRCLET) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_RING + " on actor: " + akActor.GetLeveledActorBase().GetName() + " contains " + FormListCount(akActor, SS_STRIPLIST_RING) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_BRA + " on actor: " + akActor.GetLeveledActorBase().GetName() + " contains " + FormListCount(akActor, SS_STRIPLIST_BRA) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_PANTIES + " on actor: " + akActor.GetLeveledActorBase().GetName() + " contains " + FormListCount(akActor, SS_STRIPLIST_PANTIES) + " elements.")
+		Debug.Trace("[SerialStrip] Array " + SS_STRIPLIST_OTHER + " on actor: " + akActor.GetLeveledActorBase().GetName() + " contains " + FormListCount(akActor, SS_STRIPLIST_OTHER) + " elements.")
 	EndFunction
 
 	Function ClearIfInactive(Actor akActor, String asArrayName, Bool abIsArrayActive)
@@ -538,7 +567,7 @@ State Stripping
 
 		If (!abIsArrayActive) ;if the array is not active
 			FormListClear(akActor, asArrayName) ;clear the array by the name asArrayName on akActor
-			Debug.Trace("[SerialStrip] " + asArrayName + " on actor " + akActor + " cleared.")
+			Debug.Trace("[SerialStrip] " + asArrayName + " on actor " + akActor.GetLeveledActorBase().GetName() + " cleared.")
 		EndIf
 	EndFunction
 
@@ -552,17 +581,17 @@ State Stripping
 
 		If (HasFormValue(Self, SS_SEXLAB))
 			If ((GetFormValue(Self, SS_SEXLAB) As SexLabFramework).IsStrippable(akItemRef))
-				Debug.Trace("[SerialStrip] Item " + akItemRef + " is strippable according to SL IsStrippable()")
+				Debug.Trace("[SerialStrip] Item " + akItemRef.GetName() + " is strippable according to SL IsStrippable()")
 				Return True
 			EndIf
 		Else
 			If (!akItemRef.HasKeyword(Keyword.GetKeyword("NoStrip")))
-				Debug.Trace("[SerialStrip] Item " + akItemRef + " is strippable because it does not contain the NoStrip keyword")
+				Debug.Trace("[SerialStrip] Item " + akItemRef.GetName() + " is strippable because it does not contain the NoStrip keyword")
 				Return True
 			EndIf
 		EndIf
 
-		Debug.Trace("[SerialStrip] Item " + akItemRef + " is not strippable because we or SL detected the NoStrip keyword")
+		Debug.Trace("[SerialStrip] Item " + akItemRef.GetName() + " is not strippable because we or SL detected the NoStrip keyword")
 		Return False
 	EndFunction
 
@@ -582,6 +611,7 @@ State Stripping
 				String sKeywordRef = StringListGet(Self, asListName, i) ;fetch the keyword in this position in the array
 
 				If (SexLabUtil.HasKeywordSub(akItemRef, sKeywordRef)) ;if the item has this keyword (more advanced than vanilla HasKeyword)
+					Debug.Trace("[SerialStrip] Keyword " + sKeywordRef + " found on item " + akItemRef.GetName() + " by SexLab's HasKeywordSub()")
 					Return True
 				EndIf
 
@@ -592,6 +622,7 @@ State Stripping
 				String sKeywordRef = StringListGet(Self, asListName, i) ;fetch the keyword in this position in the array
 
 				If (akItemRef.HasKeyword(Keyword.GetKeyword(sKeywordRef))) ;if the item has this keyword (first it gets the keyword that matches our sKeywordRef)
+					Debug.Trace("[SerialStrip] Keyword " + sKeywordRef + " found on item " + akItemRef.GetName() + " by vanilla HasKeyword()")
 					Return True
 				EndIf
 
@@ -620,7 +651,7 @@ State Stripping
 
 	Function SerialStrip(Actor akActor)
 	;makes the actor strip one item/group of clothing (one array) and then strip the next one and so on. To be used for button taps.
-	Debug.Trace("SerialStrip() called on " + akActor)
+	Debug.Trace("[SerialStrip] SerialStrip() called on " + akActor.GetLeveledActorBase().GetName())
 
 		;fetching all item counts once and storing them so we don't do this over and over again
 		Int WeaponsAndShieldsRCount = FormListCount(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R)
@@ -647,10 +678,10 @@ State Stripping
 			BraCount + \
 			PantiesCount + \
 			OtherCount == 0)
+			Debug.Trace("[SerialStrip] Nothing to strip on " + akActor.GetLeveledActorBase().GetName() + ". Aborting.")
 
 			If (akActor == PlayerRef)
 				Game.SetPlayerAIDriven(False) ;give control back to the player
-				Debug.Trace("Player has control")
 			Else
 				ActorUtil.RemovePackageOverride(akActor, DoNothing)
 				akActor.EvaluatePackage()
@@ -684,7 +715,6 @@ State Stripping
 			Marker.MoveTo(akActor)
 			akActor.StopTranslation()
 			akActor.SetVehicle(Marker)
-			Debug.Trace("Actor has been stopped")
 		EndIf
 
 		If (akActor.IsWeaponDrawn()) ;if the actor has their weapon drawn
@@ -769,20 +799,21 @@ State Stripping
 
 	Function SingleArrayAnimThenStrip(Actor akActor, String asStripArray, String asStrippedArray, String asAnimation = "", Bool abStripNextArrayToo = False)
 	;makes the actor animate the stripping animation for a single group of clothing, then strips it
-	Debug.Trace("SingleArrayAnimThenStrip() called for " + asStripArray)
+	Debug.Trace("[SerialStrip] SingleArrayAnimThenStrip() called for " + asStripArray + " on actor " + akActor.GetLeveledActorBase().GetName() + ". abStripNextArrayToo is " + abStripNextArrayToo)
 
 		SetStringValue(akActor, SS_CURRENTSTRIPARRAY, asStripArray)
 		SetStringValue(akActor, SS_CURRENTSTRIPPEDARRAY, asStrippedArray)
 
 		If (asAnimation) ;if the function has been given an animation to play
 			Debug.SendAnimationEvent(akActor, asAnimation)
-			Debug.Trace("Playing animation " + asAnimation)
+			Debug.Trace("[SerialStrip] Actor " + akActor.GetLeveledActorBase().GetName() + " playing animation " + asAnimation)
 			RegisterForAnimationEvent(akActor, "IdleStop")
-			Debug.Trace("Registered for IdleStop")
+			Debug.Trace("[SerialStrip] Registered for IdleStop")
 		Else
-			Debug.Trace("Stripping " + asStripArray + " without animating")
+			Debug.Trace("[SerialStrip] Stripping " + asStripArray + " on actor " + akActor.GetLeveledActorBase().GetName() + " without animating")
 			SingleArrayStrip(akActor, asStripArray, asStrippedArray, abStripNextArrayToo) ;go directly to stripping the array without animation
 			If (HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH) || abStripNextArrayToo)
+				Debug.Trace("[SerialStrip] SingleArrayAnimThenStrip() calling SerialStrip() again because FullSerialStripSwitch is " + HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH) + " and abStripNextArrayToo is " + abStripNextArrayToo)
 				SerialStrip(akActor)
 			EndIf
 		EndIf
@@ -790,10 +821,11 @@ State Stripping
 
 	Function SingleArrayStrip(Actor akActor, String asStripArray, String asStrippedArray, Bool abStripNextArrayToo = False)
 	;makes the actor strip a single group of clothing
-	Debug.Trace("SingleArrayStrip() called for " + asStripArray)
+	Debug.Trace("[SerialStrip] SingleArrayStrip() called for " + asStripArray + " on actor " + akActor.GetLeveledActorBase().GetName() + ". abStripNextArrayToo is " + abStripNextArrayToo)
 
 		;/ beginValidation /;
 		If (!akActor)
+			Debug.Trace("[SerialStrip] ERROR: SingleArrayStrip() has been passed a none object for akActor.")
 			Return
 		EndIf
 		;/ endValidation /;
@@ -815,13 +847,11 @@ State Stripping
 		EndWhile
 
 		FormListClear(akActor, asStripArray) ;clears the array
-		Debug.Trace("Stripped " + asStripArray)
-		Debug.Trace("FullSerialStripSwitch is " + HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH) + " and abStripNextArrayToo is " + abStripNextArrayToo)
-		
+
 		If (!HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH) && !abStripNextArrayToo) ;if this is a single array strip and we have not been instructed to strip the next array too.
+			Debug.Trace("[SerialStrip] Sending SerialStripStop because FullSerialStripSwitch is " + HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH) + " and abStripNextArrayToo is " + abStripNextArrayToo)
 			If (akActor == PlayerRef)
 				Game.SetPlayerAIDriven(False) ;give control back to the player
-				Debug.Trace("Player has control")
 			Else
 				ActorUtil.RemovePackageOverride(akActor, DoNothing)
 				akActor.EvaluatePackage()
@@ -856,16 +886,15 @@ State Stripping
 	Event OnAnimationEvent(ObjectReference akSource, string asEventName)
 	Debug.Trace("AnimationEvent detected")
 		If (FormListFind(Self, SS_STRIPPINGACTORS, akSource) != -1 && asEventName == "IdleStop")
-			Debug.Trace("Actor is valid and event is IdleStop")
+			Debug.Trace("Actor " + (akSource as Actor).GetLeveledActorBase().GetName() + " is valid and AnimationEvent is IdleStop")
 			UnregisterForAnimationEvent(akSource as Actor, "IdleStop")
-			Debug.Trace("Unregistered for IdleStop")
 			SingleArrayStrip(akSource as Actor, GetStringValue(akSource, SS_CURRENTSTRIPARRAY), GetStringValue(akSource, SS_CURRENTSTRIPPEDARRAY)) ;strip this array (without animation - animation has hopefully been already played!)
 			If (HasIntValue(akSource, SS_FULLSERIALSTRIPSWITCH) || HasIntValue(akSource, SS_ISSHEATHING))
 				If (HasFloatValue(None, SS_WAITTIMEAFTERANIM))
-					Debug.Trace("Waiting for " + GetFloatValue(None, SS_WAITTIMEAFTERANIM) + " seconds")
+					Debug.Trace("Waiting for " + GetFloatValue(None, SS_WAITTIMEAFTERANIM) + " seconds as configured by user.")
 					Utility.Wait(GetFloatValue(None, SS_WAITTIMEAFTERANIM))
 				Else
-					Debug.Trace("Waiting for default 1 seconds")
+					Debug.Trace("Waiting for 1 seconds by default")
 					Utility.Wait(1.0)
 				EndIf
 				SerialStrip(akSource as Actor)
