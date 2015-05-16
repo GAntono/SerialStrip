@@ -129,6 +129,7 @@ Event OnInit()
 	AdjustIntValue(Self, "OnInitCounter", 1)
 	If (GetIntValue(Self, "OnInitCounter") == 2)
 		PrepareMod()
+		RegisterForModEvent("SerialStripStart", "OnSerialStripStart") ;does not need to be called again on every game load.
 		UnSetIntValue(Self, "OnInitCounter")
 		Debug.Notification("$SS_INSTALLSSTRIPDONE_NOTIFY")
 		Debug.Trace("[SerialStrip] SerialStrip installed.")
@@ -139,7 +140,6 @@ Function PrepareMod()
 	ShowVersion()
 	InitDefaultArrays()
 	GetSexLab()
-	RegisterForModEvent("SerialStripStart", "OnSerialStripStart")
 EndFunction
 
 Function ShowVersion()
