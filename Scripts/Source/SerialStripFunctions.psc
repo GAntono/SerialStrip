@@ -130,6 +130,7 @@ Event OnInit()
 	If (GetIntValue(Self, "OnInitCounter") == 2)
 		PrepareMod()
 		RegisterForModEvent("SerialStripStart", "OnSerialStripStart") ;does not need to be called again on every game load.
+		SetFloatValue(None, SS_WAITTIMEAFTERANIM, 1.0) ;this is saved on None because it will be used by other mods too. It also has the SS prefix.
 		UnSetIntValue(Self, "OnInitCounter")
 		Debug.Notification("$SS_INSTALLSSTRIPDONE_NOTIFY")
 		Debug.Trace("[SerialStrip] SerialStrip installed.")
