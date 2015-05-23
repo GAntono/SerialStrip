@@ -1,14 +1,17 @@
-Scriptname SerialStrip_MCM extends SKI_ConfigBase  
+Scriptname SerialStrip_MCM extends SKI_ConfigBase
 
 Import StorageUtil
 
 String Property SS_WAITTIMEAFTERANIM = "APPS.SerialStrip.WaitingTimeAfterAnim" AutoReadOnly Hidden
+String Property SS_DEBUGMODE = "APPS.SerialStrip.DebugMode" AutoReadOnly Hidden
 
 Int Property GeneralOptionFlags = 0x00 Auto Hidden ;OPTION_FLAG_NONE from SKI_ConfigBase
 
 Event OnPageReset(String asPage)
 	SetCursorFillMode(TOP_TO_BOTTOM)
 	AddSliderOptionST("WaitingTimeAfterAnim", "$SS_TIMEBETWEENANIMANDSTRIP", GetFloatValue(None, SS_WAITTIMEAFTERANIM), "{1} sec", GeneralOptionFlags)
+	AddEmptyOption()
+	AddToggleOptionST("DebugMode", "$SS_DEBUGMODE", HasIntValue(Self, SS_DEBUGMODE))
 	SetCursorPosition(20)
 	AddToggleOptionST("UninstallSS", "$SS_UNINSTALLSSTRIP", False, GeneralOptionFlags)
 EndEvent
@@ -36,6 +39,22 @@ State WaitingTimeAfterAnim
 
 	Event OnHighlightST()
 		SetInfoText("$SS_TIMEBETWEENANIMANDSTRIP_DESC")
+	EndEvent
+EndState
+
+State DebugMode
+	Event OnSelectST()
+		If (HasIntValue(Self, SS_DEBUGMODE))
+			UnSetIntValue(Self, SS_DEBUGMODE)
+			SetToggleOptionValueST(False)
+		Else
+			SetIntValue(Self, SS_DEBUGMODE, 1)
+			SetToggleOptionValueST(True)
+		EndIf
+	EndEvent
+
+	Event OnHighlightST()
+		SetInfoText("$SS_DEBUGMODE_DESC")
 	EndEvent
 EndState
 
