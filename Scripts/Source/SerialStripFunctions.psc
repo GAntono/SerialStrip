@@ -1077,6 +1077,7 @@ Bool Function Uninstall()
 
 	UnSetFormValue(Self, SS_SEXLAB)
 	UnSetFormValue(None, SS_WAITTIMEAFTERANIM)
+	UnsetIntValue(Self, SS_DEBUGMODE)
 
 	Debug.Trace("SerialStrip uninstalled")
 	Return True
