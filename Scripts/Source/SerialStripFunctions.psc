@@ -5,7 +5,8 @@ Import StorageUtil
 
 String Property SS_Version = "v1.1.1-beta" AutoReadOnly Hidden
 
-Actor Property PlayerRef Auto ;points to the player
+String Property SS_PLAYERREF = "APPS.SerialStrip.PlayerRef" AutoReadOnly Hidden
+;Actor Property PlayerRef Auto ;points to the player
 ;Actor Property kCurrentActor Auto Hidden ;the actor that is currently animating
 String Property SS_STRIPPINGACTORS = "APPS.SerialStrip.StrippingActors" AutoReadOnly Hidden
 
@@ -26,8 +27,10 @@ String Property SS_FULLSERIALSTRIPSWITCH = "APPS.SerialStrip.FullSerialStripSwit
 String Property SS_ISSHEATHING = "APPS.SerialStrip.IsSheathing" AutoReadOnly Hidden
 ;Form Property EventSender Auto Hidden ;stores the form that initiated the stripping
 String Property SS_EVENTSENDER = "APPS.SerialStrip.EventSender" AutoReadOnly Hidden
-Package Property DoNothing Auto
-Static Property XMarker Auto
+String Property SS_DONOTHINGPACKAGE = "APPS.SerialStrip.DoNothingPackage" AutoReadOnly Hidden
+;Package Property DoNothing Auto
+String Property SS_XMARKER = "APPS.SerialStrip.XMarker" AutoReadOnly Hidden
+;Static Property XMarker Auto
 ObjectReference Property Marker Auto Hidden
 
 ;/ openFold /;
@@ -102,9 +105,7 @@ abFullStrip: True  = will do a full strip i.e. remove all strippable items.
 	;/ beginValidation /;
 	If (!akSender)
 		If (HasIntValue(Self, SS_DEBUGMODE))
-			If (HasIntValue(Self, SS_DEBUGMODE))
-				Debug.Trace("[SerialStrip] ERROR: SendSerialStripStartEvent() has been passed a none argument for akSender.")
-			EndIf
+			Debug.Trace("[SerialStrip] ERROR: SendSerialStripStartEvent() has been passed a none argument for akSender.")
 		EndIf
 		Return False
 	ElseIf (!akActor)
@@ -166,6 +167,10 @@ Function InitDefaultArrays()
 		bAllFalseList[i] = False
 		i += 1
 	EndWhile
+	
+	SetFormValue(Self, SS_PLAYERREF, Game.GetFormFromFile(0x00000007, "Skyrim.esm"))
+	SetFormValue(Self, SS_DONOTHINGPACKAGE, Game.GetFormFromFile(0x000654E2, "Skyrim.esm"))
+	SetFormValue(Self, SS_XMARKER, Game.GetFormFromFile(0x0000003B, "Skyrim.esm"))
 
 	;/ clear our StorageUtil arrays for update compatibility, then fill them with item keywords openFold /;
 	StringListClear(Self, SS_KW_HELMET)
@@ -397,6 +402,10 @@ EndFunction
 
 Event OnAnimationEvent(ObjectReference akSource, string asEventName)
 EndEvent
+
+Form Function GetPlayerRef()
+	GetFormValue(Self, SS_PLAYERREF)
+EndFunction
 
 State Stripping
 
@@ -774,10 +783,10 @@ State Stripping
 				Debug.Trace("[SerialStrip] Nothing to strip on " + akActor.GetLeveledActorBase().GetName() + ". Aborting.")
 			EndIf
 
-			If (akActor == PlayerRef)
+			If (akActor == GetPlayerRef())
 				Game.SetPlayerAIDriven(False) ;give control back to the player
 			Else
-				ActorUtil.RemovePackageOverride(akActor, DoNothing)
+				ActorUtil.RemovePackageOverride(akActor, GetFormValue(Self, SS_DONOTHINGPACKAGE) as Package)
 				akActor.EvaluatePackage()
 				akActor.SetRestrained(False)
 				akActor.SetDontMove(False)
@@ -794,16 +803,16 @@ State Stripping
 
 		Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
 
-		If (akActor == PlayerRef)
+		If (akActor == GetPlayerRef())
 			Game.ForceThirdPerson() ;force third person camera mode
 			Game.SetPlayerAIDriven(True) ;instead of DisablePlayerControls(True)
 		Else
-			ActorUtil.AddPackageOverride(akActor, DoNothing, 100, 1)
+			ActorUtil.AddPackageOverride(akActor, GetFormValue(Self, SS_DONOTHINGPACKAGE) as Package, 100, 1)
 			akActor.EvaluatePackage()
 			akActor.SetRestrained(true)
 			akActor.SetDontMove(true)
 			If (!Marker)
-				Marker = akActor.PlaceAtMe(XMarker)
+				Marker = akActor.PlaceAtMe(GetFormValue(Self, SS_XMARKER))
 			EndIf
 			Marker.Enable()
 			Marker.MoveTo(akActor)
@@ -962,10 +971,10 @@ State Stripping
 				Debug.Trace("[SerialStrip] Sending SerialStripStop because FullSerialStripSwitch is " + HasIntValue(akActor, SS_FULLSERIALSTRIPSWITCH) + " and abStripNextArrayToo is " + abStripNextArrayToo)
 			EndIf
 
-			If (akActor == PlayerRef)
+			If (akActor == GetPlayerRef())
 				Game.SetPlayerAIDriven(False) ;give control back to the player
 			Else
-				ActorUtil.RemovePackageOverride(akActor, DoNothing)
+				ActorUtil.RemovePackageOverride(akActor, GetFormValue(Self, SS_DONOTHINGPACKAGE) as Package)
 				akActor.EvaluatePackage()
 				akActor.SetRestrained(False)
 				akActor.SetDontMove(False)
@@ -1034,7 +1043,7 @@ Bool Function Uninstall()
 	While (i < FormListCount(Self, SS_STRIPPINGACTORS))
 		Actor kActor = FormListGet(Self, SS_STRIPPINGACTORS, i) as Actor
 		UnregisterForAnimationEvent(kActor, "IdleStop")
-		ActorUtil.RemovePackageOverride(kActor, DoNothing)
+		ActorUtil.RemovePackageOverride(kActor, GetFormValue(Self, SS_DONOTHINGPACKAGE) as Package)
 		kActor.EvaluatePackage()
 		kActor.SetRestrained(False)
 		kActor.SetDontMove(False)
@@ -1074,6 +1083,10 @@ Bool Function Uninstall()
 	StringListClear(Self, SS_KW_RING)
 	StringListClear(Self, SS_KW_BRA)
 	StringListClear(Self, SS_KW_PANTIES)
+	
+	UnSetFormValue(Self, SS_PLAYERREF)
+	UnSetFormValue(Self, SS_DONOTHINGPACKAGE)
+	UnSetFormValue(Self, SS_XMARKER)
 
 	UnSetFormValue(Self, SS_SEXLAB)
 	UnSetFormValue(None, SS_WAITTIMEAFTERANIM)
