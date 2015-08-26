@@ -167,7 +167,7 @@ Function InitDefaultArrays()
 		bAllFalseList[i] = False
 		i += 1
 	EndWhile
-	
+
 	SetFormValue(Self, SS_PLAYERREF, Game.GetFormFromFile(0x00000007, "Skyrim.esm"))
 	SetFormValue(Self, SS_DONOTHINGPACKAGE, Game.GetFormFromFile(0x000654E2, "Skyrim.esm"))
 	SetFormValue(Self, SS_XMARKER, Game.GetFormFromFile(0x0000003B, "Skyrim.esm"))
@@ -1083,7 +1083,7 @@ Bool Function Uninstall()
 	StringListClear(Self, SS_KW_RING)
 	StringListClear(Self, SS_KW_BRA)
 	StringListClear(Self, SS_KW_PANTIES)
-	
+
 	UnSetFormValue(Self, SS_PLAYERREF)
 	UnSetFormValue(Self, SS_DONOTHINGPACKAGE)
 	UnSetFormValue(Self, SS_XMARKER)
