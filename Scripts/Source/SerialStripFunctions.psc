@@ -89,14 +89,19 @@ String Property SS_WAITTIMEAFTERANIM = "APPS.SerialStrip.WaitingTimeAfterAnim" A
 ; ---             Functions for modders               ---
 ; -------------------------------------------------------
 
-Bool Function SendSerialStripStartEvent(Form akSender, Actor akActor, Bool abFullStrip = False)
+Bool Function SendSerialStripStartEvent(Form akSender, Actor akActor, Bool[] abSlotOverrideList, Bool abFullStrip = False)
 ;/
 Sends a SerialStripStart event that will tell SerialStrip to begin stripping the actor.
 SerialStrip is always listening for this event.
 You can copy this function in your mod, write a similar or call this one from inside SerialStrip
-akSender:	 the object that sent the event (your mod).
-abFullStrip: True  = will do a full strip i.e. remove all strippable items.
-			 False = will do a single strip i.e. remove one group of items.
+akSender:			the object that sent the event (your mod).
+akActor:			the actor than you want to strip.
+abSlotOverrideList:	abSlotOverrideList: a 33-item-long array which defaults to False. You can pass an 33-item-long array of your own and set any item [i]
+					in your array to True to override the user configuration for slot i+30 and force-strip it. This allows a modder to select specific
+					slots to strip even if SexLab is not installed or it allows the modder to override the user's configuration and strip slots
+					despite th
+abFullStrip: 		True  = will do a full strip i.e. remove all strippable items.
+					False = will do a single strip i.e. remove one group of items.
 /;
 	;/ beginValidation /;
 	If (!akSender)
