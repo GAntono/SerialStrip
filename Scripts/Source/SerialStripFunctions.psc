@@ -90,17 +90,17 @@ String Property SS_DEBUGMODE = "APPS.SerialStrip.DebugMode" AutoReadOnly Hidden
 ; ---             Functions for modders               ---
 ; -------------------------------------------------------
 
-Bool Function SendSerialStripStartEvent(Form akSender, Actor akActor, Bool[] abSlotOverrideList, Bool abFullStrip = False)
+Bool Function SendSerialStripStartEvent(Form akSender, Actor akActor, String asSlotOverrideList, Bool abFullStrip = False)
 ;/
 Sends a SerialStripStart event that will tell SerialStrip to begin stripping the actor.
 SerialStrip is always listening for this event.
 You can copy this function in your mod, write a similar or call this one from inside SerialStrip
 akSender:			the object that sent the event (your mod).
 akActor:			the actor than you want to strip.
-abSlotOverrideList:	abSlotOverrideList: a 33-item-long array which defaults to False. You can pass an 33-item-long array of your own and set any item [i]
+asSlotOverrideList:	the name of a 33-item-long array which defaults to False. You can pass an 33-item-long array of your own and set any item [i]
 					in your array to True to override the user configuration for slot i+30 and force-strip it. This allows a modder to select specific
 					slots to strip even if SexLab is not installed or it allows the modder to override the user's configuration and strip slots
-					despite th
+					despite the user's wishes.
 abFullStrip: 		True  = will do a full strip i.e. remove all strippable items.
 					False = will do a single strip i.e. remove one group of items.
 /;
@@ -123,10 +123,11 @@ abFullStrip: 		True  = will do a full strip i.e. remove all strippable items.
 	Int Handle = ModEvent.Create("SerialStripStart")
 	If (Handle)
 		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] Sending SerialStripStart event. akSender is " + akSender + ", akActor is " + akActor.GetLeveledActorBase().GetName() + ", abFullStrip is " + abFullStrip + ".")
+			Debug.Trace("[SerialStrip] Sending SerialStripStart event. akSender is " + akSender + ", akActor is " + akActor.GetLeveledActorBase().GetName() + ", asSlotOverrideList is " + asSlotOverrideList as String + ", abFullStrip is " + abFullStrip + ".")
 		EndIf
 		ModEvent.PushForm(Handle, akSender)
 		ModEvent.PushForm(Handle, akActor)
+		ModEvent.PushString(Handle, asSlotOverrideList)
 		ModEvent.PushBool(Handle, abFullStrip)
 		ModEvent.Send(Handle)
 		Return True
