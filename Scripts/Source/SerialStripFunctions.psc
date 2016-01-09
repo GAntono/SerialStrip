@@ -26,6 +26,7 @@ String Property SS_FULLSERIALSTRIPSWITCH = "APPS.SerialStrip.FullSerialStripSwit
 String Property SS_ISSHEATHING = "APPS.SerialStrip.IsSheathing" AutoReadOnly Hidden
 ;Form Property EventSender Auto Hidden ;stores the form that initiated the stripping
 String Property SS_EVENTSENDER = "APPS.SerialStrip.EventSender" AutoReadOnly Hidden
+String Property SS_SLOTOVERRIDELIST = "APPS.SerialStrip.SlotOverrideList" AutoReadOnly Hidden
 Package Property DoNothing Auto
 Static Property XMarker Auto
 ObjectReference Property Marker Auto Hidden
@@ -107,9 +108,7 @@ abFullStrip: 		True  = will do a full strip i.e. remove all strippable items.
 	;/ beginValidation /;
 	If (!akSender)
 		If (HasIntValue(Self, SS_DEBUGMODE))
-			If (HasIntValue(Self, SS_DEBUGMODE))
-				Debug.Trace("[SerialStrip] ERROR: SendSerialStripStartEvent() has been passed a none argument for akSender.")
-			EndIf
+			Debug.Trace("[SerialStrip] ERROR: SendSerialStripStartEvent() has been passed a none argument for akSender.")
 		EndIf
 		Return False
 	ElseIf (!akActor)
@@ -274,14 +273,14 @@ Bool Function SendSerialStripStopEvent(Form akSender, Actor akActor)
 	EndIf
 EndFunction
 
-Event OnSerialStripStart(Form akSender, Form akActor, Bool abFullStrip)
+Event OnSerialStripStart(Form akSender, Form akActor, String asSlotOverrideList = "", Bool abFullStrip = False)
 	If (GetState()) ;prevents reacting to this event while not in the default state
 		Return
 	EndIf
 
 	Actor kActor = akActor as Actor
 	If (HasIntValue(Self, SS_DEBUGMODE))
-		Debug.Trace("[SerialStrip] OnSerialStripStart() event detected. Sender: " + akSender + ", Actor: " + kActor.GetLeveledActorBase().GetName() + ", FullStrip: " + abFullStrip)
+		Debug.Trace("[SerialStrip] OnSerialStripStart() event detected. Sender: " + akSender + ", Actor: " + kActor.GetLeveledActorBase().GetName() + ", asSlotOverrideList: " + asSlotOverrideList as String + ", FullStrip: " + abFullStrip)
 	EndIf
 	;/ beginValidation /;
 	If (kActor.IsOnMount())
@@ -340,9 +339,18 @@ Event OnSerialStripStart(Form akSender, Form akActor, Bool abFullStrip)
 	Else
 		UnsetIntValue(kActor, SS_FULLSERIALSTRIPSWITCH)
 	EndIf
-	PrepareForStripping(kActor, bAllFalseList)
+	
+	If (asSlotOverrideList)
+		PrepareForStripping(kActor, CreateVanillaSlotOverrideList(asSlotOverrideList, akSender))
+	Else
+		PrepareForStripping(kActor, bAllFalseList)
+	EndIf
+	
 	SerialStrip(kActor)
 EndEvent
+
+Bool[] Function CreateVanillaSlotOverrideList(String asSlotOverrideList, Form akSender)
+EndFunction
 
 Function PrepareForStripping(Actor akActor, Bool[] abSlotOverrideList, String asExceptionList = "")
 EndFunction
@@ -405,6 +413,33 @@ Event OnAnimationEvent(ObjectReference akSource, string asEventName)
 EndEvent
 
 State Stripping
+
+	Bool[] Function CreateVanillaSlotOverrideList(String asSlotOverrideList, Form akSender)
+	;creates a vanilla array from the SlotOverrideList's name
+		;/ beginValidation /;
+		If (!akSender)
+			If (HasIntValue(Self, SS_DEBUGMODE))
+				Debug.Trace("[SerialStrip] ERROR: CreateVanillaSlotOverrideList() has been passed a none argument for akSender.")
+			EndIf
+			Return bAllFalseList
+		ElseIf (StringListCount(akSender, asSlotOverrideList) != 33)
+			If (HasIntValue(Self, SS_DEBUGMODE))
+				Debug.Trace("[SerialStrip] ERROR: CreateVanillaSlotOverrideList() has been passed an array for abSlotOverrideList which is not 33 items long.")
+			EndIf
+			Return bAllFalseList
+		EndIf
+		;/ endValidation /;
+		
+		Bool[] bSlotOverrideList = New Bool[33]
+		Int i
+
+		While (i < 33)
+			bSlotOverrideList[i] = StringListGet(akSender, asSlotOverrideList, i)
+			i += 1
+		EndWhile
+		
+		Return bSlotOverrideList
+	EndFunction
 
 	Function PrepareForStripping(Actor akActor, Bool[] abSlotOverrideList, String asExceptionList = "")
 	;/analyses items worn by akActor and puts them into arrays for the actual
