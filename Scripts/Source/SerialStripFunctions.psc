@@ -341,13 +341,13 @@ Event OnSerialStripStart(Form akSender, Form akActor, String asSlotOverrideList,
 	Else
 		UnsetIntValue(kActor, SS_FULLSERIALSTRIPSWITCH)
 	EndIf
-	
+
 	If (asSlotOverrideList)
 		PrepareForStripping(kActor, CreateVanillaSlotOverrideList(asSlotOverrideList, akSender))
 	Else
 		PrepareForStripping(kActor, bAllFalseList)
 	EndIf
-	
+
 	SerialStrip(kActor)
 EndEvent
 
@@ -424,22 +424,22 @@ State Stripping
 				Debug.Trace("[SerialStrip] ERROR: CreateVanillaSlotOverrideList() has been passed a none argument for akSender.")
 			EndIf
 			Return bAllFalseList
-		ElseIf (StringListCount(akSender, asSlotOverrideList) != 33)
+		ElseIf (IntListCount(akSender, asSlotOverrideList) != 33)
 			If (HasIntValue(Self, SS_DEBUGMODE))
 				Debug.Trace("[SerialStrip] ERROR: CreateVanillaSlotOverrideList() has been passed an array for abSlotOverrideList which is not 33 items long.")
 			EndIf
 			Return bAllFalseList
 		EndIf
 		;/ endValidation /;
-		
+
 		Bool[] bSlotOverrideList = New Bool[33]
 		Int i
 
 		While (i < 33)
-			bSlotOverrideList[i] = StringListGet(akSender, asSlotOverrideList, i)
+			bSlotOverrideList[i] = (IntListGet(akSender, asSlotOverrideList, i) == 1)	;puts True in place of 1 and False in place of 0
 			i += 1
 		EndWhile
-		
+
 		Return bSlotOverrideList
 	EndFunction
 
