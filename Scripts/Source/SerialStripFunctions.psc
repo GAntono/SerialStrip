@@ -98,12 +98,11 @@ SerialStrip is always listening for this event.
 You can copy this function in your mod, write a similar or call this one from inside SerialStrip
 akSender:			the object that sent the event (your mod).
 akActor:			the actor than you want to strip.
-asSlotOverrideList:	the name of a 33-item-long array which defaults to False. This should be a PapyrusUtil StringArray, stored on the form of your mod
-					(akSender). Use the function: int function StringListAdd(Form obj, string key, string value, bool allowDuplicate = true) to build this
-					array, where Form obj = your mod (akSender) and String key = asSlotOverrideList. You can pass an 33-item-long array of your own and set
-					any item [i] in your array to True to override the user configuration for slot i+30 and force-strip it. This allows a modder to
-					selectspecific slots to strip even if SexLab is not installed or it allows the modder to override the user's configuration and strip
-					slots despite the user's wishes.
+asSlotOverrideList:	the name of a 33-item-long array which defaults to "". This should be the name of a PapyrusUtil IntArray, stored on the form of your mod
+					(akSender). Use the PapyrusUtil function: IntListAdd(Form obj, string key, int value, bool allowDuplicate = true) to build this
+					array, where Form obj = your mod (akSender) and String key = asSlotOverrideList.Set any item [i] in your array to 1 to override the user
+					configuration for slot i+30 and force-strip it. This allows a modder to selectspecific slots to strip even if SexLab is not installed or
+					it allows the modder to override the user's configuration and strip slots despite the user's wishes.
 abFullStrip: 		True  = will do a full strip i.e. remove all strippable items.
 					False = will do a single strip i.e. remove one group of items.
 /;
