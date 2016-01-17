@@ -91,7 +91,7 @@ String Property SS_DEBUGMODE = "APPS.SerialStrip.DebugMode" AutoReadOnly Hidden
 ; ---             Functions for modders               ---
 ; -------------------------------------------------------
 
-Bool Function SendSerialStripStartEvent(Form akSender, Actor akActor, String asSlotOverrideList = "", Bool abFullStrip = False)
+Bool Function SendSerialStripStartEvent(Form akSender, Actor akActor, String asSlotOverrideList = "", String asExceptionList = "", Bool abFullStrip = False)
 ;/
 Sends a SerialStripStart event that will tell SerialStrip to begin stripping the actor.
 SerialStrip is always listening for this event.
@@ -128,6 +128,7 @@ abFullStrip: 		True  = will do a full strip i.e. remove all strippable items.
 		ModEvent.PushForm(Handle, akSender)
 		ModEvent.PushForm(Handle, akActor)
 		ModEvent.PushString(Handle, asSlotOverrideList)
+		ModEvent.PushString(Handle, asExceptionList)
 		ModEvent.PushBool(Handle, abFullStrip)
 		ModEvent.Send(Handle)
 		Return True
@@ -274,7 +275,7 @@ Bool Function SendSerialStripStopEvent(Form akSender, Actor akActor)
 	EndIf
 EndFunction
 
-Event OnSerialStripStart(Form akSender, Form akActor, String asSlotOverrideList, Bool abFullStrip)
+Event OnSerialStripStart(Form akSender, Form akActor, String asSlotOverrideList, String asExceptionList, Bool abFullStrip)
 	If (GetState()) ;prevents reacting to this event while not in the default state
 		Return
 	EndIf
@@ -341,36 +342,14 @@ Event OnSerialStripStart(Form akSender, Form akActor, String asSlotOverrideList,
 		UnsetIntValue(kActor, SS_FULLSERIALSTRIPSWITCH)
 	EndIf
 
-	Bool[] bUserConfigSlots = new Bool[33] ;declares an array to hold the user's configuration
-
-	If (HasFormValue(Self, SS_SEXLAB))	;if SexLab is installed
-		Int iGender = (GetFormValue(Self, SS_SEXLAB) As SexLabFramework).GetGender(kActor) ;fetches the gender of the actor
-
-		If (iGender == 0) ;if the actor is male
-			bUserConfigSlots = (GetFormValue(Self, SS_SEXLAB) As SexLabFramework).Config.GetStrip(IsFemale = False) ;fetch the user's MCM stripping configuration for males
-		ElseIf (iGender == 1) ;if the actor is female
-			bUserConfigSlots = (GetFormValue(Self, SS_SEXLAB) As SexLabFramework).Config.GetStrip(IsFemale = True) ;fetch the user's MCM stripping configuration for females
-		EndIf
-	Else	;otherwise, consider all slots as strippable
-		bUserConfigSlots = bAllTrueList
-		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] SexLab not installed, all slots set to strippable")
-		EndIf
-	EndIf
-
-	If (asSlotOverrideList)	;if a modder has passed a SlotOverrideList
-		PrepareForStripping(kActor, CreateVanillaSlotOverrideList(asSlotOverrideList, akSender))
-	Else	;otherwise, just use the user configuration
-		PrepareForStripping(kActor, bUserConfigSlots)
-	EndIf
-
+	PrepareForStripping(akSender, kActor, asSlotOverrideList, asExceptionList)
 	SerialStrip(kActor)
 EndEvent
 
 Bool[] Function CreateVanillaSlotOverrideList(String asSlotOverrideList, Form akSender)
 EndFunction
 
-Function PrepareForStripping(Actor akActor, Bool[] abSlotStripList, String asExceptionList = "")
+Function PrepareForStripping(Form akSender, Actor akActor, String asSlotOverrideList = "", String asExceptionList = "")
 EndFunction
 
 Function ClearIfInactive(Actor akActor, String asArrayName, Bool abIsArrayActive)
@@ -459,12 +438,13 @@ State Stripping
 		Return bSlotOverrideList
 	EndFunction
 
-	Function PrepareForStripping(Actor akActor, Bool[] abSlotStripList, String asExceptionList = "")
+	Function PrepareForStripping(Form akSender, Actor akActor, String asSlotOverrideList = "", String asExceptionList = "")
 	;/analyses items worn by akActor and puts them into arrays for the actual
 		stripping function to use.
+	akSender: the mod (form) that initiated the stripping
 	akActor: actor to prepare
-	asExceptionList: name of the StorageUtil array holding items that will NOT be stripped
-	abSlotStripList: a 33-item-long bool array where True=Strip and False=DontSTrip.
+	asSlotStripList: name of a 33-item-long StorageUtil int array that the mod used to override user config. 1 means "Strip", 0 means "DontStrip"
+	asExceptionList: name of a StorageUtil form array holding items that will NOT be stripped
 	/;
 
 		;/ beginValidation /;
@@ -472,12 +452,7 @@ State Stripping
 			If (HasIntValue(Self, SS_DEBUGMODE))
 				Debug.Trace("[SerialStrip] ERROR: PrepareForStripping() has been passed a none object for akActor.")
 			EndIf
-			Return
-		ElseIf (abSlotStripList.Length != 33)
-			If (HasIntValue(Self, SS_DEBUGMODE))
-				Debug.Trace("[SerialStrip] ERROR: PrepareForStripping() has been passed an array for abSlotStripList which is not 33 items long.")
-			EndIf
-			Return
+		Return
 		EndIf
 		;/ endValidation /;
 
@@ -500,6 +475,28 @@ State Stripping
 		bArrayIsActive[11] Other
 		/;
 
+		Bool[] bSlotStripList = new Bool[33] ;declares an array to hold the actual slots that will be stripped
+
+		If (asSlotOverrideList) ;if the modder has pased a an array to override user configuration
+			bSlotStripList = CreateVanillaSlotOverrideList(asSlotOverrideList, akSender)
+			If (HasIntValue(Self, SS_DEBUGMODE))
+				Debug.Trace("[SerialStrip] Slots set to strippable according to mod" + akSender as Form)
+			EndIf
+		ElseIf (HasFormValue(Self, SS_SEXLAB))	;if SexLab is installed
+			Int iGender = (GetFormValue(Self, SS_SEXLAB) As SexLabFramework).GetGender(akActor as Actor) ;fetches the gender of the actor
+
+			If (iGender == 0) ;if the actor is male
+				bSlotStripList = (GetFormValue(Self, SS_SEXLAB) As SexLabFramework).Config.GetStrip(IsFemale = False) ;fetch the user's MCM stripping configuration for males
+			ElseIf (iGender == 1) ;if the actor is female
+				bSlotStripList = (GetFormValue(Self, SS_SEXLAB) As SexLabFramework).Config.GetStrip(IsFemale = True) ;fetch the user's MCM stripping configuration for females
+			EndIf
+		Else ;otherwise consider all slots as strippable
+			bSlotStripList = bAllTrueList
+			If (HasIntValue(Self, SS_DEBUGMODE))
+				Debug.Trace("[SerialStrip] SexLab not installed, all slots set to strippable")
+			EndIf
+		EndIf
+
 		;WEAPONS AND SHIELDS
 		;In SexLab's StripFemale and StripMale arrays, weapon is item 32 & shield is item 9. Add 30 to find the slot mask.
 		;weapons and shields employ a different logic than the other items
@@ -515,8 +512,8 @@ State Stripping
 			If (akActor.GetEquippedItemType(0) == 10) ;if the left hand is holding a shield
 				Form kItemRef = akActor.GetEquippedShield()
 
-				If ((FormListFind(Self, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
-					If (IsStrippableItem(kItemRef) == True && abSlotStripList[9]) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
+				If ((FormListFind(akSender, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
+					If (IsStrippableItem(kItemRef) == True && bSlotStripList[9]) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 						FormListAdd(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
 						If (HasIntValue(Self, SS_DEBUGMODE))
 							Debug.Trace("[SerialStrip] Shield detected: " + kItemRef.GetName() + " on actor: " + akActor.GetLeveledActorBase().GetName())
@@ -527,8 +524,8 @@ State Stripping
 			ElseIf (akActor.GetEquippedItemType(0) && akActor.GetEquippedItemType(0) != 9) ;if there is a weapon in the left hand (i.e. not just fists or a spell)
 				Form kItemRef = akActor.GetEquippedWeapon(True) ;fetches left-hand weapon and puts it in kItemRef
 
-				If ((FormListFind(Self, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
-					If (IsStrippableItem(kItemRef) == True && abSlotStripList[32]) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
+				If ((FormListFind(akSender, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
+					If (IsStrippableItem(kItemRef) == True && bSlotStripList[32]) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 						FormListAdd(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
 						If (HasIntValue(Self, SS_DEBUGMODE))
 							Debug.Trace("[SerialStrip] Left-hand weapon detected: " + kItemRef.GetName() + " on actor: " + akActor.GetLeveledActorBase().GetName())
@@ -542,8 +539,8 @@ State Stripping
 		If (akActor.GetEquippedItemType(1) && akActor.GetEquippedItemType(1) != 9) ;if there is a weapon in the right hand (i.e. not just fists or a spell)
 			Form kItemRef = akActor.GetEquippedWeapon(False) ;fetches right-hand weapon and puts it in kItemRef
 
-			If ((FormListFind(Self, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
-				If (IsStrippableItem(kItemRef) == True && abSlotStripList[32]) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
+			If ((FormListFind(akSender, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
+				If (IsStrippableItem(kItemRef) == True && bSlotStripList[32]) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 					FormListAdd(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
 					If (HasIntValue(Self, SS_DEBUGMODE))
 						Debug.Trace("[SerialStrip] Right-hand weapon detected: " + kItemRef.GetName() + " on actor: " + akActor.GetLeveledActorBase().GetName())
@@ -561,7 +558,7 @@ State Stripping
 		While (i <= 61) ;run this loop up to and including node 61 (http://www.creationkit.com/Biped_Object)
 			Form kItemRef = akActor.GetWornForm(Armor.GetMaskForSlot(i)) ;fetch the item worn in this slot and load it in the kItemRef variable
 
-			If (kItemRef && FormListFind(Self, asExceptionList, kItemRef) == -1) ;if there is an item in this slot and it is not found in the exception array
+			If (kItemRef && FormListFind(akSender, asExceptionList, kItemRef) == -1) ;if there is an item in this slot and it is not found in the exception array
 
 				If (i == 33) || (ItemHasKeywords(kItemRef, SS_KW_GLOVES)) ;if this item is in the gloves slot OR has any of the gloves keywords
 					FormListAdd(akActor, SS_STRIPLIST_GLOVES, kItemRef, allowDuplicate = False);adds this item to the gloves undress list
@@ -611,7 +608,7 @@ State Stripping
 				EndIf
 
 				If (IsStrippableItem(kItemRef) == True) ;if this item is strippable according to us or SexLab
-					If (abSlotStripList[i - 30]) ;if either the modder or the user have configured this slot to be strippable
+					If (bSlotStripList[i - 30]) ;if either the modder or the user have configured this slot to be strippable
 						If ((i == 33) || FormListFind(akActor, SS_STRIPLIST_GLOVES, kItemRef) != -1) ;if this is the gloves slot OR we already know the item has one of the gloves keywords
 							bArrayIsActive[2] = True ;activate the gloves stripping array
 						ElseIf ((i == 31) || FormListFind(akActor, SS_STRIPLIST_HELMET, kItemRef) != -1) ;if this is the hair slot (checking for helmets) OR we already know the item has one of the helmet keywords
