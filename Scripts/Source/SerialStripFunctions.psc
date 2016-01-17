@@ -26,6 +26,7 @@ String Property SS_FULLSERIALSTRIPSWITCH = "APPS.SerialStrip.FullSerialStripSwit
 String Property SS_ISSHEATHING = "APPS.SerialStrip.IsSheathing" AutoReadOnly Hidden
 ;Form Property EventSender Auto Hidden ;stores the form that initiated the stripping
 String Property SS_EVENTSENDER = "APPS.SerialStrip.EventSender" AutoReadOnly Hidden
+String Property SS_SLOTOVERRIDELIST = "APPS.SerialStrip.SlotOverrideList" AutoReadOnly Hidden
 Package Property DoNothing Auto
 Static Property XMarker Auto
 ObjectReference Property Marker Auto Hidden
@@ -90,21 +91,25 @@ String Property SS_DEBUGMODE = "APPS.SerialStrip.DebugMode" AutoReadOnly Hidden
 ; ---             Functions for modders               ---
 ; -------------------------------------------------------
 
-Bool Function SendSerialStripStartEvent(Form akSender, Actor akActor, Bool abFullStrip = False)
+Bool Function SendSerialStripStartEvent(Form akSender, Actor akActor, String asSlotOverrideList = "", String asExceptionList = "", Bool abFullStrip = False)
 ;/
 Sends a SerialStripStart event that will tell SerialStrip to begin stripping the actor.
 SerialStrip is always listening for this event.
 You can copy this function in your mod, write a similar or call this one from inside SerialStrip
-akSender:	 the object that sent the event (your mod).
-abFullStrip: True  = will do a full strip i.e. remove all strippable items.
-			 False = will do a single strip i.e. remove one group of items.
+akSender:			the object that sent the event (your mod).
+akActor:			the actor than you want to strip.
+asSlotOverrideList:	the name of a 33-item-long array which defaults to "". This should be the name of a PapyrusUtil IntArray, stored on the form of your mod
+					(akSender). Use the PapyrusUtil function: IntListAdd(Form obj, string key, int value, bool allowDuplicate = true) to build this
+					array, where Form obj = your mod (akSender) and String key = asSlotOverrideList.Set any item [i] in your array to 1 to override the user
+					configuration for slot i+30 and force-strip it. This allows a modder to selectspecific slots to strip even if SexLab is not installed or
+					it allows the modder to override the user's configuration and strip slots despite the user's wishes.
+abFullStrip: 		True  = will do a full strip i.e. remove all strippable items.
+					False = will do a single strip i.e. remove one group of items.
 /;
 	;/ beginValidation /;
 	If (!akSender)
 		If (HasIntValue(Self, SS_DEBUGMODE))
-			If (HasIntValue(Self, SS_DEBUGMODE))
-				Debug.Trace("[SerialStrip] ERROR: SendSerialStripStartEvent() has been passed a none argument for akSender.")
-			EndIf
+			Debug.Trace("[SerialStrip] ERROR: SendSerialStripStartEvent() has been passed a none argument for akSender.")
 		EndIf
 		Return False
 	ElseIf (!akActor)
@@ -118,10 +123,12 @@ abFullStrip: True  = will do a full strip i.e. remove all strippable items.
 	Int Handle = ModEvent.Create("SerialStripStart")
 	If (Handle)
 		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] Sending SerialStripStart event. akSender is " + akSender + ", akActor is " + akActor.GetLeveledActorBase().GetName() + ", abFullStrip is " + abFullStrip + ".")
+			Debug.Trace("[SerialStrip] Sending SerialStripStart event. akSender is " + akSender + ", akActor is " + akActor.GetLeveledActorBase().GetName() + ", asSlotOverrideList is " + asSlotOverrideList as String + ", abFullStrip is " + abFullStrip + ".")
 		EndIf
 		ModEvent.PushForm(Handle, akSender)
 		ModEvent.PushForm(Handle, akActor)
+		ModEvent.PushString(Handle, asSlotOverrideList)
+		ModEvent.PushString(Handle, asExceptionList)
 		ModEvent.PushBool(Handle, abFullStrip)
 		ModEvent.Send(Handle)
 		Return True
@@ -268,14 +275,14 @@ Bool Function SendSerialStripStopEvent(Form akSender, Actor akActor)
 	EndIf
 EndFunction
 
-Event OnSerialStripStart(Form akSender, Form akActor, Bool abFullStrip)
+Event OnSerialStripStart(Form akSender, Form akActor, String asSlotOverrideList, String asExceptionList, Bool abFullStrip)
 	If (GetState()) ;prevents reacting to this event while not in the default state
 		Return
 	EndIf
 
 	Actor kActor = akActor as Actor
 	If (HasIntValue(Self, SS_DEBUGMODE))
-		Debug.Trace("[SerialStrip] OnSerialStripStart() event detected. Sender: " + akSender + ", Actor: " + kActor.GetLeveledActorBase().GetName() + ", FullStrip: " + abFullStrip)
+		Debug.Trace("[SerialStrip] OnSerialStripStart() event detected. Sender: " + akSender + ", Actor: " + kActor.GetLeveledActorBase().GetName() + ", asSlotOverrideList: " + asSlotOverrideList as String + ", FullStrip: " + abFullStrip)
 	EndIf
 	;/ beginValidation /;
 	If (kActor.IsOnMount())
@@ -334,11 +341,15 @@ Event OnSerialStripStart(Form akSender, Form akActor, Bool abFullStrip)
 	Else
 		UnsetIntValue(kActor, SS_FULLSERIALSTRIPSWITCH)
 	EndIf
-	PrepareForStripping(kActor, bAllFalseList)
+
+	PrepareForStripping(akSender, kActor, asSlotOverrideList, asExceptionList)
 	SerialStrip(kActor)
 EndEvent
 
-Function PrepareForStripping(Actor akActor, Bool[] abSlotOverrideList, String asExceptionList = "")
+Bool[] Function CreateVanillaSlotOverrideList(String asSlotOverrideList, Form akSender)
+EndFunction
+
+Function PrepareForStripping(Form akSender, Actor akActor, String asSlotOverrideList = "", String asExceptionList = "")
 EndFunction
 
 Function ClearIfInactive(Actor akActor, String asArrayName, Bool abIsArrayActive)
@@ -350,8 +361,8 @@ EndFunction
 Bool Function ItemHasKeywords(Form akItemRef, String asListName)
 EndFunction
 
-Bool Function IsValidSlot(Int aiSlot, Bool[] abIsUserConfigStrippable, Bool[] abIsSlotOverride)
-EndFunction
+;/ Bool Function IsValidSlot(Int aiSlot, Bool[] abIsUserConfigStrippable, Bool[] abIsSlotOverride)
+EndFunction /;
 
 Function SerialStrip(Actor akActor)
 EndFunction
@@ -400,13 +411,40 @@ EndEvent
 
 State Stripping
 
-	Function PrepareForStripping(Actor akActor, Bool[] abSlotOverrideList, String asExceptionList = "")
+	Bool[] Function CreateVanillaSlotOverrideList(String asSlotOverrideList, Form akSender)
+	;creates a vanilla array from the SlotOverrideList's name
+		;/ beginValidation /;
+		If (!akSender)
+			If (HasIntValue(Self, SS_DEBUGMODE))
+				Debug.Trace("[SerialStrip] ERROR: CreateVanillaSlotOverrideList() has been passed a none argument for akSender.")
+			EndIf
+			Return bAllFalseList
+		ElseIf (IntListCount(akSender, asSlotOverrideList) != 33)
+			If (HasIntValue(Self, SS_DEBUGMODE))
+				Debug.Trace("[SerialStrip] ERROR: CreateVanillaSlotOverrideList() has been passed an array for asSlotOverrideList which is not 33 items long.")
+			EndIf
+			Return bAllFalseList
+		EndIf
+		;/ endValidation /;
+
+		Bool[] bSlotOverrideList = New Bool[33]
+		Int i
+
+		While (i < 33)
+			bSlotOverrideList[i] = (IntListGet(akSender, asSlotOverrideList, i) == 1)	;puts True in place of 1 and False in place of 0
+			i += 1
+		EndWhile
+
+		Return bSlotOverrideList
+	EndFunction
+
+	Function PrepareForStripping(Form akSender, Actor akActor, String asSlotOverrideList = "", String asExceptionList = "")
 	;/analyses items worn by akActor and puts them into arrays for the actual
 		stripping function to use.
+	akSender: the mod (form) that initiated the stripping
 	akActor: actor to prepare
-	asExceptionList: name of the StorageUtil array holding items that will NOT be stripped
-	abSlotOverrideList: a 33-item-long array which defaults to False. Set any item [i] to True to override the user configuration
-		for slot i+30 and force-strip it.
+	asSlotStripList: name of a 33-item-long StorageUtil int array that the mod used to override user config. 1 means "Strip", 0 means "DontStrip"
+	asExceptionList: name of a StorageUtil form array holding items that will NOT be stripped
 	/;
 
 		;/ beginValidation /;
@@ -414,12 +452,7 @@ State Stripping
 			If (HasIntValue(Self, SS_DEBUGMODE))
 				Debug.Trace("[SerialStrip] ERROR: PrepareForStripping() has been passed a none object for akActor.")
 			EndIf
-			Return
-		ElseIf (abSlotOverrideList.Length != 33)
-			If (HasIntValue(Self, SS_DEBUGMODE))
-				Debug.Trace("[SerialStrip] ERROR: PrepareForStripping() has been passed an array for abSlotOverrideList which is not 33 items long.")
-			EndIf
-			Return
+		Return
 		EndIf
 		;/ endValidation /;
 
@@ -442,18 +475,23 @@ State Stripping
 		bArrayIsActive[11] Other
 		/;
 
-		Bool[] bUserConfigSlots = new Bool[33] ;declares an array to hold the user's configuration
+		Bool[] bSlotStripList = new Bool[33] ;declares an array to hold the actual slots that will be stripped
 
-		If (HasFormValue(Self, SS_SEXLAB))
-			Int iGender = (GetFormValue(Self, SS_SEXLAB) As SexLabFramework).GetGender(akActor) ;fetches the gender of the actor
+		If (asSlotOverrideList) ;if the modder has pased a an array to override user configuration
+			bSlotStripList = CreateVanillaSlotOverrideList(asSlotOverrideList, akSender)
+			If (HasIntValue(Self, SS_DEBUGMODE))
+				Debug.Trace("[SerialStrip] Slots set to strippable according to mod" + akSender as Form)
+			EndIf
+		ElseIf (HasFormValue(Self, SS_SEXLAB))	;if SexLab is installed
+			Int iGender = (GetFormValue(Self, SS_SEXLAB) As SexLabFramework).GetGender(akActor as Actor) ;fetches the gender of the actor
 
 			If (iGender == 0) ;if the actor is male
-				bUserConfigSlots = (GetFormValue(Self, SS_SEXLAB) As SexLabFramework).Config.GetStrip(IsFemale = False) ;fetch the user's MCM stripping configuration for males
+				bSlotStripList = (GetFormValue(Self, SS_SEXLAB) As SexLabFramework).Config.GetStrip(IsFemale = False) ;fetch the user's MCM stripping configuration for males
 			ElseIf (iGender == 1) ;if the actor is female
-				bUserConfigSlots = (GetFormValue(Self, SS_SEXLAB) As SexLabFramework).Config.GetStrip(IsFemale = True) ;fetch the user's MCM stripping configuration for females
+				bSlotStripList = (GetFormValue(Self, SS_SEXLAB) As SexLabFramework).Config.GetStrip(IsFemale = True) ;fetch the user's MCM stripping configuration for females
 			EndIf
-		Else
-			bUserConfigSlots = bAllTrueList
+		Else ;otherwise consider all slots as strippable
+			bSlotStripList = bAllTrueList
 			If (HasIntValue(Self, SS_DEBUGMODE))
 				Debug.Trace("[SerialStrip] SexLab not installed, all slots set to strippable")
 			EndIf
@@ -474,8 +512,8 @@ State Stripping
 			If (akActor.GetEquippedItemType(0) == 10) ;if the left hand is holding a shield
 				Form kItemRef = akActor.GetEquippedShield()
 
-				If ((FormListFind(Self, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
-					If (IsStrippableItem(kItemRef) == True && IsValidSlot(39, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
+				If ((FormListFind(akSender, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
+					If (IsStrippableItem(kItemRef) == True && bSlotStripList[9]) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 						FormListAdd(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
 						If (HasIntValue(Self, SS_DEBUGMODE))
 							Debug.Trace("[SerialStrip] Shield detected: " + kItemRef.GetName() + " on actor: " + akActor.GetLeveledActorBase().GetName())
@@ -486,8 +524,8 @@ State Stripping
 			ElseIf (akActor.GetEquippedItemType(0) && akActor.GetEquippedItemType(0) != 9) ;if there is a weapon in the left hand (i.e. not just fists or a spell)
 				Form kItemRef = akActor.GetEquippedWeapon(True) ;fetches left-hand weapon and puts it in kItemRef
 
-				If ((FormListFind(Self, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
-					If (IsStrippableItem(kItemRef) == True && IsValidSlot(62, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
+				If ((FormListFind(akSender, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
+					If (IsStrippableItem(kItemRef) == True && bSlotStripList[32]) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 						FormListAdd(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_L, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
 						If (HasIntValue(Self, SS_DEBUGMODE))
 							Debug.Trace("[SerialStrip] Left-hand weapon detected: " + kItemRef.GetName() + " on actor: " + akActor.GetLeveledActorBase().GetName())
@@ -501,8 +539,8 @@ State Stripping
 		If (akActor.GetEquippedItemType(1) && akActor.GetEquippedItemType(1) != 9) ;if there is a weapon in the right hand (i.e. not just fists or a spell)
 			Form kItemRef = akActor.GetEquippedWeapon(False) ;fetches right-hand weapon and puts it in kItemRef
 
-			If ((FormListFind(Self, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
-				If (IsStrippableItem(kItemRef) == True && IsValidSlot(62, bUserConfigSlots, abSlotOverrideList)) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
+			If ((FormListFind(akSender, asExceptionList, kItemRef) == -1)) ;if the item is not found in the exception array
+				If (IsStrippableItem(kItemRef) == True && bSlotStripList[32]) ;if this item is strippable according to SexLab and either the modder or the user have configured this slot to be strippable
 					FormListAdd(akActor, SS_STRIPLIST_WEAPONSANDSHIELDS_R, kItemRef, allowDuplicate = False) ;adds this item to the WeaponsAndShields undress list
 					If (HasIntValue(Self, SS_DEBUGMODE))
 						Debug.Trace("[SerialStrip] Right-hand weapon detected: " + kItemRef.GetName() + " on actor: " + akActor.GetLeveledActorBase().GetName())
@@ -520,7 +558,7 @@ State Stripping
 		While (i <= 61) ;run this loop up to and including node 61 (http://www.creationkit.com/Biped_Object)
 			Form kItemRef = akActor.GetWornForm(Armor.GetMaskForSlot(i)) ;fetch the item worn in this slot and load it in the kItemRef variable
 
-			If (kItemRef && FormListFind(Self, asExceptionList, kItemRef) == -1) ;if there is an item in this slot and it is not found in the exception array
+			If (kItemRef && FormListFind(akSender, asExceptionList, kItemRef) == -1) ;if there is an item in this slot and it is not found in the exception array
 
 				If (i == 33) || (ItemHasKeywords(kItemRef, SS_KW_GLOVES)) ;if this item is in the gloves slot OR has any of the gloves keywords
 					FormListAdd(akActor, SS_STRIPLIST_GLOVES, kItemRef, allowDuplicate = False);adds this item to the gloves undress list
@@ -570,7 +608,7 @@ State Stripping
 				EndIf
 
 				If (IsStrippableItem(kItemRef) == True) ;if this item is strippable according to us or SexLab
-					If (IsValidSlot(i, bUserConfigSlots, abSlotOverrideList)) ;if either the modder or the user have configured this slot to be strippable
+					If (bSlotStripList[i - 30]) ;if either the modder or the user have configured this slot to be strippable
 						If ((i == 33) || FormListFind(akActor, SS_STRIPLIST_GLOVES, kItemRef) != -1) ;if this is the gloves slot OR we already know the item has one of the gloves keywords
 							bArrayIsActive[2] = True ;activate the gloves stripping array
 						ElseIf ((i == 31) || FormListFind(akActor, SS_STRIPLIST_HELMET, kItemRef) != -1) ;if this is the hair slot (checking for helmets) OR we already know the item has one of the helmet keywords
@@ -717,7 +755,7 @@ State Stripping
 		Return False
 	EndFunction
 
-	Bool Function IsValidSlot(Int aiSlot, Bool[] abIsUserConfigStrippable, Bool[] abIsSlotOverride)
+	;/ Bool Function IsValidSlot(Int aiSlot, Bool[] abIsUserConfigStrippable, Bool[] abIsSlotOverride)
 	;Returns True if either the modder or the user have designated this slot as strippable
 		Int Slot = aiSlot - 30
 
@@ -737,7 +775,7 @@ State Stripping
 			EndIf
 			Return False
 		EndIf
-	EndFunction
+	EndFunction /;
 
 	Function SerialStrip(Actor akActor)
 	;makes the actor strip one item/group of clothing (one array) and then strip the next one and so on. To be used for button taps.
