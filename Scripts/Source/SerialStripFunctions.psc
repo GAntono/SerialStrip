@@ -346,7 +346,7 @@ Event OnSerialStripStart(Form akSender, Form akActor, String asSlotOverrideList,
 	SerialStrip(kActor)
 EndEvent
 
-Bool[] Function CreateVanillaSlotOverrideList(String asSlotOverrideList, Form akSender)
+Bool[] Function CreatePapyrusSlotOverrideList(String asSlotOverrideList, Form akSender)
 EndFunction
 
 Function PrepareForStripping(Form akSender, Actor akActor, String asSlotOverrideList = "", String asExceptionList = "")
@@ -411,17 +411,17 @@ EndEvent
 
 State Stripping
 
-	Bool[] Function CreateVanillaSlotOverrideList(String asSlotOverrideList, Form akSender)
-	;creates a vanilla array from the SlotOverrideList's name
+	Bool[] Function CreatePapyrusSlotOverrideList(String asSlotOverrideList, Form akSender)
+	;creates a papyrus array from the SlotOverrideList's name
 		;/ beginValidation /;
 		If (!akSender)
 			If (HasIntValue(Self, SS_DEBUGMODE))
-				Debug.Trace("[SerialStrip] ERROR: CreateVanillaSlotOverrideList() has been passed a none argument for akSender.")
+				Debug.Trace("[SerialStrip] ERROR: CreatePapyrusSlotOverrideList() has been passed a none argument for akSender.")
 			EndIf
 			Return bAllFalseList
 		ElseIf (IntListCount(akSender, asSlotOverrideList) != 33)
 			If (HasIntValue(Self, SS_DEBUGMODE))
-				Debug.Trace("[SerialStrip] ERROR: CreateVanillaSlotOverrideList() has been passed an array for asSlotOverrideList which is not 33 items long.")
+				Debug.Trace("[SerialStrip] ERROR: CreatePapyrusSlotOverrideList() has been passed an array for asSlotOverrideList which is not 33 items long.")
 			EndIf
 			Return bAllFalseList
 		EndIf
@@ -478,7 +478,7 @@ State Stripping
 		Bool[] bSlotStripList = new Bool[33] ;declares an array to hold the actual slots that will be stripped
 
 		If (asSlotOverrideList) ;if the modder has pased a an array to override user configuration
-			bSlotStripList = CreateVanillaSlotOverrideList(asSlotOverrideList, akSender)
+			bSlotStripList = CreatePapyrusSlotOverrideList(asSlotOverrideList, akSender)
 			If (HasIntValue(Self, SS_DEBUGMODE))
 				Debug.Trace("[SerialStrip] Slots set to strippable according to mod" + akSender as Form)
 			EndIf
@@ -1116,6 +1116,8 @@ Bool Function Uninstall()
 	UnSetFormValue(Self, SS_SEXLAB)
 	UnSetFormValue(None, SS_WAITTIMEAFTERANIM)
 	UnsetIntValue(Self, SS_DEBUGMODE)
+
+	ClearAllPrefix("APPS.SerialStrip")
 
 	Debug.Trace("SerialStrip uninstalled")
 	Return True
