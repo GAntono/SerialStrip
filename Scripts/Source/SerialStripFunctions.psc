@@ -830,7 +830,7 @@ State Stripping
 			Return
 		EndIf
 
-		Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
+		;/ Debug.SendAnimationEvent(akActor, "IdleForceDefaultState"); DO NOT USE - PREVENTS SHEATHING /;
 
 		If (akActor == PlayerRef)
 			Game.ForceThirdPerson() ;force third person camera mode
@@ -851,7 +851,7 @@ State Stripping
 
 		If (akActor.IsWeaponDrawn()) ;if the actor has their weapon drawn
 			SetIntValue(akActor, SS_ISSHEATHING, 1)
-			akActor.SheatheWeapon() ;make the actor sheath their weapon
+			akActor.SheatheWeapon() ;make the actor sheathe their weapon
 			RegisterForAnimationEvent(akActor, "IdleStop") ;listening for when the actor stops sheathing to continue
 			Return
 		Else
