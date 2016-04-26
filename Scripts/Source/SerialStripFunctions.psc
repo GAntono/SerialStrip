@@ -3,7 +3,7 @@ ScriptName SerialStripFunctions Extends Quest
 
 Import StorageUtil
 
-String Property SS_Version = "v1.1.2" AutoReadOnly Hidden
+String Property SS_Version = "v1.1.3" AutoReadOnly Hidden
 
 Actor Property PlayerRef Auto ;points to the player
 ;Actor Property kCurrentActor Auto Hidden ;the actor that is currently animating
@@ -830,7 +830,7 @@ State Stripping
 			Return
 		EndIf
 
-		Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
+		;/ Debug.SendAnimationEvent(akActor, "IdleForceDefaultState"); DO NOT USE - PREVENTS SHEATHING /;
 
 		If (akActor == PlayerRef)
 			Game.ForceThirdPerson() ;force third person camera mode
@@ -851,7 +851,7 @@ State Stripping
 
 		If (akActor.IsWeaponDrawn()) ;if the actor has their weapon drawn
 			SetIntValue(akActor, SS_ISSHEATHING, 1)
-			akActor.SheatheWeapon() ;make the actor sheath their weapon
+			akActor.SheatheWeapon() ;make the actor sheathe their weapon
 			RegisterForAnimationEvent(akActor, "IdleStop") ;listening for when the actor stops sheathing to continue
 			Return
 		Else
@@ -1043,7 +1043,9 @@ State Stripping
 				Debug.Trace("[SerialStrip] Actor " + (akSource as Actor).GetLeveledActorBase().GetName() + " is valid and AnimationEvent is IdleStop")
 			EndIf
 			UnregisterForAnimationEvent(akSource as Actor, "IdleStop")
-			SingleArrayStrip(akSource as Actor, GetStringValue(akSource, SS_CURRENTSTRIPARRAY), GetStringValue(akSource, SS_CURRENTSTRIPPEDARRAY)) ;strip this array (without animation - animation has hopefully been already played!)
+			If (!HasIntValue(akSource, SS_ISSHEATHING)) ;only strip if actor has finished sheathing
+				SingleArrayStrip(akSource as Actor, GetStringValue(akSource, SS_CURRENTSTRIPARRAY), GetStringValue(akSource, SS_CURRENTSTRIPPEDARRAY)) ;strip this array (without animation - animation has hopefully been already played!)
+			EndIf
 			If (HasIntValue(akSource, SS_FULLSERIALSTRIPSWITCH) || HasIntValue(akSource, SS_ISSHEATHING))
 				If (HasFloatValue(None, SS_WAITTIMEAFTERANIM))
 					If (HasIntValue(Self, SS_DEBUGMODE))
