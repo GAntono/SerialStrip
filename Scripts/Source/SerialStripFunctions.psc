@@ -3,7 +3,7 @@ ScriptName SerialStripFunctions Extends Quest
 
 Import StorageUtil
 
-;String Property SS_Version = "v1.1.4" AutoReadOnly Hidden (Switched to string directly inside ShowVersion())
+;String Property SS_Version = "v1.1.4(1)" AutoReadOnly Hidden (Switched to string directly inside ShowVersion())
 
 Actor Property PlayerRef Auto ;points to the player
 ;Actor Property kCurrentActor Auto Hidden ;the actor that is currently animating
@@ -123,13 +123,13 @@ asSlotOverrideList:	the name of a 33-item-long array which defaults to "". This 
 	Int Handle = ModEvent.Create("SerialStripStart")
 	If (Handle)
 		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] Sending SerialStripStart event. akSender is " + akSender + ", akActor is " + akActor.GetLeveledActorBase().GetName() + ", asSlotOverrideList is " + asSlotOverrideList as String + ", abFullStrip is " + abFullStrip + ".")
+			Debug.Trace("[SerialStrip] Sending SerialStripStart event. akSender is " + akSender + ", akActor is " + akActor.GetLeveledActorBase().GetName() + ", abFullStrip is " + abFullStrip + ", asSlotOverrideList is " + asSlotOverrideList as String + ".")
 		EndIf
 		ModEvent.PushForm(Handle, akSender)
 		ModEvent.PushForm(Handle, akActor)
+		ModEvent.PushBool(Handle, abFullStrip)
 		ModEvent.PushString(Handle, asSlotOverrideList)
 		ModEvent.PushString(Handle, asExceptionList)
-		ModEvent.PushBool(Handle, abFullStrip)
 		ModEvent.Send(Handle)
 		Return True
 	Else
@@ -160,7 +160,7 @@ Function PrepareMod()
 EndFunction
 
 Function ShowVersion()
-	Debug.Trace("[SerialStrip] v1.1.4")
+	Debug.Trace("[SerialStrip] v1.1.4(1)")
 EndFunction
 
 Function InitDefaultArrays()
@@ -275,7 +275,7 @@ Bool Function SendSerialStripStopEvent(Form akSender, Actor akActor)
 	EndIf
 EndFunction
 
-Event OnSerialStripStart(Form akSender, Form akActor, String asSlotOverrideList, String asExceptionList, Bool abFullStrip)
+Event OnSerialStripStart(Form akSender, Form akActor, Bool abFullStrip, String asSlotOverrideList, String asExceptionList)
 	If (GetState()) ;prevents reacting to this event while not in the default state
 		Return
 	EndIf
