@@ -3,7 +3,7 @@ ScriptName SerialStripFunctions Extends Quest
 
 Import StorageUtil
 
-String Property SS_Version = "v1.1.3" AutoReadOnly Hidden
+;String Property SS_Version = "v1.1.4" AutoReadOnly Hidden (Switched to string directly inside ShowVersion())
 
 Actor Property PlayerRef Auto ;points to the player
 ;Actor Property kCurrentActor Auto Hidden ;the actor that is currently animating
@@ -160,7 +160,7 @@ Function PrepareMod()
 EndFunction
 
 Function ShowVersion()
-	Debug.Trace("[SerialStrip] " + SS_VERSION)
+	Debug.Trace("[SerialStrip] v1.1.4")
 EndFunction
 
 Function InitDefaultArrays()
