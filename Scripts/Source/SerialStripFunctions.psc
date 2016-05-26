@@ -275,7 +275,7 @@ Bool Function SendSerialStripStopEvent(Form akSender, Actor akActor)
 	EndIf
 EndFunction
 
-Event OnSerialStripStart(Form akSender, Form akActor, Bool abFullStrip, String asSlotOverrideList, String asExceptionList)
+Event OnSerialStripStart(Form akSender, Form akActor, Bool abFullStrip = False, String asSlotOverrideList = "", String asExceptionList = "")
 	If (GetState()) ;prevents reacting to this event while not in the default state
 		Return
 	EndIf
