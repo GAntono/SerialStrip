@@ -108,23 +108,17 @@ asSlotOverrideList:	the name of a 33-item-long array which defaults to "". This 
 /;
 	;/ beginValidation /;
 	If (!akSender)
-		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] ERROR: SendSerialStripStartEvent() has been passed a none argument for akSender.")
-		EndIf
+		Log("[SerialStrip] ERROR: SendSerialStripStartEvent() has been passed a none argument for akSender.")
 		Return False
 	ElseIf (!akActor)
-		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] ERROR: SendSerialStripStartEvent() has been passed a none argument for akActor.")
-		EndIf
+		Log("[SerialStrip] ERROR: SendSerialStripStartEvent() has been passed a none argument for akActor.")
 		Return False
 	EndIf
 	;/ endValidation /;
 
 	Int Handle = ModEvent.Create("SerialStripStart")
 	If (Handle)
-		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] Sending SerialStripStart event. akSender is " + akSender + ", akActor is " + akActor.GetLeveledActorBase().GetName() + ", abFullStrip is " + abFullStrip + ", asSlotOverrideList is " + asSlotOverrideList as String + ".")
-		EndIf
+		Log("[SerialStrip] Sending SerialStripStart event. akSender is " + akSender + ", akActor is " + akActor.GetLeveledActorBase().GetName() + ", abFullStrip is " + abFullStrip + ", asSlotOverrideList is " + asSlotOverrideList as String + ".")
 		ModEvent.PushForm(Handle, akSender)
 		ModEvent.PushForm(Handle, akActor)
 		ModEvent.PushBool(Handle, abFullStrip)
@@ -226,32 +220,22 @@ Function GetSexLab()
 		UnSetFormValue(Self, SS_SEXLAB)
 	EndIf
 
-	If (HasIntValue(Self, SS_DEBUGMODE))
-		Debug.Trace("[SerialStrip] SexLab detected: " + HasFormValue(Self, SS_SEXLAB))
-	EndIf
+	Log("[SerialStrip] SexLab detected: " + HasFormValue(Self, SS_SEXLAB))
 EndFunction
 
 Bool Function SendSerialStripStopEvent(Form akSender, Actor akActor)
 	;/ beginValidation /;
 	If (!akSender)
-		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] ERROR: SendSerialStripStopEvent() has been passed a none argument for akSender.")
-		EndIf
+		Log("[SerialStrip] ERROR: SendSerialStripStopEvent() has been passed a none argument for akSender.")
 		Return False
 	ElseIf (!akActor)
-		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] ERROR: SendSerialStripStopEvent() has been passed a none argument for akActor.")
-		EndIf
+		Log("[SerialStrip] ERROR: SendSerialStripStopEvent() has been passed a none argument for akActor.")
 		Return False
 	ElseIf (FormListFind(Self, SS_STRIPPINGACTORS, akActor) == -1)
-		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] ERROR: SendSerialStripStopEvent() - Actor " + akActor.GetLeveledActorBase().GetName() + " was not found in the StrippingActors array.")
-		EndIf
+		Log("[SerialStrip] ERROR: SendSerialStripStopEvent() - Actor " + akActor.GetLeveledActorBase().GetName() + " was not found in the StrippingActors array.")
 		Return False
 	ElseIf (GetFormValue(akActor, SS_EVENTSENDER) != akSender)
-		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] ERROR: SendSerialStripStopEvent() - " + akSender + " cannot instruct actor " + akActor.GetLeveledActorBase().GetName() + " to stop stripping because this actor is being stripped by another object.")
-		EndIf
+		Log("[SerialStrip] ERROR: SendSerialStripStopEvent() - " + akSender + " cannot instruct actor " + akActor.GetLeveledActorBase().GetName() + " to stop stripping because this actor is being stripped by another object.")
 		Return False
 	EndIf
 	;/ endValidation /;
@@ -281,54 +265,34 @@ Event OnSerialStripStart(Form akSender, Form akActor, Bool abFullStrip, String a
 	EndIf
 
 	Actor kActor = akActor as Actor
-	If (HasIntValue(Self, SS_DEBUGMODE))
-		Debug.Trace("[SerialStrip] OnSerialStripStart() event detected. Sender: " + akSender + ", Actor: " + kActor.GetLeveledActorBase().GetName() + ", asSlotOverrideList: " + asSlotOverrideList as String + ", FullStrip: " + abFullStrip)
-	EndIf
+	Log("[SerialStrip] OnSerialStripStart() event detected. Sender: " + akSender + ", Actor: " + kActor.GetLeveledActorBase().GetName() + ", asSlotOverrideList: " + asSlotOverrideList as String + ", FullStrip: " + abFullStrip)
 	;/ beginValidation /;
 	If (kActor.IsOnMount())
-		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is on mount.")
-		EndIf
+		Log("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is on mount.")
 		Return
 	ElseIf (kActor.IsSprinting())
-		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is sprinting.")
-		EndIf
+		Log("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is sprinting.")
 		Return
 	ElseIf (kActor.IsRunning())
-		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is running.")
-		EndIf
+		Log("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is running.")
 		Return
 	ElseIf (kActor.GetSleepState() > 2)
-		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is sleeping.")
-		EndIf
+		Log("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is sleeping.")
 		Return
 	ElseIf (kActor.IsInCombat())
-		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is in combat.")
-		EndIf
+		Log("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is in combat.")
 		Return
 	ElseIf (kActor.GetSitState() > 2)
-		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is sitting.")
-		EndIf
+		Log("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is sitting.")
 		Return
 	ElseIf (kActor.IsSwimming())
-		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is swimming.")
-		EndIf
+		Log("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is swimming.")
 		Return
 	ElseIf (kActor.IsSneaking())
-		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is sneaking.")
-		EndIf
+		Log("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is sneaking.")
 		Return
 	ElseIf (kActor.IsChild())
-		If (HasIntValue(Self, SS_DEBUGMODE))
-			Debug.Trace("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is not an adult.")
-		EndIf
+		Log("[SerialStrip] OnSerialStripStart() on actor + " + kActor.GetLeveledActorBase().GetName() + " aborted because actor is not an adult.")
 		Return
 	EndIf
 	;/ endValidation /;
@@ -415,14 +379,10 @@ State Stripping
 	;creates a papyrus array from the SlotOverrideList's name
 		;/ beginValidation /;
 		If (!akSender)
-			If (HasIntValue(Self, SS_DEBUGMODE))
-				Debug.Trace("[SerialStrip] ERROR: CreatePapyrusSlotOverrideList() has been passed a none argument for akSender.")
-			EndIf
+			Log("[SerialStrip] ERROR: CreatePapyrusSlotOverrideList() has been passed a none argument for akSender.")
 			Return bAllFalseList
 		ElseIf (IntListCount(akSender, asSlotOverrideList) != 33)
-			If (HasIntValue(Self, SS_DEBUGMODE))
-				Debug.Trace("[SerialStrip] ERROR: CreatePapyrusSlotOverrideList() has been passed an array for asSlotOverrideList which is not 33 items long.")
-			EndIf
+			Log("[SerialStrip] ERROR: CreatePapyrusSlotOverrideList() has been passed an array for asSlotOverrideList which is not 33 items long.")
 			Return bAllFalseList
 		EndIf
 		;/ endValidation /;
@@ -1123,6 +1083,12 @@ Bool Function Uninstall()
 
 	Debug.Trace("SerialStrip uninstalled")
 	Return True
+EndFunction
+
+Function Log(String asMessage)
+	If (HasIntValue(Self, SS_DEBUGMODE))
+		Debug.Trace(asMessage)
+	EndIf
 EndFunction
 
 ;/ Animation Descriptions & Durations
